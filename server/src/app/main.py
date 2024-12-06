@@ -1,8 +1,6 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
-from database.database import init_database, close
-
-app = FastAPI()
+from server.src.app.database.database import init_database, close, get_connection
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -13,3 +11,7 @@ async def lifespan(app: FastAPI):
     await close()
 
 app = FastAPI(lifespan=lifespan)
+
+@app.get("/")
+async def root():
+    return {"message": "Hello World"}

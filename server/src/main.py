@@ -1,7 +1,7 @@
 import uvicorn
 
 
-host="0.0.0.0"
+host="localhost"
 port=8080
 app_name="app.main:app"
 
