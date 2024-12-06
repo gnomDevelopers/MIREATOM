@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+#app{
+  width: 100svw;
+  height: 100svh;
+  display: flex;
+  flex-direction: column;
+}
+
+.transition-input{
+  transition: background-color .1s ease-out, color .1s ease-out, border-color .1s ease-out;
+}
+
+.border-bottom{
+  border-bottom-width: 2px;
+  border-bottom-style: solid;
+}
+
+.header-shadow{
+  box-shadow: 0 0 2px rgb(185, 185, 185), 0 0 5px rgb(204, 204, 204);
+}
+
+.login-shadow{
+  box-shadow: 0 0 2px rgb(185, 185, 185), 0 0 5px rgb(204, 204, 204);
+}
+
+.login-label{
+  @apply top-5 left-1 text-lg;
+}
+.login-label-focus{
+  @apply top-0 left-0 text-sm;
+}
+
