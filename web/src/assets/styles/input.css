@@ -33,3 +33,6 @@
   @apply top-0 left-0 text-sm;
 }
 
+.button-style{
+  @apply transition-colors select-none cursor-pointer border border-solid border-gray-400 bg-white hover:bg-gray-100 active:bg-gray-200;
+}

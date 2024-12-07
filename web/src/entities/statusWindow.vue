@@ -70,3 +70,14 @@ export default {
   }
 };
 </script>
+
+<style v-global>
+  @keyframes timeLine{
+    from{
+      width: 100%;
+    }
+    to{
+      width: 0px;
+    }
+  }
+</style>
