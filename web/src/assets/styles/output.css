@@ -691,6 +691,10 @@ video {
   width: 100%;
 }
 
+.min-w-10 {
+  min-width: 2.5rem;
+}
+
 .min-w-16 {
   min-width: 4rem;
 }
@@ -899,11 +903,6 @@ video {
   background-color: rgb(255 255 255 / var(--tw-bg-opacity));
 }
 
-.bg-slate-100 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(241 245 249 / var(--tw-bg-opacity));
-}
-
 .p-1 {
   padding: 0.25rem;
 }
@@ -1105,6 +1104,10 @@ video {
 .button-style:active {
   --tw-bg-opacity: 1;
   background-color: rgb(229 231 235 / var(--tw-bg-opacity));
+}
+
+.button-style-selected, .button-style-selected:hover{
+  background-color: rgb(209 213 219);
 }
 
 .hover\:border-sky-500:hover {

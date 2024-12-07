@@ -36,3 +36,6 @@
 .button-style{
   @apply transition-colors select-none cursor-pointer border border-solid border-gray-400 bg-white hover:bg-gray-100 active:bg-gray-200;
 }
+.button-style-selected, .button-style-selected:hover{
+  background-color: rgb(209 213 219);
+}
