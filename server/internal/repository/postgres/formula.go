@@ -43,3 +43,23 @@ func DBFormulaCreate(db *sqlx.DB, formula *entities.Formula) (*entities.Formula,
 
 	return formula, nil
 }
+
+func DBFormulaUpdate(db *sqlx.DB, formula *entities.UpdateFormulaRequest) error {
+	query := `UPDATE formula SET title = $1, value = $2 WHERE id = $3`
+
+	_, err := db.Exec(query, formula.Title, formula.Value, formula.ID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func DBFormulaDelete(db *sqlx.DB, formulaID int64) error {
+	query := `DELETE FROM formula WHERE id = $1`
+
+	_, err := db.Exec(query, formulaID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
