@@ -2,11 +2,18 @@ package main
 
 import (
 	"fmt"
+	_ "server/docs"
 	"server/internal/handler"
 	logger "server/internal/log"
 	"server/internal/repository/postgres"
 )
 
+// @title Σigma API
+// @version 1.0
+// @BasePath /
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
 func main() {
 	log := logger.InitLogger()
 	db, err := postgres.NewDatabase()

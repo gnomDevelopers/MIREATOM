@@ -1,0 +1,118 @@
+basePath: /
+definitions:
+  entities.CreateUserRequest:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      role:
+        type: string
+      surname:
+        type: string
+      third_name:
+        type: string
+    type: object
+  entities.CreateUserResponse:
+    properties:
+      access_token:
+        type: string
+      id:
+        type: integer
+      refresh_token:
+        type: string
+    type: object
+  entities.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  entities.LoginUserRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  entities.LoginUserResponse:
+    properties:
+      access_token:
+        type: string
+      id:
+        type: integer
+      refresh_token:
+        type: string
+    type: object
+info:
+  contact: {}
+  title: Σigma API
+  version: "1.0"
+paths:
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticates a user and returns access and refresh tokens.
+      parameters:
+      - description: User  login credentials
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/entities.LoginUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User  successfully logged in
+          schema:
+            $ref: '#/definitions/entities.LoginUserResponse'
+        "400":
+          description: Invalid email or password
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+      summary: User login
+      tags:
+      - user
+  /signup:
+    post:
+      consumes:
+      - application/json
+      description: Registers a new user and returns access and refresh tokens.
+      parameters:
+      - description: User  signup information
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/entities.CreateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User  successfully registered
+          schema:
+            $ref: '#/definitions/entities.CreateUserResponse'
+        "400":
+          description: User  already exists or invalid request payload
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+      summary: User signup
+      tags:
+      - user
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

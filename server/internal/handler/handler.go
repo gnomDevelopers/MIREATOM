@@ -8,6 +8,9 @@ import (
 	"server/internal/config"
 	"server/internal/log"
 	"server/pkg"
+
+	fiberSwagger "github.com/swaggo/fiber-swagger"
+	_ "server/docs"
 )
 
 type Handler struct {
@@ -33,7 +36,11 @@ func (h *Handler) Router() *fiber.App {
 	}))
 	f.Use(log.RequestLogger(h.logger))
 
-	f.Post("/sign-up", h.SignUp)
+	f.Get("/swagger/*", fiberSwagger.WrapHandler)
+	f.Get("/health", func(c *fiber.Ctx) error {
+		return c.Status(fiber.StatusOK).SendString("healthy")
+	})
+	f.Post("/signup", h.SignUp)
 	f.Post("/login", h.Login)
 
 	authGroup := f.Group("/auth")

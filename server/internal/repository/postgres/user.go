@@ -9,7 +9,7 @@ import (
 
 func DBUserGetById(db *sqlx.DB, id int64) (*entities.User, error) {
 	user := entities.User{}
-	query := `SELECT FROM users (id, login, email, password) 
+	query := `SELECT id, login, email, password, role, name, surname, third_name FROM users
 	WHERE id=$1`
 	err := db.Get(&user, query, id)
 	if err != nil {
@@ -19,10 +19,10 @@ func DBUserGetById(db *sqlx.DB, id int64) (*entities.User, error) {
 	return &user, nil
 }
 
-func DBUserGetByLogin(db *sqlx.DB, login string) (*entities.User, error) {
+func DBUserGetByEmail(db *sqlx.DB, email string) (*entities.User, error) {
 	user := entities.User{}
-	query := `SELECT id, email, login, password FROM users WHERE login = $1`
-	err := db.Get(&user, query, login)
+	query := `SELECT id, email, password, role, name, surname, third_name FROM users WHERE email = $1`
+	err := db.Get(&user, query, email)
 	if err != nil {
 		return &entities.User{}, nil
 	}
@@ -31,11 +31,11 @@ func DBUserGetByLogin(db *sqlx.DB, login string) (*entities.User, error) {
 
 }
 
-func DBUserExists(db *sqlx.DB, login string, email string) (bool, error) {
+func DBUserExists(db *sqlx.DB, email string) (bool, error) {
 	exists := 0
-	query := `SELECT 1 FROM users WHERE login=$1 OR email = $2 LIMIT 1`
+	query := `SELECT 1 FROM users WHERE email = $1 LIMIT 1`
 
-	err := db.QueryRow(query, login, email).Scan(&exists)
+	err := db.QueryRow(query, email).Scan(&exists)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return false, err
 	}
@@ -46,8 +46,8 @@ func DBUserExists(db *sqlx.DB, login string, email string) (bool, error) {
 }
 
 func DBUserCreate(db *sqlx.DB, user *entities.User) (*entities.User, error) {
-	query := `INSERT INTO users (login, email, password)
-	VALUES (:login, :email, :password) RETURNING id`
+	query := `INSERT INTO users (email, password, role, name, surname, third_name)
+	VALUES (:email, :password, :role, :name, :surname, :third_name) RETURNING id`
 
 	stmt, err := db.PrepareNamed(query)
 	if stmt == nil {

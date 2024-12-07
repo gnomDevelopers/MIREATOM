@@ -11,6 +11,17 @@ import (
 	"strconv"
 )
 
+// SignUp
+// @Tags         user
+// @Summary      User signup
+// @Description  Registers a new user and returns access and refresh tokens.
+// @Accept       json
+// @Produce      json
+// @Param        data body entities.CreateUserRequest true "User  signup information"
+// @Success      200 {object} entities.CreateUserResponse "User  successfully registered"
+// @Failure      400 {object} entities.ErrorResponse "User  already exists or invalid request payload"
+// @Failure      500 {object} entities.ErrorResponse "Internal server error"
+// @Router       /signup [post]
 func (h *Handler) SignUp(c *fiber.Ctx) error {
 	var u entities.CreateUserRequest
 	if err := c.BodyParser(&u); err != nil {
@@ -21,7 +32,7 @@ func (h *Handler) SignUp(c *fiber.Ctx) error {
 	}
 
 	h.logger.Debug().Msg("call postgres.DBUserExists")
-	exists, err := postgres.DBUserExists(h.db, u.Login, u.Email)
+	exists, err := postgres.DBUserExists(h.db, u.Email)
 	if err != nil {
 		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
 			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
@@ -44,9 +55,12 @@ func (h *Handler) SignUp(c *fiber.Ctx) error {
 	}
 
 	user := &entities.User{
-		Login:    u.Login,
-		Email:    u.Email,
-		Password: hashedPassword,
+		Email:     u.Email,
+		Password:  hashedPassword,
+		Role:      u.Role,
+		Name:      u.Name,
+		Surname:   u.Surname,
+		ThirdName: u.ThirdName,
 	}
 
 	h.logger.Debug().Msg("call postgres.DBUserCreate")
@@ -90,26 +104,6 @@ func (h *Handler) SignUp(c *fiber.Ctx) error {
 		RefreshToken: refreshToken,
 	}
 
-	c.Cookie(&fiber.Cookie{
-		Name:     "access_token",
-		Value:    res.AccessToken,
-		MaxAge:   60 * 60 * 1,
-		Path:     "/",
-		Domain:   "localhost",
-		Secure:   false,
-		HTTPOnly: true,
-	})
-
-	c.Cookie(&fiber.Cookie{
-		Name:     "refresh_token",
-		Value:    res.RefreshToken,
-		MaxAge:   60 * 60 * 24 * 90,
-		Path:     "/",
-		Domain:   "localhost",
-		Secure:   false,
-		HTTPOnly: true,
-	})
-
 	logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Info", Method: c.Method(),
 		Url: c.OriginalURL(), Status: fiber.StatusOK})
 	logEvent.Msg("success")
@@ -117,6 +111,17 @@ func (h *Handler) SignUp(c *fiber.Ctx) error {
 
 }
 
+// Login
+// @Tags         user
+// @Summary      User login
+// @Description  Authenticates a user and returns access and refresh tokens.
+// @Accept       json
+// @Produce      json
+// @Param        data body entities.LoginUserRequest true "User  login credentials"
+// @Success      200 {object} entities.LoginUserResponse "User  successfully logged in"
+// @Failure      400 {object} entities.ErrorResponse "Invalid email or password"
+// @Failure      500 {object} entities.ErrorResponse "Internal server error"
+// @Router       /login [post]
 func (h *Handler) Login(c *fiber.Ctx) error {
 	var user entities.LoginUserRequest
 	if err := c.BodyParser(&user); err != nil {
@@ -127,7 +132,7 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 	}
 
 	h.logger.Debug().Msg("call postgres.DBUserGetByLogin")
-	u, err := postgres.DBUserGetByLogin(h.db, user.Login)
+	u, err := postgres.DBUserGetByEmail(h.db, user.Email)
 	if err != nil {
 		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
 			Url: c.OriginalURL(), Status: fiber.StatusBadRequest})
@@ -174,26 +179,6 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 		RefreshToken: refreshToken,
 		ID:           u.ID,
 	}
-
-	c.Cookie(&fiber.Cookie{
-		Name:     "access_token",
-		Value:    res.AccessToken,
-		MaxAge:   60 * 60 * 1,
-		Path:     "/",
-		Domain:   "localhost",
-		Secure:   false,
-		HTTPOnly: true,
-	})
-
-	c.Cookie(&fiber.Cookie{
-		Name:     "refresh_token",
-		Value:    res.RefreshToken,
-		MaxAge:   60 * 60 * 24 * 90,
-		Path:     "/",
-		Domain:   "localhost",
-		Secure:   false,
-		HTTPOnly: true,
-	})
 
 	logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Info", Method: c.Method(),
 		Url: c.OriginalURL(), Status: fiber.StatusOK})
