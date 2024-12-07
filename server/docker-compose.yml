@@ -1,0 +1,120 @@
+version: "3"
+
+networks:
+  loki:
+
+services:
+  app:
+    build:
+      context: ../../../Downloads/hackathon-template-backend
+      dockerfile: Dockerfile
+    volumes:
+      - /var/log/app:/var/log/app
+    restart: unless-stopped
+    networks:
+      - loki
+
+  loki:
+    image: grafana/loki:2.9.2
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./internal/log/loki/loki-config.yml:/etc/loki/loki-config.yml
+    command: -config.file=/etc/loki/loki-config.yml
+    networks:
+      - loki
+
+  promtail:
+    image: grafana/promtail:2.9.2
+    volumes:
+      -  /var/log/app:/var/log/app
+      - ./internal/log/promtail/promtail-config.yml:/etc/promtail/config.yml
+    command: -config.file=/etc/promtail/config.yml
+    depends_on:
+      - loki
+    networks:
+      - loki
+
+
+  grafana:
+    environment:
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_SECURITY_ANONYMOUS_ENABLED=false
+      - GF_AUTH_BASIC_ENABLED=true
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - TG_BOT_TOKEN=${TG_BOT_TOKEN}
+      - TG_CHAT_ID=${TG_CHAT_ID}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
+    volumes:
+      - ./internal/log/grafana-provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./internal/log/grafana-provisioning/alerting:/etc/grafana/provisioning/alerting
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    depends_on:
+      - loki
+    networks:
+      - loki
+  postgres:
+    image: postgres:14.7-alpine
+    command:
+      - "postgres"
+      - "-c"
+      - "max_connections=50"
+      - "-c"
+      - "shared_buffers=1GB"
+      - "-c"
+      - "effective_cache_size=4GB"
+      - "-c"
+      - "work_mem=16MB"
+      - "-c"
+      - "maintenance_work_mem=512MB"
+      - "-c"
+      - "random_page_cost=1.1"
+      - "-c"
+      - "temp_file_limit=10GB"
+      - "-c"
+      - "log_min_duration_statement=200ms"
+      - "-c"
+      - "lock_timeout=1s"
+      - "-c"
+      - "statement_timeout=60s"
+      - "-c"
+      - "shared_preload_libraries=pg_stat_statements"
+      - "-c"
+      - "pg_stat_statements.max=10000"
+      - "-c"
+      - "pg_stat_statements.track=all"
+    environment:
+      POSTGRES_DB: "${POSTGRESQL_DB}"
+      POSTGRES_USER: "${POSTGRESQL_USER}"
+      POSTGRES_PASSWORD: "${POSTGRESQL_PASSWORD}"
+      PGDATA: "${PGDATA_PATH}"
+    volumes:
+      - ./.data/postgres/dump:/docker-entrypoint-initdb.d/db.sql
+      - ./.data/postgres/pgdata:/var/lib/postgresql/data/pgdata
+    ports:
+      - "${POSTGRESQL_PORT}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRESQL_USER} -d ${POSTGRESQL_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - loki
+  redis:
+    image: redis:6.2-alpine
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    networks:
+      - loki
+    volumes:
+      - ./.data/redis/redis.conf:/usr/local/etc/redis/redis.conf
+      - ./.data/redis/data:/data
+    ports:
+      - "${REDIS_PORT}"
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    restart: unless-stopped
