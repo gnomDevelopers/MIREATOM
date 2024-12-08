@@ -28,6 +28,7 @@ func NewDatabase() (*sqlx.DB, error) {
 		log.Fatalf("Error pinging database connection: %v", err)
 	}
 
+	log.Println("Successfully connected to database. Creating tables")
 	CreateTable(db)
 
 	return db, nil
