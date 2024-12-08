@@ -5,7 +5,7 @@
         <div>
           <p class=" text-lg font-medium">
             Formula: 
-            <span id="formula-area"></span>
+            <span id="formula-area" v-html="formulaHTML"></span>
           </p>
         </div>
         <!--клавиатура-->
@@ -55,14 +55,14 @@
                 <CalculatorButtonClaster :id="button.id" :show-extra-btns="button.alternatives.length !== 0">
                   
                   <template #main_btn>
-                    <CalculatorButtonItem :is-empty="button.formula === ''">
+                    <CalculatorButtonItem :is-empty="button.formula === ''" @click="updateFormula(button.argument)">
                       <div v-html="calculatorStore.getButtonByID(button.id, button.formula)"></div>
                     </CalculatorButtonItem>
                   </template>
   
                   <template #extra_btns v-if="button.alternatives.length !== 0">
                     <div v-for="extraButton of button.alternatives">
-                      <CalculatorButtonItem>
+                      <CalculatorButtonItem @click="updateFormula(extraButton.argument)">
                         <div v-html="calculatorStore.getButtonByID(extraButton.id, extraButton.formula)"></div>
                       </CalculatorButtonItem>
                     </div>
@@ -75,6 +75,7 @@
           </section>
         </div>
       </section>
+      <button @click="APIRequest" class="border border-solid border-gray-500 rounded px-4 py-2 hover:bg-green-200 active:bg-green-400 transition-colors">Кинуть Z</button>
     </div>
   </div>
 
@@ -86,6 +87,7 @@ import { useCalculatorStore } from '@/stores/calculatorStore';
 
 import CalculatorButtonClaster from '@/shared/calculatorButtonClaster.vue';
 import CalculatorButtonItem from '@/shared/calculatorButtonItem.vue';
+import { API_Health } from '@/api/api';
 
 const StandartButtons = [
   [ // standar buttons
@@ -298,7 +300,8 @@ export default {
   data() {
     return{
       formulaContainer: null as null | HTMLElement,
-      buttonsID: 1,
+      formula: '',
+      formulaHTML: '',
     }
   },
   computed: {
@@ -306,16 +309,17 @@ export default {
 
     getButtonsPreset() {
       return StandartButtons[this.calculatorStore.currentTypeButtons];
-    }
+    },
+
   },
   mounted(){
     this.formulaContainer = document.getElementById('formula-area');
-    katex.render("c = \\pm\\sqrt{a^2 + b^2}", this.formulaContainer!, {
-      throwOnError: true,
-      displayMode: false,
-      output: 'mathml',
-      trust: false,
-    });
+    // katex.render("c = \\pm\\sqrt{a^2 + b^2}", this.formulaContainer!, {
+    //   throwOnError: true,
+    //   displayMode: false,
+    //   output: 'mathml',
+    //   trust: false,
+    // });
 
     // this.calculatorStore.renderButtons();
     // console.log(this.calculatorStore.buttonsList);
@@ -323,6 +327,24 @@ export default {
   methods: {
     setButtonsType(type: number){
       this.calculatorStore.currentTypeButtons = type;
+    },
+    updateFormula(newPart: string){
+      this.formula += newPart;
+    },
+    APIRequest(){
+      API_Health();
+    }
+  },
+  watch: {
+    formula(val){
+      this.formulaHTML = katex.renderToString(val, {
+        throwOnError: true,
+        displayMode: false,
+        output: 'mathml',
+        trust: false,
+      });
+      console.log('new formula: ', val);
+      console.log('new formulaHTML: ', this.formulaHTML);
     }
   }
 };
