@@ -35,7 +35,3 @@ type LoginUserResponse struct {
 	RefreshToken string `json:"refresh_token"`
 	ID           int    `json:"id"`
 }
-
-type ErrorResponse struct {
-	Error string `json:"error"`
-}

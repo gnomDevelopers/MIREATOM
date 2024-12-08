@@ -19,7 +19,7 @@ func DBFormulaGetByID(db *sqlx.DB, id int64) (*entities.Formula, error) {
 
 func DBFormulaGetByUserID(db *sqlx.DB, userID int64) (*[]entities.Formula, error) {
 	formulas := []entities.Formula{}
-	query := `SELECT id, value, user_id FROM formula WHERE user_id = $1`
+	query := `SELECT id, title, value, user_id FROM formula WHERE user_id = $1`
 
 	err := db.Select(&formulas, query, userID)
 	if err != nil {
