@@ -1,5 +1,19 @@
 basePath: /
 definitions:
+  entities.CreateFormulaRequest:
+    properties:
+      title:
+        type: string
+      user_id:
+        type: string
+      value:
+        type: string
+    type: object
+  entities.CreateFormulaResponse:
+    properties:
+      id:
+        type: integer
+    type: object
   entities.CreateUserRequest:
     properties:
       email:
@@ -29,6 +43,17 @@ definitions:
       error:
         type: string
     type: object
+  entities.Formula:
+    properties:
+      id:
+        type: integer
+      title:
+        type: string
+      user_id:
+        type: string
+      value:
+        type: string
+    type: object
   entities.GetFormulaFromArticleResponse:
     properties:
       formula:
@@ -50,11 +75,90 @@ definitions:
       refresh_token:
         type: string
     type: object
+  entities.Message:
+    properties:
+      message:
+        type: string
+    type: object
+  entities.UpdateFormulaRequest:
+    properties:
+      id:
+        type: integer
+      title:
+        type: string
+      value:
+        type: string
+    type: object
 info:
   contact: {}
   title: Σigma API
   version: "1.0"
 paths:
+  /formula:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: formula data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/entities.CreateFormulaRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.CreateFormulaResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+      summary: Create formula
+      tags:
+      - formula
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: formula data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/entities.UpdateFormulaRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.Message'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+      summary: Update formula
+      tags:
+      - formula
   /formula/file:
     post:
       consumes:
@@ -83,6 +187,101 @@ paths:
           schema:
             $ref: '#/definitions/entities.ErrorResponse'
       summary: Get formulas from article
+      tags:
+      - formula
+  /formula/id/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: formula id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.Message'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+      summary: Delete formula
+      tags:
+      - formula
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: formula id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.Formula'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+      summary: Get formula by id
+      tags:
+      - formula
+  /formula/user_id/{id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: user id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.Formula'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+      summary: Get formula by user id
       tags:
       - formula
   /login:

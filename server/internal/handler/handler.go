@@ -43,6 +43,11 @@ func (h *Handler) Router() *fiber.App {
 	f.Post("/signup", h.SignUp)
 	f.Post("/login", h.Login)
 
+	f.Post("/formula", h.CreateFormula)
+	f.Get("/formula/id/:id", h.GetFormulaById)
+	f.Get("/formula/user_id/:id", h.GetFormulaByUserId)
+	f.Put("/formula", h.UpdateFormula)
+	f.Delete("/formula/id/:id", h.DeleteFormula)
 	f.Post("/formula/file", h.GetFormulaFromArticle)
 
 	authGroup := f.Group("/auth")
