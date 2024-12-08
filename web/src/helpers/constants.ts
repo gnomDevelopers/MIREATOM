@@ -3,7 +3,7 @@
 //contants
 
 //api
-export const API = '/api';
+export const API = '';
 export const DEVMODE = true;
 //status window
 export const STATUS_WINDOW_TIME = 3000;

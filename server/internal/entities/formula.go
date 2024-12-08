@@ -22,3 +22,7 @@ type UpdateFormulaRequest struct {
 	Value string `json:"value" db:"value"`
 	Title string `json:"title" db:"title"`
 }
+
+type GetFormulaFromArticleResponse struct {
+	Formula string `json:"formula"`
+}

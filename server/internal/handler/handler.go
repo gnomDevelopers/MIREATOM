@@ -43,6 +43,8 @@ func (h *Handler) Router() *fiber.App {
 	f.Post("/signup", h.SignUp)
 	f.Post("/login", h.Login)
 
+	f.Post("/formula/file", h.GetFormulaFromArticle)
+
 	authGroup := f.Group("/auth")
 	authGroup.Use(func(c *fiber.Ctx) error {
 		return pkg.WithJWTAuth(c, config.SigningKey)
