@@ -298,7 +298,8 @@ export default {
   data() {
     return{
       formulaContainer: null as null | HTMLElement,
-      buttonsID: 1,
+      formula: '',
+      formulaHTML: '',
     }
   },
   computed: {
