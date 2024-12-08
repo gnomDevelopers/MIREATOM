@@ -1,13 +1,19 @@
 <template>
   <div class="h-full w-full flex flex-col items-center">
     <div class="flex flex-col w-10/12 items-center gap-y-2">
-      <section class="w-full mt-4">
-        <div>
-          <p class=" text-lg font-medium">
-            Formula: 
-            <span id="formula-area" v-html="formulaHTML"></span>
-          </p>
+      <section class="flex flex-col gap-y-4 w-full mt-4">
+
+        <div class="flex flex-col gap-y-2">
+          <div class="flex flex-row gap-x-2 items-center">
+            <p class=" text-lg font-medium">Latex код: </p>
+            <input type="text" class="max-w-none w-[400px] outline-none text-lg px-2 py-1 rounded-lg border border-solid border-gray-400 focus:border-sky-500" v-model="formula"/>
+          </div>
+          <div class="flex flex-row gap-x-2 items-center">
+            <p class=" text-lg font-medium">Формула: </p>
+            <span id="formula-area" v-html="formulaHTML" class="text-xl" contenteditable="true" @input="updateFormulaFromHTML"></span>
+          </div>
         </div>
+
         <!--клавиатура-->
         <div class="flex flex-row gap-x-4 items-start">
           <!--выбор типа клавиатуры-->
@@ -88,6 +94,7 @@ import { useCalculatorStore } from '@/stores/calculatorStore';
 import CalculatorButtonClaster from '@/shared/calculatorButtonClaster.vue';
 import CalculatorButtonItem from '@/shared/calculatorButtonItem.vue';
 import { API_Health } from '@/api/api';
+import { parseLatexFromHTML } from '@/helpers/latexHTMLParser';
 
 const StandartButtons = [
   [ // standar buttons
@@ -323,6 +330,11 @@ export default {
 
     // this.calculatorStore.renderButtons();
     // console.log(this.calculatorStore.buttonsList);
+
+    // this.$watch("$refs.htmlInput", (new_value, old_value) => {
+    //     console.log(new_value);
+    //   }
+    // );
   },
   methods: {
     setButtonsType(type: number){
@@ -330,6 +342,10 @@ export default {
     },
     updateFormula(newPart: string){
       this.formula += newPart;
+    },
+    updateFormulaFromHTML(event: any){
+      console.log('ZOV: ', event.target);
+      console.log('text: ', parseLatexFromHTML(event.target));
     },
     APIRequest(){
       API_Health();
@@ -345,7 +361,7 @@ export default {
       });
       console.log('new formula: ', val);
       console.log('new formulaHTML: ', this.formulaHTML);
-    }
+    },
   }
 };
 </script>
