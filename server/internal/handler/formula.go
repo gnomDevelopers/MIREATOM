@@ -1,11 +1,9 @@
 package handler
 
 import (
-	"bytes"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"regexp"
 	"server/internal/entities"
