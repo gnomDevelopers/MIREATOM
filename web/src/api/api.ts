@@ -49,3 +49,18 @@ export function API_Logout(){
     })
   });
 };
+
+//тест запрос
+export function API_Health(){
+  return new Promise((resolve, reject) => {
+    axios.get(`${API}/health`)
+    .then(response => {
+      if(DEVMODE) console.log('Health get success: ', response);
+      resolve(response);
+    })
+    .catch(error => {
+      if(DEVMODE) console.log('Health get error: ', error);
+      reject(error);
+    })
+  });
+};

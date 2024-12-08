@@ -11,6 +11,7 @@ import { useUserInfoStore } from "./stores/userInfoStore";
 import StatusWindow from "./entities/statusWindow.vue";
 import Header from "./entities/header.vue";
 import AcceptCookie from "./widgets/acceptCookie.vue";
+import { API_Health } from "./api/api";
 
 export default {
   components: {
@@ -24,6 +25,7 @@ export default {
   async mounted() {
     //проверка авторизации
     await this.userInfoStore.Authenticate();
+    API_Health();
   },
   methods: {
 
