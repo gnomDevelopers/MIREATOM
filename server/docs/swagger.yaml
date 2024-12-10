@@ -94,11 +94,26 @@ info:
   title: Σigma API
   version: "1.0"
 paths:
-  /article:
+  /auth/article:
     post:
       consumes:
       - multipart/form-data
       parameters:
+      - description: Article title
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: Science field
+        in: formData
+        name: science
+        required: true
+        type: string
+      - description: Article section
+        in: formData
+        name: section
+        required: true
+        type: string
       - description: Upload file
         in: formData
         name: file
@@ -119,7 +134,9 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/entities.ErrorResponse'
-      summary: Get formulas from article
+      security:
+      - ApiKeyAuth: []
+      summary: Create article
       tags:
       - article
   /formula:

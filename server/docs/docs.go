@@ -15,8 +15,13 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/article": {
+        "/auth/article": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "consumes": [
                     "multipart/form-data"
                 ],
@@ -26,8 +31,29 @@ const docTemplate = `{
                 "tags": [
                     "article"
                 ],
-                "summary": "Get formulas from article",
+                "summary": "Create article",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Article title",
+                        "name": "title",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Science field",
+                        "name": "science",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Article section",
+                        "name": "section",
+                        "in": "formData",
+                        "required": true
+                    },
                     {
                         "type": "file",
                         "description": "Upload file",
