@@ -18,8 +18,9 @@ const (
 		id SERIAL PRIMARY KEY,
 		user_id INT NOT NULL,
 		title VARCHAR NOT NULL,
+		science VARCHAR NOT NULL,
+		section VARCHAR NOT NULL,
 		path VARCHAR NOT NULL,
-		originality VARCHAR[] NOT NULL,
 		FOREIGN KEY (user_id) REFERENCES users (id)
 );
 `

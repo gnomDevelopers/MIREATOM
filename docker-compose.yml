@@ -59,7 +59,7 @@ services:
     volumes:
       - ./.data/postgres/postgresql:/var/lib/postgresql/
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     healthcheck:
       test:
         [
@@ -73,6 +73,7 @@ services:
     restart: unless-stopped
     networks:
       - dev
+
   backend:
     container_name: backend
     build:
@@ -80,7 +81,7 @@ services:
       dockerfile: Dockerfile
     restart: on-failure
     ports:
-      - 8080:8080
+      - "127.0.0.1:8080:8080"
     healthcheck:
       test: [ "CMD", "curl", "localhost:8080/health" ]
       interval: 60s

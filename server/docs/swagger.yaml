@@ -94,6 +94,34 @@ info:
   title: Σigma API
   version: "1.0"
 paths:
+  /article:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: Upload file
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.Message'
+        "400":
+          description: Invalid email or password
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+      summary: Get formulas from article
+      tags:
+      - article
   /formula:
     post:
       consumes:

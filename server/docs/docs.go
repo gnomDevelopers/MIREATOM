@@ -15,6 +15,49 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/article": {
+            "post": {
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "article"
+                ],
+                "summary": "Get formulas from article",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "Upload file",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/entities.Message"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid email or password",
+                        "schema": {
+                            "$ref": "#/definitions/entities.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/entities.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/formula": {
             "put": {
                 "consumes": [
