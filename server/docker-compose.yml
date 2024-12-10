@@ -1,85 +1,50 @@
-version: "3"
-
 networks:
-  loki:
+  dev:
+    name: "dev"
+    driver: "bridge"
 
 services:
-  app:
-    build:
-      context: ../../../Downloads/hackathon-template-backend
-      dockerfile: Dockerfile
-    volumes:
-      - /var/log/app:/var/log/app
-    restart: unless-stopped
-    networks:
-      - loki
-
-  loki:
-    image: grafana/loki:2.9.2
-    ports:
-      - "3100:3100"
-    volumes:
-      - ./internal/log/loki/loki-config.yml:/etc/loki/loki-config.yml
-    command: -config.file=/etc/loki/loki-config.yml
-    networks:
-      - loki
-
-  promtail:
-    image: grafana/promtail:2.9.2
-    volumes:
-      -  /var/log/app:/var/log/app
-      - ./internal/log/promtail/promtail-config.yml:/etc/promtail/config.yml
-    command: -config.file=/etc/promtail/config.yml
-    depends_on:
-      - loki
-    networks:
-      - loki
-
-
-  grafana:
-    environment:
-      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
-      - GF_AUTH_ANONYMOUS_ENABLED=true
-      - GF_SECURITY_ANONYMOUS_ENABLED=false
-      - GF_AUTH_BASIC_ENABLED=true
-      - GF_USERS_ALLOW_SIGN_UP=false
-      - TG_BOT_TOKEN=${TG_BOT_TOKEN}
-      - TG_CHAT_ID=${TG_CHAT_ID}
-      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
-    volumes:
-      - ./internal/log/grafana-provisioning/datasources:/etc/grafana/provisioning/datasources
-      - ./internal/log/grafana-provisioning/alerting:/etc/grafana/provisioning/alerting
-    image: grafana/grafana:latest
-    ports:
-      - "3000:3000"
-    depends_on:
-      - loki
-    networks:
-      - loki
   postgres:
-    image: postgres:14.7-alpine
+    container_name: "postgres-test"
+    image: postgres:16.3-alpine
     command:
       - "postgres"
       - "-c"
-      - "max_connections=50"
+      - "max_connections=200" # Позволяет до 200 соединений, достаточно для большинства приложений
       - "-c"
-      - "shared_buffers=1GB"
+      - "shared_buffers=4GB" # 25% от доступной ОЗУ
       - "-c"
-      - "effective_cache_size=4GB"
+      - "effective_cache_size=12GB" # 75% от доступной ОЗУ
       - "-c"
-      - "work_mem=16MB"
+      - "work_mem=32MB" # Память для сортировки на каждое соединение
       - "-c"
-      - "maintenance_work_mem=512MB"
+      - "maintenance_work_mem=1GB" # Память для операций VACUUM/CREATE INDEX
       - "-c"
-      - "random_page_cost=1.1"
+      - "checkpoint_completion_target=0.9" # Уменьшает нагрузку на диски во время checkpoint
       - "-c"
-      - "temp_file_limit=10GB"
+      - "wal_buffers=16MB" # Размер буферов WAL
       - "-c"
-      - "log_min_duration_statement=200ms"
+      - "default_statistics_target=100" # Улучшает точность статистики для планирования запросов
       - "-c"
-      - "lock_timeout=1s"
+      - "random_page_cost=1.1" # Оптимизировано для SSD
       - "-c"
-      - "statement_timeout=60s"
+      - "temp_file_limit=10GB" # Лимит для временных файлов
+      - "-c"
+      - "log_min_duration_statement=200ms" # Логировать запросы, выполняющиеся более 200 мс
+      - "-c"
+      - "lock_timeout=1s" # Ограничение времени ожидания блокировок
+      - "-c"
+      - "statement_timeout=60s" # Ограничение времени выполнения запросов
+      - "-c"
+      - "autovacuum=on" # Включить автоматическое обслуживание
+      - "-c"
+      - "autovacuum_vacuum_scale_factor=0.05" # Более агрессивный автовакиум
+      - "-c"
+      - "autovacuum_analyze_scale_factor=0.02" # Улучшает актуальность статистики
+      - "-c"
+      - "autovacuum_max_workers=4" # Использовать до 4 потоков на автовакиум
+      - "-c"
+      - "autovacuum_naptime=10s" # Проверять таблицы каждые 10 секунд
       - "-c"
       - "shared_preload_libraries=pg_stat_statements"
       - "-c"
@@ -87,21 +52,43 @@ services:
       - "-c"
       - "pg_stat_statements.track=all"
     environment:
-      POSTGRES_DB: "${POSTGRESQL_DB}"
-      POSTGRES_USER: "${POSTGRESQL_USER}"
-      POSTGRES_PASSWORD: "${POSTGRESQL_PASSWORD}"
-      PGDATA: "${PGDATA_PATH}"
+      POSTGRES_DB: "test"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "Gew1234"
+
     volumes:
-      - ./.data/postgres/dump:/docker-entrypoint-initdb.d/db.sql
-      - ./.data/postgres/pgdata:/var/lib/postgresql/data/pgdata
+      - ./.data/postgres/postgresql:/var/lib/postgresql/
     ports:
-      - "${POSTGRESQL_PORT}:5432"
+      - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRESQL_USER} -d ${POSTGRESQL_DB}"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U postgres -d test -h 127.0.0.1 -p 5432",
+        ]
       interval: 10s
       timeout: 5s
-      retries: 5
-      start_period: 10s
+      retries: 3
+      start_period: 15s
     restart: unless-stopped
     networks:
-      - loki
+      - dev
+  backend:
+    container_name: backend-test
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: on-failure
+    ports:
+      - 8080:8080
+    healthcheck:
+      test: [ "CMD", "curl", "localhost:8080/health" ]
+      interval: 60s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - dev
