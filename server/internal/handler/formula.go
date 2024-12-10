@@ -106,6 +106,9 @@ func (h *Handler) GetFormulaFromArticle(c *fiber.Ctx) error {
 		err = os.Remove("./tmp/" + file.Filename)
 	}
 
+	logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Info", Method: c.Method(),
+		Url: c.OriginalURL(), Status: fiber.StatusOK})
+	logEvent.Msg("success")
 	return c.Status(200).JSON(fiber.Map{"formulas": formulas})
 }
 

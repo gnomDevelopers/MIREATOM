@@ -2,7 +2,6 @@ package pkg
 
 import (
 	"errors"
-	"strconv"
 	"strings"
 	"time"
 
@@ -23,6 +22,7 @@ func WithJWTAuth(c *fiber.Ctx, signingKey string) error {
 	}
 
 	tokenString := strings.Split(header, " ")
+
 	if len(tokenString) != 2 {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid auth header"})
 	}
@@ -31,9 +31,9 @@ func WithJWTAuth(c *fiber.Ctx, signingKey string) error {
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": err.Error()})
 	}
-	// Записываем uid в контекст, чтобы в дальнейшем использовать в других функциях
-	c.Set("id", strconv.Itoa(id))
-	return nil
+	// Записываем id в контекст, чтобы в дальнейшем использовать в других функциях
+	c.Locals("id", id)
+	return c.Next()
 }
 
 func GenerateAccessToken(id, expirationTime int, signingKey string) (string, error) {

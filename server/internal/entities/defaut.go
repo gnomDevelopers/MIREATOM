@@ -7,3 +7,7 @@ type Message struct {
 type ErrorResponse struct {
 	Error string `json:"error"`
 }
+
+type Id struct {
+	Id int `json:"id"`
+}

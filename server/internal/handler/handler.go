@@ -56,6 +56,6 @@ func (h *Handler) Router() *fiber.App {
 	authGroup.Use(func(c *fiber.Ctx) error {
 		return pkg.WithJWTAuth(c, config.SigningKey)
 	})
-
+	authGroup.Post("/article", h.CreateArticle)
 	return f
 }

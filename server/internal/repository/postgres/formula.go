@@ -11,7 +11,7 @@ func DBFormulaGetByID(db *sqlx.DB, id int64) (*entities.Formula, error) {
 	query := `SELECT id, title, value, user_id FROM formula WHERE id = $1`
 	err := db.Get(&formula, query, id)
 	if err != nil {
-		return &entities.Formula{}, nil
+		return nil, err
 	}
 
 	return &formula, nil
