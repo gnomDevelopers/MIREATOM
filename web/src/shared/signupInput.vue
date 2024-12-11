@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col items-start relative">
     <label
-        @click="() => {$refs.loginInput.focus()}"
+        @click="() => {$refs.signupInput.focus()}"
         class="absolute transition-all block text-lg font-bold mb-2"
         :class="{ 'login-label': !focusLabel, 'login-label-focus': focusLabel }"
     >{{ text }}</label>
@@ -19,21 +19,42 @@
             v-model="inputValue"
             @focusin="onFocus"
             @focusout="unFocus"
-            ref="loginInput"
+            ref="signupInput"
         />
         <input
-            v-else
+            v-if="type === 'login'"
             placeholder="email@example.com"
             class="bg-transparent outline-none w-11/12"
             :type="inputType"
             v-model="inputValue"
             @focusin="onFocus"
             @focusout="unFocus"
-            ref="loginInput"
+            ref="signupInput"
+        />
+        <input
+            v-if="type === 'name'"
+            placeholder="Иванов Иван Иванович"
+            class="bg-transparent outline-none w-11/12"
+            :type="inputType"
+            v-model="inputValue"
+            @focusin="onFocus"
+            @focusout="unFocus"
+            ref="signupInput"
+        />
+
+        <input
+            v-if="type === 'repPassword'"
+            placeholder="your_password"
+            class="bg-transparent outline-none w-11/12"
+            :type="inputType"
+            v-model="inputValue"
+            @focusin="onFocus"
+            @focusout="unFocus"
+            ref="signupInput"
         />
 
         <div
-            v-if="type === 'password'"
+            v-if="type === 'password' || type === 'repPassword'"
             @mousedown="onHold"
             @mouseup="unHold"
             @touchstart="onHold"
@@ -41,7 +62,7 @@
             @dragend="unHold"
         >
           <img
-              v-if="inputType !== type"
+              v-if="inputType === 'password'"
               src="../assets/icons/icon-password-hide.svg"
               alt="Показать пароль"
               class="w-6 h-6 cursor-pointer mr-1 float-end"
@@ -49,9 +70,12 @@
           <img
               v-else
               src="../assets/icons/icon-password-show.svg"
-              class="w-6 h-6 cursor-pointer mr-1"
+              alt="Скрыть пароль"
+              class="w-6 h-6 cursor-pointer mr-1 float-end"
           />
         </div>
+
+
       </div>
     </div>
   </div>
@@ -76,7 +100,7 @@ export default {
   emits: ['inputChange'],
   data() {
     return {
-      inputType: this.type,
+      inputType: this.type === 'password' || this.type === 'repPassword' ? 'password' : this.type, // Установка начального состояния
       isFocused: false,
       inputValue: "",
     };
@@ -88,10 +112,14 @@ export default {
   },
   methods: {
     onHold() {
-      this.inputType = "text";
+      if (this.type === 'password' || this.type === 'repPassword') {
+        this.inputType = 'text';
+      }
     },
     unHold() {
-      this.inputType = this.type;
+      if (this.type === 'password' || this.type === 'repPassword') {
+        this.inputType = 'password';
+      }
     },
     onFocus() {
       this.isFocused = true;
