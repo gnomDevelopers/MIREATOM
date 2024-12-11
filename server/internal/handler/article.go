@@ -7,6 +7,7 @@ import (
 	"server/internal/entities"
 	"server/internal/log"
 	"server/internal/repository/postgres"
+	"server/util"
 	"strconv"
 )
 
@@ -59,6 +60,23 @@ func (h *Handler) CreateArticle(c *fiber.Ctx) error {
 
 	userDirName := fmt.Sprintf("articles/%s", user.Surname+" "+user.Name+" "+user.ThirdName)
 	article.Path = ""
+
+	h.logger.Debug().Msg("call postgres.DBArticleExists")
+	exists, err := postgres.DBArticleExists(h.db, article.Title, article.UserId)
+	if err != nil {
+		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
+		logEvent.Msg(err.Error())
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	if exists {
+		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
+		logEvent.Msg("article already exists")
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "article already exists"})
+	}
+
 	if _, err := os.Stat(userDirName); os.IsNotExist(err) {
 		err = os.Mkdir(userDirName, 0755)
 		if err != nil {
@@ -100,6 +118,42 @@ func (h *Handler) CreateArticle(c *fiber.Ctx) error {
 				Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
 			logEvent.Msg(err.Error())
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		}
+
+		formulas, err := util.ParseFormulasFromFile(c, file)
+		if err != nil {
+			logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+				Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
+			logEvent.Msg(err.Error())
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		}
+
+		for _, formula := range formulas {
+			var formulaDb entities.Formula
+			formulaDb.Title = ""
+			formulaDb.Value = formula.Formula
+			formulaDb.UserID = userId
+
+			exists, err := postgres.DBFormulaExists(h.db, formulaDb.Value)
+			if err != nil {
+				logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+					Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
+				logEvent.Msg(err.Error())
+				return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+			}
+
+			if exists {
+				continue
+			}
+
+			h.logger.Debug().Msg("call postgres.DBFormulaCreate")
+			_, err = postgres.DBFormulaCreate(h.db, &formulaDb)
+			if err != nil {
+				logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+					Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
+				logEvent.Msg(err.Error())
+				return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+			}
 		}
 	}
 

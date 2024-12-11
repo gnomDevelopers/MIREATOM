@@ -1,18 +1,13 @@
 package handler
 
 import (
-	"bytes"
-	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"os"
-	"os/exec"
-	"path/filepath"
-	"regexp"
 	"server/internal/entities"
 	"server/internal/log"
 	"server/internal/repository/postgres"
+	"server/util"
 	"strconv"
-	"strings"
 )
 
 // GetFormulaFromArticle
@@ -47,53 +42,13 @@ func (h *Handler) GetFormulaFromArticle(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "empty file"})
 	}
 	for _, file := range files {
-		ext := filepath.Ext(file.Filename)
-
-		if ext == ".tex" || ext == ".docx" {
-		} else {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid file extension"})
-		}
-
-		if err = c.SaveFile(file, fmt.Sprintf("./tmp/%s", file.Filename)); err != nil {
+		formulas, err = util.ParseFormulasFromFile(c, file)
+		if err != nil {
+			logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+				Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
+			logEvent.Msg(err.Error())
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 		}
-
-		if ext == ".docx" {
-			docxFile := "./tmp/formula.docx"
-
-			cmd := exec.Command("pandoc", "-i", docxFile, "-o", "./tmp/formula.tex")
-
-			var stderr bytes.Buffer
-			cmd.Stderr = &stderr
-
-			err = cmd.Run()
-			if err != nil {
-				fmt.Printf("Ошибка выполнения команды: %s\n", err)
-				fmt.Printf("Вывод ошибки: %s\n", stderr.String())
-			}
-
-			err = os.Remove("./tmp/" + file.Filename)
-			file.Filename = strings.Replace(file.Filename, ".docx", ".tex", 1)
-		}
-
-		filePath := fmt.Sprintf("tmp/%v", file.Filename)
-		content, err := os.ReadFile(filePath)
-		if err != nil {
-			fmt.Println("Ошибка при чтении файла:", err)
-			return nil
-		}
-
-		mathRegex := regexp.MustCompile(`(\$.*?\$|\\\[.*?\\\]|\\mathcal\{.*?\})`)
-
-		output := strings.ReplaceAll(string(content), "\n", "")
-		output = strings.Join(strings.Fields(output), " ")
-
-		matches := mathRegex.FindAllStringSubmatch(output, -1)
-
-		for _, match := range matches {
-			formulas = append(formulas, entities.GetFormulaFromArticleResponse{Formula: match[1]})
-		}
-		err = os.Remove("./tmp/" + file.Filename)
 	}
 
 	logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Info", Method: c.Method(),
@@ -121,6 +76,22 @@ func (h *Handler) CreateFormula(c *fiber.Ctx) error {
 			Url: c.OriginalURL(), Status: fiber.StatusBadRequest})
 		logEvent.Err(err).Msg("invalid request body")
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid request body"})
+	}
+
+	h.logger.Debug().Msg("call postgres.DBFormulaExists")
+	exists, err := postgres.DBFormulaExists(h.db, formula.Value)
+	if err != nil {
+		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
+		logEvent.Msg(err.Error())
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	if exists {
+		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+			Url: c.OriginalURL(), Status: fiber.StatusBadRequest})
+		logEvent.Msg("formula already exists")
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "formula already exists"})
 	}
 
 	h.logger.Debug().Msg("call postgres.DBFormulaCreate")

@@ -1,10 +1,25 @@
 package postgres
 
 import (
+	"database/sql"
 	"errors"
 	"github.com/jmoiron/sqlx"
 	"server/internal/entities"
 )
+
+func DBFormulaExists(db *sqlx.DB, email string) (bool, error) {
+	exists := 0
+	query := `SELECT 1 FROM formula WHERE value = $1 LIMIT 1`
+
+	err := db.QueryRow(query, email).Scan(&exists)
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return false, err
+	}
+	if exists == 1 {
+		return true, nil
+	}
+	return false, nil
+}
 
 func DBFormulaGetByID(db *sqlx.DB, id int64) (*entities.Formula, error) {
 	formula := entities.Formula{}

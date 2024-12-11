@@ -1,10 +1,25 @@
 package postgres
 
 import (
+	"database/sql"
 	"errors"
 	"github.com/jmoiron/sqlx"
 	"server/internal/entities"
 )
+
+func DBArticleExists(db *sqlx.DB, title string, userId int) (bool, error) {
+	exists := 0
+	query := `SELECT 1 FROM articles WHERE title = $1 AND user_id = $2 LIMIT 1`
+
+	err := db.QueryRow(query, title, userId).Scan(&exists)
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return false, err
+	}
+	if exists == 1 {
+		return true, nil
+	}
+	return false, nil
+}
 
 func DBArticleCreate(db *sqlx.DB, article *entities.Article) (*entities.Article, error) {
 	query := `INSERT INTO articles (user_id, title, science, section, path)
