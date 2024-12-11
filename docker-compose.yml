@@ -52,7 +52,7 @@ services:
       - "-c"
       - "pg_stat_statements.track=all"
     environment:
-      POSTGRES_DB: "test"
+      POSTGRES_DB: "mireatom"
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "Gew1234"
 

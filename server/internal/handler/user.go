@@ -9,6 +9,7 @@ import (
 	"server/pkg"
 	"server/util"
 	"strconv"
+	"strings"
 )
 
 // SignUp
@@ -54,13 +55,15 @@ func (h *Handler) SignUp(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
 	}
 
+	fullname := strings.Split(u.FullName, " ")
+
 	user := &entities.User{
 		Email:     u.Email,
 		Password:  hashedPassword,
 		Role:      u.Role,
-		Name:      u.Name,
-		Surname:   u.Surname,
-		ThirdName: u.ThirdName,
+		Name:      fullname[1],
+		Surname:   fullname[0],
+		ThirdName: fullname[2],
 	}
 
 	h.logger.Debug().Msg("call postgres.DBUserCreate")
