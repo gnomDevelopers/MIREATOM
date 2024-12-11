@@ -49,7 +49,8 @@ func (h *Handler) GetFormulaFromArticle(c *fiber.Ctx) error {
 	for _, file := range files {
 		ext := filepath.Ext(file.Filename)
 
-		if ext != ".tex" {
+		if ext == ".tex" || ext == ".docx" {
+		} else {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid file extension"})
 		}
 
@@ -57,33 +58,23 @@ func (h *Handler) GetFormulaFromArticle(c *fiber.Ctx) error {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 		}
 
-		dir, err := os.Getwd()
-		if err != nil {
-			fmt.Println(err)
+		if ext == ".docx" {
+			docxFile := "./tmp/formula.docx"
+
+			cmd := exec.Command("pandoc", "-i", docxFile, "-o", "./tmp/formula.tex")
+
+			var stderr bytes.Buffer
+			cmd.Stderr = &stderr
+
+			err = cmd.Run()
+			if err != nil {
+				fmt.Printf("Ошибка выполнения команды: %s\n", err)
+				fmt.Printf("Вывод ошибки: %s\n", stderr.String())
+			}
+
+			err = os.Remove("./tmp/" + file.Filename)
+			file.Filename = strings.Replace(file.Filename, ".docx", ".tex", 1)
 		}
-
-		fmt.Println(dir)
-
-		docxFile := "C:/Users/danii/OneDrive/Desktop/Go/MIREATOM/server/tmp/formula.docx"
-
-		cmd := exec.Command("pandoc", "-i", docxFile, "-o", "C:/Users/danii/OneDrive/Desktop/Go/MIREATOM/server/tmp/formula.tex")
-
-		// Выполните команду и сохраните вывод
-		var out bytes.Buffer
-		var stderr bytes.Buffer
-		cmd.Stdout = &out
-		cmd.Stderr = &stderr
-
-		// Запустите команду
-		err = cmd.Run()
-		if err != nil {
-			fmt.Printf("Ошибка выполнения команды: %s\n", err)
-			fmt.Printf("Вывод ошибки: %s\n", stderr.String())
-		}
-
-		// Выведите вывод команды
-		fmt.Println("Вывод команды:")
-		fmt.Println(out.String())
 
 		filePath := fmt.Sprintf("tmp/%v", file.Filename)
 		content, err := os.ReadFile(filePath)
@@ -102,7 +93,6 @@ func (h *Handler) GetFormulaFromArticle(c *fiber.Ctx) error {
 		for _, match := range matches {
 			formulas = append(formulas, entities.GetFormulaFromArticleResponse{Formula: match[1]})
 		}
-
 		err = os.Remove("./tmp/" + file.Filename)
 	}
 
