@@ -15,3 +15,10 @@ type CreateArticleRequest struct {
 	Section string `form:"section"`
 	File    string `form:"file"`
 }
+
+type UpdateArticleRequest struct {
+	Id      int    `json:"id" db:"id"`
+	Title   string `json:"title" db:"title"`
+	Science string `json:"science" db:"science"`
+	Section string `json:"section" db:"section"`
+}

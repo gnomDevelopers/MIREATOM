@@ -52,10 +52,17 @@ func (h *Handler) Router() *fiber.App {
 	f.Delete("/formula/id/:id", h.DeleteFormula)
 	f.Post("/formula/file", h.GetFormulaFromArticle)
 
+	f.Get("/article", h.GetAllArticles)
+	f.Get("/article/file/:id", h.GetArticleFile)
+
 	authGroup := f.Group("/auth")
 	authGroup.Use(func(c *fiber.Ctx) error {
 		return pkg.WithJWTAuth(c, config.SigningKey)
 	})
 	authGroup.Post("/article", h.CreateArticle)
+	authGroup.Put("/article", h.UpdateArticle)
+	authGroup.Put("/article/file", h.UpdateArticleFile)
+	authGroup.Delete("/article/id/:id", h.DeleteArticle)
+
 	return f
 }
