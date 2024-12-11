@@ -11,12 +11,10 @@ type User struct {
 }
 
 type CreateUserRequest struct {
-	Password  string `json:"password"`
-	Email     string `json:"email"`
-	Role      string `json:"role"`
-	Name      string `json:"name"`
-	Surname   string `json:"surname"`
-	ThirdName string `json:"third_name"`
+	Password string `json:"password"`
+	Email    string `json:"email"`
+	Role     string `json:"role"`
+	FullName string `json:"full_name"`
 }
 
 type CreateUserResponse struct {
