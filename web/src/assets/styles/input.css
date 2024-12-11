@@ -72,9 +72,12 @@
   transition: background-color .1s ease-out;
 }
 
-*{
+div,section,article,aside,input,button,label,p,h1,h2,h3,h4,h5,h6,span{
   font-family: 'Arsenal', 'Arial', sans-serif;
 }
+/* *{
+  font-family: 'Arsenal', 'Arial', sans-serif;
+} */
 
 .btn{
   @apply flex flex-row justify-center items-center text-center;
@@ -218,7 +221,7 @@
 }
 
 .button-style{
-  @apply flex flex-col justify-center items-center cursor-pointer border border-solid border-gray-400 bg-white hover:bg-slate-100 active:bg-slate-200;
+  @apply flex flex-col justify-center items-center cursor-pointer select-none border border-solid border-gray-400 bg-white hover:bg-slate-100 active:bg-slate-200;
 }
 .button-style-selected{
   background-color: rgb(241 245 249);
