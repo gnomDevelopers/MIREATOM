@@ -24,8 +24,8 @@ export default {
   },
   async mounted() {
     //проверка авторизации
-    await this.userInfoStore.Authenticate();
-    API_Health();
+    // await this.userInfoStore.Authenticate();
+    // API_Health();
   },
   methods: {
 
