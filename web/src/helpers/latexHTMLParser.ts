@@ -105,7 +105,8 @@
 // }
 
 
-// \cfrac{\sqrt[3]{x\int_{a}^{b}{adx}}}{b\log_{10}{\sum_{i=a}^b{n}}}
+// \cfrac{\sqrt[3]{x\int_{a}^{b}{adx}}}{b\log_{10}{\sum_{i=a}^{b}{n}}}
+// \cfrac{\sqrt[3]{x\int_{a}^{b}{adx}}}{b\log_{10}{\sum_{i=0}^{100}{n}}}\lim_{a \to b}{15x^2}
 
 function getTextContent(node: Element){
   if(node.tagName === 'mrow'){
@@ -119,47 +120,73 @@ function getTextContent(node: Element){
 }
 
 
-function latexFromHTML(html: string){
+function latexFromHTML(html: Element){
   let latex = "";
 
-  //Basic handling of fractions
-  const fractionMatch = html.match(/<mfrac><mi>(.*?)<\/mi><mi>(.*?)<\/mi><\/mfrac>/);
-  if (fractionMatch) {
-    console.log('fractionMatch: ', fractionMatch);
-    latex += "\\cfrac{" + latexFromHTML(fractionMatch[1]) + "}{" + latexFromHTML(fractionMatch[2]) + "}";
+  console.log('element: ', html);
+
+  //если это текстовый элемент то возвращаем его содержимое
+  if(['mi', 'mo', 'mn'].includes(html.tagName)){
+    if(html.textContent === null) return '';
+    if(['→'].includes(html.textContent)) return ' \\to ';
+    return html.textContent;
   }
 
-  //Basic handling of square roots
-  const sqrtMatch = html.match(/<msqrt>(.*?)<\/msqrt>/);
-  if (sqrtMatch) {
-    latex += "\\sqrt{" + latexFromHTML(sqrtMatch[1]) + "}";
+  //иначе смотрим тип элемента и его детей
+
+  //если это дробь
+  if(html.tagName === 'mfrac'){
+    latex += `\\cfrac{${latexFromHTML(html.children[0])}}{${latexFromHTML(html.children[1])}}`;
+    return latex;
+  }
+  //если это корень с установленной степенью
+  if(html.tagName === 'mroot'){
+    latex += `\\sqrt[{${latexFromHTML(html.children[1])}}]{${latexFromHTML(html.children[0])}}`;
+    return latex;
+  }
+  //если это квадратный корень
+  if(html.tagName === 'msqrt'){
+    latex += `\\sqrt{${latexFromHTML(html.children[0])}}`;
+    return latex;
+  }
+  //если это функция с коэфами вверху и внизу
+  if(html.tagName === 'msubsup'){
+    switch(html.children[0].textContent){
+      case '∫': latex += `\\int_{${latexFromHTML(html.children[1])}}^{${latexFromHTML(html.children[2])}}`; break;
+      case '∑': latex += `\\sum_{${latexFromHTML(html.children[1])}}^{${latexFromHTML(html.children[2])}}`; break;
+    }
+    
+    return latex;
+  }
+  //если это функция с коэфами внизу
+  if(html.tagName === 'msub'){
+    latex += `\\${latexFromHTML(html.children[0])}_{${latexFromHTML(html.children[1])}}`;
+    return latex;
+  }
+  //если это функция с коэфами вверху
+  if(html.tagName === 'msup'){
+    latex += `{${latexFromHTML(html.children[0])}}^{${latexFromHTML(html.children[1])}}`;
+    return latex;
   }
 
-  //<msubsup><mo>∫</mo><mi>a</mi><mi>b</mi></msubsup><mrow><mi>a</mi><mi>d</mi><mi>x</mi></mrow>
-  //Basic handling of integrals
-  const integralMatch = html.match(/<msubsup><mo>∫<\/mo><mi>(.*?)<\/mi><mi>(.*?)<\/mi><sub>(.*?)<\/sub><sup>(.*?)<\/sup>(.*?)/);
-  if (integralMatch) {
-    latex += "\\int_{" + latexFromHTML(integralMatch[1]) + "}^{" + latexFromHTML(integralMatch[2]) + "}{" + latexFromHTML(integralMatch[3]) + "}";
+  //если это елемент-строка или другой рофлоэлемент
+  if(html.children.length !== 0){
+    for(let i = 0; i < html.children.length; i++){
+      latex += latexFromHTML(html.children[i]);
+      if(['msubsup', 'msub'].includes(html.children[i].tagName)){
+        latex += `{${latexFromHTML(html.children[i+1])}}`;
+        i++;
+      }
+    }
+    return latex;
   }
-
-
-  //Basic handling of logs
-  const logMatch = html.match(/<msub><mi>log<\/mi><sub>(.*?)<\/sub>(.*?)<\/msub>/);
-  if (logMatch) {
-    latex += "\\log_{" + latexFromHTML(logMatch[1]) + "}{" + latexFromHTML(logMatch[2]) + "}";
-  }
-
-
-  //Handle remaining text, removing HTML tags
-  return latex === '' ? html : latex;
+  else return '';
 }
 
 
 export function parseLatexFromHTML(parentElement: Element) {
-  const mrow = getTextContent(parentElement);
-  const html = mrow?.innerHTML || '';
-
-  let formula = latexFromHTML(html);
+  const mrow = getTextContent(parentElement)!;
+  let formula = latexFromHTML(mrow);
   console.log(formula);
   return formula;
 }

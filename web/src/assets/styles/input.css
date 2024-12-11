@@ -217,6 +217,13 @@
   height: 8px;
 }
 
+.button-style{
+  @apply flex flex-col justify-center items-center cursor-pointer border border-solid border-gray-400 bg-white hover:bg-slate-100 active:bg-slate-200;
+}
+.button-style-selected{
+  background-color: rgb(241 245 249);
+}
+
 @keyframes timeLine{
   from{
     width: 100%;

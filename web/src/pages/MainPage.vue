@@ -6,7 +6,11 @@
         <div class="flex flex-col gap-y-2">
           <div class="flex flex-row gap-x-2 items-center">
             <p class=" text-lg font-medium">Latex код: </p>
-            <input type="text" class="max-w-none w-[400px] outline-none text-lg px-2 py-1 rounded-lg border border-solid border-gray-400 focus:border-sky-500" v-model="formula"/>
+            <input 
+              type="text" 
+              class="max-w-none w-[400px] outline-none text-lg px-2 py-1 rounded-lg border border-solid border-gray-400 focus:border-sky-500" 
+              v-model="formula"
+            />
           </div>
           <div class="flex flex-row gap-x-2 items-center">
             <p class=" text-lg font-medium">Формула: </p>
@@ -105,10 +109,10 @@ const StandartButtons = [
         {id: 1113, formula: ')', argument: ')'},
       ]},
       {id: 1120, formula: '\\cfrac{a}{b}', argument: '\\cfrac{a}{b}', alternatives: []},
-      {id: 1130, formula: 'x^2', argument: 'x^2', alternatives: [
-        {id: 1131, formula: 'x^2', argument: 'x^2'},
-        {id: 1132, formula: 'x^3', argument: 'x^3'},
-        {id: 1133, formula: 'x^n', argument: 'x^n'},
+      {id: 1130, formula: 'x^2', argument: '{x}^{2}', alternatives: [
+        {id: 1131, formula: 'x^2', argument: '{x}^{2}'},
+        {id: 1132, formula: 'x^3', argument: '{x}^{3}'},
+        {id: 1133, formula: 'x^n', argument: '{x}^{n}'},
       ]},
       {id: 1140, formula: '\\pi', argument: '\\pi', alternatives: []},
     ],
@@ -121,8 +125,8 @@ const StandartButtons = [
       ]},
       {id: 1220, formula: '\\sqrt{\\smash[b]{x}}', argument: '\\sqrt{x}', alternatives: [
         {id: 1221, formula: '\\sqrt{x}', argument: '\\sqrt{x}'},
-        {id: 1222, formula: '\\sqrt[3]{x}', argument: '\\sqrt[3]{x}'},
-        {id: 1223, formula: '\\sqrt[n]{x}', argument: '\\sqrt[n]{x}'},
+        {id: 1222, formula: '\\sqrt[3]{x}', argument: '\\sqrt[{3}]{x}'},
+        {id: 1223, formula: '\\sqrt[n]{x}', argument: '\\sqrt[{n}]{x}'},
       ]},
       {id: 1230, formula: 'x', argument: 'x', alternatives: [
         {id: 1231, formula: 'x', argument: 'x'},
@@ -240,38 +244,38 @@ const StandartButtons = [
   ],
   [ // trigonometrical buttons
     [
-      {id: 3110, formula: '\\sin', argument: '\\sin', alternatives: []},
-      {id: 3120, formula: '\\arcsin', argument: '\\arcsin', alternatives: []},
-      {id: 3130, formula: '\\sinh', argument: '\\sinh', alternatives: []},
+      {id: 3110, formula: '\\sin', argument: '\\sin{x}', alternatives: []},
+      {id: 3120, formula: '\\arcsin', argument: '\\arcsin{x}', alternatives: []},
+      {id: 3130, formula: '\\sinh', argument: '\\sinh{x}', alternatives: []},
       {id: 3140, formula: '\\operatorname{arsinh}', argument: '\\operatorname{arsinh}', alternatives: []},
-      {id: 3150, formula: 'x^\\circ', argument: 'x^\\circ', alternatives: []},
+      {id: 3150, formula: 'x^\\circ', argument: '{x}^{\\circ}', alternatives: []},
     ],
     [
-      {id: 3210, formula: '\\cos', argument: '\\cos', alternatives: []},
-      {id: 3220, formula: '\\arccos', argument: '\\arccos', alternatives: []},
-      {id: 3230, formula: '\\cosh', argument: '\\cosh', alternatives: []},
+      {id: 3210, formula: '\\cos', argument: '\\cos{x}', alternatives: []},
+      {id: 3220, formula: '\\arccos', argument: '\\arccos{x}', alternatives: []},
+      {id: 3230, formula: '\\cosh', argument: '\\cosh{x}', alternatives: []},
       {id: 3240, formula: '\\operatorname{arcosh}', argument: '\\operatorname{arcosh}', alternatives: []},
     ],
     [
-      {id: 3410, formula: '\\tg', argument: '\\tg', alternatives: []},
-      {id: 3420, formula: '\\arctg', argument: '\\arctg', alternatives: []},
-      {id: 3430, formula: '\\th', argument: '\\th', alternatives: []},
+      {id: 3410, formula: '\\tg', argument: '\\tg{x}', alternatives: []},
+      {id: 3420, formula: '\\arctg', argument: '\\arctg{x}', alternatives: []},
+      {id: 3430, formula: '\\th', argument: '\\th{x}', alternatives: []},
       {id: 3440, formula: '\\operatorname{arth}', argument: '\\operatorname{arth}', alternatives: []},
     ],
     [
-      {id: 3510, formula: '\\ctg', argument: '\\ctg', alternatives: []},
-      {id: 3520, formula: '\\arcctg', argument: '\\arcctg', alternatives: []},
-      {id: 3530, formula: '\\cth', argument: '\\cth', alternatives: []},
+      {id: 3510, formula: '\\ctg', argument: '\\ctg{x}', alternatives: []},
+      {id: 3520, formula: '\\arcctg', argument: '\\arcctg{x}', alternatives: []},
+      {id: 3530, formula: '\\cth', argument: '\\cth{x}', alternatives: []},
       {id: 3540, formula: '\\operatorname{arcth}', argument: '\\operatorname{arcth}', alternatives: []},
     ],
     [
-      {id: 3610, formula: '\\sec', argument: '\\sec', alternatives: []},
+      {id: 3610, formula: '\\sec', argument: '\\sec{x}', alternatives: []},
       {id: 3620, formula: '\\operatorname{arcsec}', argument: '\\operatorname{arcsec}', alternatives: []},
       {id: 3630, formula: '\\operatorname{sech}', argument: '\\operatorname{sech}', alternatives: []},
       {id: 3640, formula: '\\operatorname{arsech}', argument: '\\operatorname{arsech}', alternatives: []},
     ],
     [
-      {id: 3710, formula: '\\csc', argument: '\\csc', alternatives: []},
+      {id: 3710, formula: '\\csc', argument: '\\csc{x}', alternatives: []},
       {id: 3720, formula: '\\operatorname{arccsc}', argument: '\\operatorname{arccsc}', alternatives: []},
       {id: 3730, formula: '\\operatorname{csch}', argument: '\\operatorname{csch}', alternatives: []},
       {id: 3740, formula: '\\operatorname{arcsch}', argument: '\\operatorname{arcsch}', alternatives: []},
@@ -279,22 +283,22 @@ const StandartButtons = [
   ],
   [
     [
-      {id: 4110, formula: '\\lim_{a \\to b} ', argument: '\\lim_{a \\to b} ', alternatives: []},
-      {id: 4120, formula: '\\lim_{a \\to b^-}', argument: '\\lim_{a \\to b^-}', alternatives: []},
-      {id: 4130, formula: '\\lim_{a \\to b^+}', argument: '\\lim_{a \\to b^+}', alternatives: []},
+      {id: 4110, formula: '\\lim_{a \\to b} ', argument: '\\lim_{{a} \\to {b}} ', alternatives: []},
+      {id: 4120, formula: '\\lim_{a \\to b^-}', argument: '\\lim_{{a} \\to {{b}^{-}}}', alternatives: []},
+      {id: 4130, formula: '\\lim_{a \\to b^+}', argument: '\\lim_{{a} \\to {{b}^{+}}}', alternatives: []},
       {id: 4140, formula: '\\infin', argument: '\\infin', alternatives: []},
     ],
     [
       {id: 4210, formula: '\\cfrac{d}{dx}', argument: '\\cfrac{d}{dx}', alternatives: []},
       {id: 4220, formula: '\\int', argument: '\\int', alternatives: []},
-      {id: 4230, formula: '\\int_a^b', argument: '\\int_a^b', alternatives: []},
-      {id: 4240, formula: '\\sum_{i=a}^b', argument: '\\sum_{i=a}^b', alternatives: []},
+      {id: 4230, formula: '\\int_a^b', argument: '\\int_{a}^{b}', alternatives: []},
+      {id: 4240, formula: '\\sum_{i=a}^b', argument: '\\sum_{i=a}^{b}', alternatives: []},
     ],
     [
       {id: 4310, formula: '\\log_{10}', argument: '\\log_{10}', alternatives: []},
-      {id: 4320, formula: '\\log_2', argument: '\\log_2', alternatives: []},
-      {id: 4330, formula: '\\log_a', argument: '\\log_a', alternatives: []},
-      {id: 4340, formula: '\\sum_{i=a}^b', argument: '\\sum_{i=a}^b', alternatives: []},
+      {id: 4320, formula: '\\log_2', argument: '\\log_{2}', alternatives: []},
+      {id: 4330, formula: '\\log_x', argument: '\\log_{x}', alternatives: []},
+      {id: 4340, formula: '\\sum_{i=a}^b', argument: '\\sum_{i=a}^{b}', alternatives: []},
     ],
   ],
 ];
@@ -345,7 +349,7 @@ export default {
     },
     updateFormulaFromHTML(event: any){
       console.log('ZOV: ', event.target);
-      parseLatexFromHTML(event.target);
+      this.formula = parseLatexFromHTML(event.target);
       // this.formula = parseLatexFromHTML(event.target)
     },
     APIRequest(){
