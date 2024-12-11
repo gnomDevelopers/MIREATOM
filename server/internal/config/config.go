@@ -11,7 +11,7 @@ const (
 	DBPort     = "5432"
 	DBUser     = "postgres"
 	DBPassword = "Gew1234"
-	DBName     = "test"
+	DBName     = "mireatom"
 
 	// Redis
 	RedisPort     = "6379"

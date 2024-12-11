@@ -15,6 +15,12 @@ export enum StatusCodes {
 
 //interfaces
 
+//validator.ts interface
+export interface IValidAnswer{
+  value: string,
+  error: string,
+}
+
 //statusWindow interface
 export interface IStatusWindow{
   id: number,
@@ -28,6 +34,11 @@ export interface IAPI_Login{
   password: string,
 };
 
+export interface IAPI_Register{
+  name: string,
+  login: string,
+  password: string,
+};
 //types
 
 export type TMaybeNumber = number | null;

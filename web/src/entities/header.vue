@@ -1,39 +1,54 @@
 <template>
-  <div class="flex flex-row items-stretch h-14 w-full px-5 header-shadow z-10">
-    <div class="h-full grid content-center mx-16">
-      <div class="font-semibold text-3xl cursor-pointer">SITELOGO</div>
+  <div v-if="!isLoginPage" class="flex flex-row justify-between items-stretch mb:h-24 uus:h-16 shrink-0 w-full px-5 header-shadow border-b-2 z-10 bg-color-light">
+    <div class="h-full grid content-center md:ml-16">
+      <div @click="$router.push({name: 'MainPage'})"><img class="w-8 mb:w-12 h-8 mb:h-12" src="../assets/icons/icon-sigma.svg"/></div>
     </div>
-    <div class="h-full flex flex-row gap-x-2 flex-grow">
-      <div
-        class="h-full min-w-16 grid cursor-pointer justify-center content-center border-bottom border-gray-500 hover:border-b-sky-500"
-      >
-        <a>Home</a>
-      </div>
-      <div
-        class="h-full min-w-16 grid cursor-pointer justify-center content-center border-bottom border-gray-500 hover:border-b-sky-500"
-      >
-        <a>About</a>
-      </div>
-      <div
-        class="h-full min-w-16 grid cursor-pointer justify-center content-center border-bottom border-gray-500 hover:border-b-sky-500"
-      >
-        <a>Main</a>
-      </div>
-      <div
-        class="h-full min-w-16 grid cursor-pointer justify-center content-center border-bottom border-gray-500 hover:border-b-sky-500"
-      >
-        <a>F.A.Q.</a>
-      </div>
+    <!--  это для норм размера и вкладки для студентоффф-->
+    <div v-if="isMainPage" class="flex flex-row justify-center items-center gap-4 mt-2">
+      <button class="box-shadow flex justify-center items-center px-3 mb:px-4 text-xl mb:text-2xl uus:text-base text-color border-2 border-hr-color rounded-lg cursor-pointer transition-bg hover:bg-red-100 active:bg-red-300" >Формулы</button>
+      <button class="box-shadow flex justify-center items-center px-3 mb:px-4 text-xl mb:text-2xl uus:text-base text-color border-2 border-b-gray-600 rounded-lg cursor-pointer transition-bg hover:bg-red-100 active:bg-red-300" @click="$router.push({name: 'ArticlesPage'})">Статьи</button>
     </div>
-    <div class="flex flex-row gap-x-2 items-center mr-16">
-      <img
-        class="rounded-full w-10 h-10"
-        src="../assets/icons/user-avatar.png"
-      />
-      <div class="cursor-pointer">UserName</div>
+
+    <div v-if="isArticlesPage" class="flex flex-row justify-center items-center gap-4 mt-2">
+      <button class="box-shadow flex justify-center items-center px-3 mb:px-4 text-xl mb:text-2xl uus:text-base text-color border-2 border-b-gray-600 rounded-lg cursor-pointer transition-bg hover:bg-red-100 active:bg-red-300" @click="$router.push({name: 'MainPage'})">Формулы</button>
+      <button class="box-shadow flex justify-center items-center px-3 mb:px-4 text-xl mb:text-2xl uus:text-base text-color border-2 border-hr-color rounded-lg cursor-pointer transition-bg hover:bg-red-100 active:bg-red-300">Статьи</button>
+    </div>
+
+
+
+    <div class="flex flex-row gap-x-2 justify-center items-center md:mr-16">
+
+      <img class="w-8 mb:w-10 h-8 mb:h-10" src="../assets/icons/icon-profile.svg"/>
+
+      <div class="box-shadow flex justify-center items-center px-3 mb:px-4 text-xl mb:text-2xl uus:text-base text-color border-2 border-hr-color rounded-lg cursor-pointer transition-bg hover:bg-red-100 active:bg-red-300" @click="$router.push({name: 'LoginPage'})">
+        Вход
+      </div>
     </div>
   </div>
+
+
+
+
 </template>
 <script lang="ts">
-export default {};
+import { mapStores } from 'pinia';
+import { useUserInfoStore } from '@/stores/userInfoStore';
+
+export default {
+
+  computed: {
+    ...mapStores(useUserInfoStore),
+    isLoginPage(){
+      return this.$route.fullPath === '/login';
+    },
+    isMainPage(){
+      return this.$route.fullPath === '/';
+    },
+    isArticlesPage(){
+      return this.$route.fullPath === '/articles';
+    },
+
+  },
+
+};
 </script>

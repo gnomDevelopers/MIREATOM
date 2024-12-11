@@ -6,9 +6,9 @@ export const router = createRouter({
   history: createWebHistory(),
   routes: [
     {
-      name: 'WelcomePage',
+      name: 'MainPage',
       path: '/',
-      component: () => import('@/pages/WelcomePage.vue'),
+      component: () => import('@/pages/MainPage.vue'),
       meta: { requiresAuth: false },
     },
     {
@@ -18,9 +18,9 @@ export const router = createRouter({
       meta: { requiresAuth: false },
     },
     {
-      name: 'SignUpPage',
-      path: '/signup',
-      component: () => import('@/pages/SignUpPage.vue'),
+      name: 'ArticlesPage',
+      path: '/articles',
+      component: () => import('@/pages/ArticlesPage.vue'),
       meta: { requiresAuth: false },
     },
   ],
