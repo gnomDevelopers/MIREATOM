@@ -11,7 +11,7 @@ func DBFormulaGetByID(db *sqlx.DB, id int64) (*entities.Formula, error) {
 	query := `SELECT id, title, value, user_id FROM formula WHERE id = $1`
 	err := db.Get(&formula, query, id)
 	if err != nil {
-		return &entities.Formula{}, nil
+		return nil, err
 	}
 
 	return &formula, nil
@@ -62,4 +62,20 @@ func DBFormulaDelete(db *sqlx.DB, formulaID int64) error {
 		return err
 	}
 	return nil
+}
+
+func DBFormulaHistoryGet(db *sqlx.DB, userID int64, pageNumber int64) (*[]entities.Formula, error) {
+	formulas := []entities.Formula{}
+	query := `
+		SELECT id, title, value, user_id FROM formula WHERE user_id = $1
+		ORDER BY id DESC
+		LIMIT 20
+		OFFSET $2
+	`
+
+	err := db.Select(&formulas, query, userID, pageNumber-1)
+	if err != nil {
+		return nil, err
+	}
+	return &formulas, nil
 }

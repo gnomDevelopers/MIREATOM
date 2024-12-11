@@ -46,6 +46,8 @@ func (h *Handler) Router() *fiber.App {
 	f.Post("/formula", h.CreateFormula)
 	f.Get("/formula/id/:id", h.GetFormulaById)
 	f.Get("/formula/user_id/:id", h.GetFormulaByUserId)
+
+	f.Get("/formula/history/user/:id/page/:number", h.GetFormulasHistory)
 	f.Put("/formula", h.UpdateFormula)
 	f.Delete("/formula/id/:id", h.DeleteFormula)
 	f.Post("/formula/file", h.GetFormulaFromArticle)
@@ -54,6 +56,6 @@ func (h *Handler) Router() *fiber.App {
 	authGroup.Use(func(c *fiber.Ctx) error {
 		return pkg.WithJWTAuth(c, config.SigningKey)
 	})
-
+	authGroup.Post("/article", h.CreateArticle)
 	return f
 }

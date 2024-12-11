@@ -5,7 +5,7 @@ import katex from 'katex';
 export const useCalculatorStore = defineStore('calculator', {
   state() {
     return{ 
-      currentTypeButtons: 3, // 0 - стандартные, 1 - спец. символы и тд.
+      currentTypeButtons: 0, // 0 - стандартные, 1 - спец. символы и тд.
       currentOpenedButtonID: null as TMaybeNumber,
       buttonsMap: new Map<number, string>(),
     }

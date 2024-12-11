@@ -345,7 +345,8 @@ export default {
     },
     updateFormulaFromHTML(event: any){
       console.log('ZOV: ', event.target);
-      console.log('text: ', parseLatexFromHTML(event.target));
+      parseLatexFromHTML(event.target);
+      // this.formula = parseLatexFromHTML(event.target)
     },
     APIRequest(){
       API_Health();

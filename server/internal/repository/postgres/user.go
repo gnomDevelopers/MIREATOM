@@ -9,8 +9,7 @@ import (
 
 func DBUserGetById(db *sqlx.DB, id int64) (*entities.User, error) {
 	user := entities.User{}
-	query := `SELECT id, login, email, password, role, name, surname, third_name FROM users
-	WHERE id=$1`
+	query := `SELECT id, name, surname, third_name, role, email, password FROM users WHERE id = $1`
 	err := db.Get(&user, query, id)
 	if err != nil {
 		return &entities.User{}, nil
@@ -21,7 +20,7 @@ func DBUserGetById(db *sqlx.DB, id int64) (*entities.User, error) {
 
 func DBUserGetByEmail(db *sqlx.DB, email string) (*entities.User, error) {
 	user := entities.User{}
-	query := `SELECT id, email, password, role, name, surname, third_name FROM users WHERE email = $1`
+	query := `SELECT id, name, surname, third_name, role, email, password FROM users WHERE email = $1`
 	err := db.Get(&user, query, email)
 	if err != nil {
 		return &entities.User{}, nil

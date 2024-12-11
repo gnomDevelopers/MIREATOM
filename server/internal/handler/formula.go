@@ -106,6 +106,9 @@ func (h *Handler) GetFormulaFromArticle(c *fiber.Ctx) error {
 		err = os.Remove("./tmp/" + file.Filename)
 	}
 
+	logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Info", Method: c.Method(),
+		Url: c.OriginalURL(), Status: fiber.StatusOK})
+	logEvent.Msg("success")
 	return c.Status(200).JSON(fiber.Map{"formulas": formulas})
 }
 
@@ -287,4 +290,50 @@ func (h *Handler) DeleteFormula(c *fiber.Ctx) error {
 		Url: c.OriginalURL(), Status: fiber.StatusOK})
 	logEvent.Msg("success")
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "success"})
+}
+
+// GetFormulasHistory
+// @Tags formula
+// @Summary      Retrieve formula history by user ID
+// @Description  Returns a paginated list of formulas for a specific user
+// @Accept       json
+// @Produce      json
+// @Param        id     path      int  true  "User ID"
+// @Param        number path      int  true  "Page number"
+// @Success      200    {array}   entities.Formula        "List of formulas"
+// @Failure      400    {object}  entities.ErrorResponse  "Invalid ID or page number"
+// @Failure      500    {object}  entities.ErrorResponse  "Internal server error"
+// @Router       /formula/history/user/{id}/page/{number} [get]
+func (h *Handler) GetFormulasHistory(c *fiber.Ctx) error {
+	idStr := c.Params("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
+		logEvent.Msg(err.Error())
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	numberStr := c.Params("number")
+	number, err := strconv.Atoi(numberStr)
+	if err != nil {
+		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
+		logEvent.Msg(err.Error())
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	h.logger.Debug().Msg("call postgres.DBFormulaGetAll")
+	formulas, err := postgres.DBFormulaHistoryGet(h.db, int64(id), int64(number))
+	if err != nil {
+		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
+		logEvent.Msg(err.Error())
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Info", Method: c.Method(),
+		Url: c.OriginalURL(), Status: fiber.StatusOK})
+	logEvent.Msg("success")
+	return c.Status(fiber.StatusOK).JSON(formulas)
 }
