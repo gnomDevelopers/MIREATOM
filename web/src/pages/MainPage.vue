@@ -3,7 +3,7 @@
     <div class="flex flex-col md:flex-row w-full lg:w-10/12 justify-center items-start gap-2 px-2 mt-4 relative">
 
       <!--модальное окно истории формул-->
-      <section v-if="true" class="absolute z-30">
+      <section v-if="false" class="absolute z-30">
         <div>
           <svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M34.6668 17.3334L17.3335 34.6667M34.6668 34.6667L17.3335 17.3334" stroke="#8F0101" stroke-width="2" stroke-linecap="round"/>
