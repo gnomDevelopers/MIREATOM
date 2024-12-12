@@ -178,8 +178,15 @@ export function insertHTMLBeforeCursor(parentElement: HTMLElement, insertFormula
   if(selectedNodeGrandParent.tagName === 'mrow'){
     //расспаковываем все элементы из mrow и добавляем перед или после родительским элементом
     for(const child of renderedFormula.children){
-      if(recSearch.pos !== -1) selectedNodeGrandParent.insertBefore(child, selectedNodeParent);
-      else selectedNodeGrandParent.insertBefore(child, selectedNodeParent.nextSibling);
+      selectedNodeGrandParent.insertBefore(child, selectedNodeParent);
+    }
+    //если нужно было добавить формулу после копии родительского элемента 
+    if(recSearch.pos === -1){
+      //удаляем копию родительского элемента
+      selectedNodeGrandParent.removeChild(selectedNodeParent);
+      //и вставляем её перед первым дочерним элементом формулы
+      selectedNodeGrandParent.insertBefore(selectedNodeParent, renderedFormula.children[0]);
+      //т.о. копия родительского элемента будет стоять перед элементами формулы
     }
   }
   else{
@@ -187,12 +194,21 @@ export function insertHTMLBeforeCursor(parentElement: HTMLElement, insertFormula
     if(selectedNodeGrandParent === null) return;
     //создаем элемент строку mrow
     const mrowElement = document.createElement('mrow');
-    //добавляем родительский элемент в mrow
-    mrowElement.appendChild(selectedNodeParent);
-    //расспаковываем все элементы из mrow формулы и добавляем перед или после родительским элементом
+    //делаем глуюокую копию родительского элемента
+    const newParentNode = selectedNodeParent.cloneNode(true);
+    //добавляем копию родительского элемента в mrow
+    mrowElement.appendChild(newParentNode);
+    //расспаковываем все элементы из mrow формулы и добавляем перед копией родительского элемента
     for(const child of renderedFormula.children){
-      if(recSearch.pos !== -1) mrowElement.insertBefore(child, selectedNodeParent);
-      else mrowElement.insertBefore(child, selectedNodeParent.nextSibling);
+      mrowElement.insertBefore(child, newParentNode);
+    }
+    //если нужно было добавить формулу после копии родительского элемента 
+    if(recSearch.pos === -1){
+      //удаляем копию родительского элемента
+      mrowElement.removeChild(newParentNode);
+      //и вставляем её перед первым дочерним элементом формулы
+      mrowElement.insertBefore(newParentNode, renderedFormula.children[0]);
+      //т.о. копия родительского элемента будет стоять перед элементами формулы
     }
     //добавляем деду mrow перед родительским элементом
     selectedNodeGrandParent.insertBefore(mrowElement, selectedNodeParent);
