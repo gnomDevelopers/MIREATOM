@@ -109,6 +109,19 @@ definitions:
       value:
         type: string
     type: object
+  entities.UserData:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      surname:
+        type: string
+      third_name:
+        type: string
+    type: object
 info:
   contact: {}
   title: Σigma API
@@ -326,7 +339,7 @@ paths:
       summary: Delete article
       tags:
       - article
-  /formula:
+  /auth/formula:
     post:
       consumes:
       - application/json
@@ -356,6 +369,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/entities.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Create formula
       tags:
       - formula
@@ -388,7 +403,43 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/entities.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Update formula
+      tags:
+      - formula
+  /auth/formula/id/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: formula id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.Message'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete formula
       tags:
       - formula
   /formula/file:
@@ -458,37 +509,6 @@ paths:
       tags:
       - formula
   /formula/id/{id}:
-    delete:
-      consumes:
-      - application/json
-      parameters:
-      - description: formula id
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/entities.Message'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/entities.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/entities.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/entities.ErrorResponse'
-      summary: Delete formula
-      tags:
-      - formula
     get:
       consumes:
       - application/json
@@ -610,6 +630,36 @@ paths:
           schema:
             $ref: '#/definitions/entities.ErrorResponse'
       summary: User signup
+      tags:
+      - user
+  /user/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Fetches user details from the database using the provided user
+        ID.
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User data retrieved successfully
+          schema:
+            $ref: '#/definitions/entities.UserData'
+        "400":
+          description: Invalid user ID format
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+      summary: Retrieve user data by ID
       tags:
       - user
 securityDefinitions:

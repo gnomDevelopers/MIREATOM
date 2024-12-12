@@ -193,3 +193,54 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 	logEvent.Msg("success")
 	return c.Status(fiber.StatusOK).JSON(res)
 }
+
+// GetUserDataByID
+// @Tags         user
+// @Summary      Retrieve user data by ID
+// @Description  Fetches user details from the database using the provided user ID.
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "User ID"
+// @Success      200  {object}  entities.UserData  "User data retrieved successfully"
+// @Failure      400  {object}  entities.ErrorResponse  "Invalid user ID format"
+// @Failure      500  {object}  entities.ErrorResponse  "Internal server error"
+// @Router       /user/{id} [get]
+func (h *Handler) GetUserDataByID(c *fiber.Ctx) error {
+	idStr := c.Params("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
+		logEvent.Msg(err.Error())
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	h.logger.Debug().Msg("call postgres.DBUserExistsID")
+	exists, err := postgres.DBUserExistsID(h.db, int64(id))
+	if err != nil {
+		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
+		logEvent.Msg(err.Error())
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+	if !exists {
+		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+			Url: c.OriginalURL(), Status: fiber.StatusBadRequest})
+		logEvent.Msg("user not exists")
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "user not exists"})
+	}
+
+	h.logger.Debug().Msg("call postgres.DBUserGetByID")
+	user, err := postgres.DBUserDataGetById(h.db, int64(id))
+	if err != nil {
+		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
+		logEvent.Msg(err.Error())
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Info", Method: c.Method(),
+		Url: c.OriginalURL(), Status: fiber.StatusOK})
+	logEvent.Msg("success")
+	return c.Status(fiber.StatusOK).JSON(user)
+}

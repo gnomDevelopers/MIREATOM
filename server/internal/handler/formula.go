@@ -67,7 +67,7 @@ func (h *Handler) GetFormulaFromArticle(c *fiber.Ctx) error {
 // @Failure 400 {object} entities.ErrorResponse
 // @Failure 401 {object} entities.ErrorResponse
 // @Failure 500 {object} entities.ErrorResponse
-// @Router       /formula [post]
+// @Router       /auth/formula [post]
 // @Security ApiKeyAuth
 func (h *Handler) CreateFormula(c *fiber.Ctx) error {
 	var req entities.CreateFormulaRequest
@@ -203,7 +203,7 @@ func (h *Handler) GetFormulaByUserId(c *fiber.Ctx) error {
 // @Failure 400 {object} entities.ErrorResponse
 // @Failure 401 {object} entities.ErrorResponse
 // @Failure 500 {object} entities.ErrorResponse
-// @Router       /formula [put]
+// @Router       /auth/formula [put]
 // @Security ApiKeyAuth
 func (h *Handler) UpdateFormula(c *fiber.Ctx) error {
 	var formula entities.UpdateFormulaRequest
@@ -240,7 +240,7 @@ func (h *Handler) UpdateFormula(c *fiber.Ctx) error {
 // @Failure 400 {object} entities.ErrorResponse
 // @Failure 401 {object} entities.ErrorResponse
 // @Failure 500 {object} entities.ErrorResponse
-// @Router       /formula/id/{id} [delete]
+// @Router       /auth/formula/id/{id} [delete]
 // @Security ApiKeyAuth
 func (h *Handler) DeleteFormula(c *fiber.Ctx) error {
 	idStr := c.Params("id")
