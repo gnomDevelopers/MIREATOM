@@ -342,6 +342,8 @@ export default {
       this.calculatorStore.currentTypeButtons = type;
     },
     updateFormulaFromButton(newFormulaPart: string){
+      //скрываем экстра кнопки
+      this.calculatorStore.currentOpenedButtonID = null;
       //вставляем в DOM введеную с кнопки формулу
       insertHTMLBeforeCursor(this.formulaContainer!, newFormulaPart);
       //обновляем формулу

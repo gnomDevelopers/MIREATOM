@@ -78,7 +78,6 @@ import submitButton from '../shared/submitButton.vue';
 import { ValidUserLogin, ValidUserPassword, ValidUserName } from '../helpers/validator';
 import { type IValidAnswer, StatusCodes, type IAPI_Login, type IAPI_Register } from '../helpers/constants';
 import {API_Login, API_Register} from '@/api/api';
-import { defineStore } from 'pinia';
 
 
 export default {
@@ -192,7 +191,7 @@ export default {
       }
       if(this.fullname.value === ''){
         if(this.fullname.error === '')this.statusWindowStore.showStatusWindow(StatusCodes.error, 'Введите ФИО!');
-        else this.statusWindowStore.showStatusWindow(StatusCodes.error, this.name.error);
+        else this.statusWindowStore.showStatusWindow(StatusCodes.error, this.fullname.error);
       }
       if(this.repPassword.value === ''){
         if(this.repPassword.error === '')this.statusWindowStore.showStatusWindow(StatusCodes.error, 'Введите повторный пароль!');
