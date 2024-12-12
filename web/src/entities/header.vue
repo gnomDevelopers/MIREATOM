@@ -1,10 +1,13 @@
 <template>
-  <div v-if="!isLoginPage" class="flex flex-row justify-between items-stretch mb:h-24 uus:h-16 shrink-0 w-full px-5 header-shadow border-b-2 z-10 bg-color-light">
-    <div class="h-full grid content-center md:ml-16">
+  <div 
+    v-if="$route.fullPath !== '/login'" 
+    class="flex flex-row gap-x-10 justify-between items-stretch mb:h-16 h-12 shrink-0 w-full px-5 header-shadow border-b-2 z-10 bg-color-light">
+
+    <div class="h-full grid content-center md:ml-16 cursor-pointer">
       <div @click="$router.push({name: 'MainPage'})"><img class="w-8 mb:w-12 h-8 mb:h-12" src="../assets/icons/icon-sigma.svg"/></div>
     </div>
     <!--  это для норм размера и вкладки для студентоффф-->
-    <div v-if="isMainPage" class="flex flex-row justify-center items-center gap-4 mt-2">
+    <!-- <div v-if="isMainPage" class="flex flex-row justify-center items-center gap-4 mt-2">
       <button class="box-shadow flex justify-center items-center px-3 mb:px-4 text-xl mb:text-2xl uus:text-base text-color border-2 border-hr-color rounded-lg cursor-pointer transition-bg hover:bg-red-100 active:bg-red-300" >Формулы</button>
       <button class="box-shadow flex justify-center items-center px-3 mb:px-4 text-xl mb:text-2xl uus:text-base text-color border-2 border-b-gray-600 rounded-lg cursor-pointer transition-bg hover:bg-red-100 active:bg-red-300" @click="$router.push({name: 'ArticlesPage'})">Статьи</button>
     </div>
@@ -12,9 +15,23 @@
     <div v-if="isArticlesPage" class="flex flex-row justify-center items-center gap-4 mt-2">
       <button class="box-shadow flex justify-center items-center px-3 mb:px-4 text-xl mb:text-2xl uus:text-base text-color border-2 border-b-gray-600 rounded-lg cursor-pointer transition-bg hover:bg-red-100 active:bg-red-300" @click="$router.push({name: 'MainPage'})">Формулы</button>
       <button class="box-shadow flex justify-center items-center px-3 mb:px-4 text-xl mb:text-2xl uus:text-base text-color border-2 border-hr-color rounded-lg cursor-pointer transition-bg hover:bg-red-100 active:bg-red-300">Статьи</button>
+    </div> -->
+    <div class="h-full flex flex-row gap-x-2 flex-grow">
+      <div
+        @click="$router.push({name: 'MainPage'})"
+        class="h-full min-w-16 grid cursor-pointer justify-center content-center border-bottom border-gray-500 hover:border-b-sky-500"
+        :class="{'border-b-sky-500': $route.path === '/'}">
+        
+        <a class="text-xl">Формулы</a>
+      </div>
+      <div
+        @click="$router.push({name: 'ArticlesPage'})"
+        class="h-full min-w-16 grid cursor-pointer justify-center content-center border-bottom border-gray-500 hover:border-b-sky-500"
+        :class="{'border-b-sky-500': $route.path === '/articles'}">
+        
+        <a class="text-xl">Статьи</a>
+      </div>
     </div>
-
-
 
     <div class="flex flex-row gap-x-2 justify-center items-center md:mr-16">
 
@@ -38,16 +55,6 @@ export default {
 
   computed: {
     ...mapStores(useUserInfoStore),
-    isLoginPage(){
-      return this.$route.fullPath === '/login';
-    },
-    isMainPage(){
-      return this.$route.fullPath === '/';
-    },
-    isArticlesPage(){
-      return this.$route.fullPath === '/articles';
-    },
-
   },
 
 };

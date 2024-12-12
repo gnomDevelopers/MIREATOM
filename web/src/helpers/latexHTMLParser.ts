@@ -139,31 +139,10 @@ export function insertHTMLBeforeCursor(parentElement: HTMLElement, insertFormula
   const selectedNodeGrandParent = selectedNodeParent.parentElement;
   if(!selectedNodeGrandParent) return;
 
-  //проверяем, не удалился ли родительский элемент из деда
-  let grandHasParent = false;
-  for(const child of selectedNodeGrandParent.children) {
-    if (child === selectedNodeParent) {
-      console.log('child: ', child);
-      console.log('parent: ', selectedNodeParent);
-      grandHasParent = true; 
-      break;
-    }
-  }
-  console.log('ОТЕЦ: ', (grandHasParent ? 'НАЙДЕН' : 'НЕ НАЙДЕН'));
-  //если отец не нашелся (паранармальщина) 
-  if(!grandHasParent){
-    console.log('следующий ебень: ', selectedNodeParent.nextSibling);
-  }
-
   console.log('cursorPos: ', recSearch.pos);
   console.log('selectedNode: ', recSearch.node);
   console.log('selectedNodeParent: ', selectedNodeParent);
-  console.log('selectedNodegrandParent: ', selectedNodeGrandParent);
-  console.log('selectedNodegrandParentChildren: ', selectedNodeGrandParent.children);
-
-  for(const child of selectedNodeGrandParent.children) {
-    console.log('child: ', child);
-  }
+  console.log('selectedNodeGrandParent: ', selectedNodeGrandParent);
 
   //создаем временный элемент и в него рендерим latex формулу
   const element = document.createElement('div');
@@ -176,43 +155,21 @@ export function insertHTMLBeforeCursor(parentElement: HTMLElement, insertFormula
 
   //если родительский элемент находится в строке
   if(selectedNodeGrandParent.tagName === 'mrow'){
-    //расспаковываем все элементы из mrow и добавляем перед или после родительским элементом
-    for(const child of renderedFormula.children){
-      selectedNodeGrandParent.insertBefore(child, selectedNodeParent);
-    }
-    //если нужно было добавить формулу после копии родительского элемента 
-    if(recSearch.pos === -1){
-      //удаляем копию родительского элемента
-      selectedNodeGrandParent.removeChild(selectedNodeParent);
-      //и вставляем её перед первым дочерним элементом формулы
-      selectedNodeGrandParent.insertBefore(selectedNodeParent, renderedFormula.children[0]);
-      //т.о. копия родительского элемента будет стоять перед элементами формулы
-    }
+    //вставляем формулу в деда  
+    insertChildrenBeforeElement(renderedFormula.children, selectedNodeParent, selectedNodeGrandParent, recSearch.pos!);
   }
   else{
-    //если нет деда - беда беда
-    if(selectedNodeGrandParent === null) return;
     //создаем элемент строку mrow
     const mrowElement = document.createElement('mrow');
     //делаем глуюокую копию родительского элемента
     const newParentNode = selectedNodeParent.cloneNode(true);
     //добавляем копию родительского элемента в mrow
     mrowElement.appendChild(newParentNode);
-    //расспаковываем все элементы из mrow формулы и добавляем перед копией родительского элемента
-    for(const child of renderedFormula.children){
-      mrowElement.insertBefore(child, newParentNode);
-    }
-    //если нужно было добавить формулу после копии родительского элемента 
-    if(recSearch.pos === -1){
-      //удаляем копию родительского элемента
-      mrowElement.removeChild(newParentNode);
-      //и вставляем её перед первым дочерним элементом формулы
-      mrowElement.insertBefore(newParentNode, renderedFormula.children[0]);
-      //т.о. копия родительского элемента будет стоять перед элементами формулы
-    }
-    //добавляем деду mrow перед родительским элементом
+    //вставляем формулу в деда
+    insertChildrenBeforeElement(renderedFormula.children, newParentNode, mrowElement, recSearch.pos!);
+    //вставляем mrow в деда перед родительским элементом
     selectedNodeGrandParent.insertBefore(mrowElement, selectedNodeParent);
-    //удаляем родительский элемент из деда
+    //удаляем родительский элемент чтобы не дублировать
     selectedNodeGrandParent.removeChild(selectedNodeParent);
   }
 }
@@ -233,6 +190,7 @@ function recursiveSearch(node: Node, range: Range): {node: Node | null, pos: num
   return {node: null, pos: null};
 }
 
+//рендер latex в html element
 function renderKatex(element: HTMLElement, formula: string){
   katex.render(formula, element, {
     throwOnError: true,
@@ -240,4 +198,29 @@ function renderKatex(element: HTMLElement, formula: string){
     output: 'mathml',
     trust: false,
   });
+}
+
+//вставка детей перед некоторым элементом
+function insertChildrenBeforeElement(children: HTMLCollection, element: Node, parent: Element, cursorPos: number){
+  //переменная для запоминания первого элемента из children
+  let firstChild: Element | null = null;
+  //расспаковываем все элементы из mrow и добавляем перед элементом
+  for(const child of children){
+    //если это первый ребенок - запоминаем
+    if(firstChild === null) firstChild = child;
+    //вставляем ребенка перед элементом
+    parent.insertBefore(child, element);
+  }
+  //если нужно было добавить формулу после элемента 
+  if(cursorPos === -1 || cursorPos === element.textContent!.length){
+    //удаляем элемент
+    parent.removeChild(element);
+    //и вставляем его перед первым дочерним элементом формулы
+    parent.insertBefore(element, firstChild);
+    //т.о. элемент будет стоять перед элементами формулы
+  }
+
+  else if (cursorPos !== 0){
+
+  }
 }
