@@ -9,7 +9,7 @@ import (
 
 func DBUserGetById(db *sqlx.DB, id int64) (*entities.User, error) {
 	user := entities.User{}
-	query := `SELECT id, name, surname, third_name, role, email, password FROM users WHERE id = $1`
+	query := `SELECT id, name, surname, third_name, email, password FROM users WHERE id = $1`
 	err := db.Get(&user, query, id)
 	if err != nil {
 		return &entities.User{}, nil
@@ -20,7 +20,7 @@ func DBUserGetById(db *sqlx.DB, id int64) (*entities.User, error) {
 
 func DBUserGetByEmail(db *sqlx.DB, email string) (*entities.User, error) {
 	user := entities.User{}
-	query := `SELECT id, name, surname, third_name, role, email, password FROM users WHERE email = $1`
+	query := `SELECT id, name, surname, third_name, email, password FROM users WHERE email = $1`
 	err := db.Get(&user, query, email)
 	if err != nil {
 		return &entities.User{}, nil
@@ -45,8 +45,8 @@ func DBUserExists(db *sqlx.DB, email string) (bool, error) {
 }
 
 func DBUserCreate(db *sqlx.DB, user *entities.User) (*entities.User, error) {
-	query := `INSERT INTO users (email, password, role, name, surname, third_name)
-	VALUES (:email, :password, :role, :name, :surname, :third_name) RETURNING id`
+	query := `INSERT INTO users (email, password, name, surname, third_name)
+	VALUES (:email, :password, :name, :surname, :third_name) RETURNING id`
 
 	stmt, err := db.PrepareNamed(query)
 	if stmt == nil {

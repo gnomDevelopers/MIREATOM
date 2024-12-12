@@ -7,7 +7,6 @@ const (
 		name VARCHAR NOT NULL,
 		surname VARCHAR NOT NULL,
 		third_name VARCHAR,
-		role VARCHAR NOT NULL,
 		email VARCHAR NOT NULL UNIQUE,
 		password VARCHAR NOT NULL
 );

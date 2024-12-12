@@ -814,7 +814,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user_id": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "value": {
                     "type": "string"
@@ -835,19 +835,10 @@ const docTemplate = `{
                 "email": {
                     "type": "string"
                 },
-                "name": {
+                "full_name": {
                     "type": "string"
                 },
                 "password": {
-                    "type": "string"
-                },
-                "role": {
-                    "type": "string"
-                },
-                "surname": {
-                    "type": "string"
-                },
-                "third_name": {
                     "type": "string"
                 }
             }
@@ -884,7 +875,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user_id": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "value": {
                     "type": "string"

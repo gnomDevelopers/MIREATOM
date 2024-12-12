@@ -52,15 +52,20 @@ func (h *Handler) SignUp(c *fiber.Ctx) error {
 		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
 			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
 		logEvent.Msg(err.Error())
-		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
 	fullname := strings.Split(u.FullName, " ")
+	if len(fullname) < 3 {
+		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
+		logEvent.Msg(err.Error())
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
 
 	user := &entities.User{
 		Email:     u.Email,
 		Password:  hashedPassword,
-		Role:      u.Role,
 		Name:      fullname[1],
 		Surname:   fullname[0],
 		ThirdName: fullname[2],
@@ -72,7 +77,7 @@ func (h *Handler) SignUp(c *fiber.Ctx) error {
 		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
 			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
 		logEvent.Msg(err.Error())
-		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
 	TokenExpiration, err := strconv.Atoi(config.TokenExpiration)
@@ -80,7 +85,7 @@ func (h *Handler) SignUp(c *fiber.Ctx) error {
 		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
 			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
 		logEvent.Msg("wrong data")
-		return c.Status(500).JSON(fiber.Map{"error": "wrong data"})
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "wrong data"})
 	}
 	h.logger.Debug().Msg("call pkg.GenerateAccessToken")
 	accessToken, err := pkg.GenerateAccessToken(user.ID, TokenExpiration,
@@ -89,7 +94,7 @@ func (h *Handler) SignUp(c *fiber.Ctx) error {
 		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
 			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
 		logEvent.Msg(err.Error())
-		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
 	h.logger.Debug().Msg("call pkg.GenerateRefreshToken")
@@ -98,7 +103,7 @@ func (h *Handler) SignUp(c *fiber.Ctx) error {
 		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
 			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
 		logEvent.Msg(err.Error())
-		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
 	res := &entities.CreateUserResponse{

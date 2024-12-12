@@ -4,7 +4,6 @@ type User struct {
 	ID        int    `json:"id" db:"id"`
 	Password  string `json:"password" db:"password"`
 	Email     string `json:"email" db:"email"`
-	Role      string `json:"role" db:"role"`
 	Name      string `json:"name" db:"name"`
 	Surname   string `json:"surname" db:"surname"`
 	ThirdName string `json:"third_name" db:"third_name"`
@@ -13,7 +12,6 @@ type User struct {
 type CreateUserRequest struct {
 	Password string `json:"password"`
 	Email    string `json:"email"`
-	Role     string `json:"role"`
 	FullName string `json:"full_name"`
 }
 

@@ -68,9 +68,10 @@ func (h *Handler) GetFormulaFromArticle(c *fiber.Ctx) error {
 // @Failure 401 {object} entities.ErrorResponse
 // @Failure 500 {object} entities.ErrorResponse
 // @Router       /formula [post]
+// @Security ApiKeyAuth
 func (h *Handler) CreateFormula(c *fiber.Ctx) error {
-	var formula entities.Formula
-	err := c.BodyParser(&formula)
+	var req entities.CreateFormulaRequest
+	err := c.BodyParser(&req)
 	if err != nil {
 		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
 			Url: c.OriginalURL(), Status: fiber.StatusBadRequest})
@@ -78,8 +79,13 @@ func (h *Handler) CreateFormula(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid request body"})
 	}
 
+	userId, ok := c.Locals("id").(int)
+	if !ok {
+		return c.SendStatus(fiber.StatusForbidden)
+	}
+
 	h.logger.Debug().Msg("call postgres.DBFormulaExists")
-	exists, err := postgres.DBFormulaExists(h.db, formula.Value)
+	exists, err := postgres.DBFormulaExists(h.db, req.Value)
 	if err != nil {
 		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
 			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
@@ -94,8 +100,14 @@ func (h *Handler) CreateFormula(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "formula already exists"})
 	}
 
+	formula := &entities.Formula{
+		UserID: userId,
+		Title:  req.Title,
+		Value:  req.Value,
+	}
+
 	h.logger.Debug().Msg("call postgres.DBFormulaCreate")
-	formulaDB, err := postgres.DBFormulaCreate(h.db, &formula)
+	formulaDB, err := postgres.DBFormulaCreate(h.db, formula)
 	if err != nil {
 		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
 			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
@@ -192,6 +204,7 @@ func (h *Handler) GetFormulaByUserId(c *fiber.Ctx) error {
 // @Failure 401 {object} entities.ErrorResponse
 // @Failure 500 {object} entities.ErrorResponse
 // @Router       /formula [put]
+// @Security ApiKeyAuth
 func (h *Handler) UpdateFormula(c *fiber.Ctx) error {
 	var formula entities.UpdateFormulaRequest
 	err := c.BodyParser(&formula)
@@ -228,6 +241,7 @@ func (h *Handler) UpdateFormula(c *fiber.Ctx) error {
 // @Failure 401 {object} entities.ErrorResponse
 // @Failure 500 {object} entities.ErrorResponse
 // @Router       /formula/id/{id} [delete]
+// @Security ApiKeyAuth
 func (h *Handler) DeleteFormula(c *fiber.Ctx) error {
 	idStr := c.Params("id")
 	id, err := strconv.Atoi(idStr)

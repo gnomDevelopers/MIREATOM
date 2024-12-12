@@ -20,7 +20,7 @@ definitions:
       title:
         type: string
       user_id:
-        type: string
+        type: integer
       value:
         type: string
     type: object
@@ -33,15 +33,9 @@ definitions:
     properties:
       email:
         type: string
-      name:
+      full_name:
         type: string
       password:
-        type: string
-      role:
-        type: string
-      surname:
-        type: string
-      third_name:
         type: string
     type: object
   entities.CreateUserResponse:
@@ -65,7 +59,7 @@ definitions:
       title:
         type: string
       user_id:
-        type: string
+        type: integer
       value:
         type: string
     type: object
