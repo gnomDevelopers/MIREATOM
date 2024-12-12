@@ -2,8 +2,6 @@ import { defineStore } from "pinia";
 import type { TMaybeBoolean } from "@/helpers/constants";
 import { API_Authenticate } from "@/api/api";
 
-// const universityStore = useUniversityStore();
-
 export const useUserInfoStore = defineStore('userInfo', {
   state() {
     return{

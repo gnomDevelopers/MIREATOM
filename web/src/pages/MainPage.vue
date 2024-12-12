@@ -1,19 +1,32 @@
 <template>
-  <div class="h-full w-full flex flex-col items-center">
-    <div class="flex flex-col md:flex-row w-full lg:w-10/12 justify-center items-start gap-2 px-2 mt-4 relative">
+  <div class="h-full w-full flex flex-col items-center scrollable">
+    <div class="flex flex-col lg:flex-row w-full lg:w-10/12 justify-start lg:justify-center items-center lg:items-start gap-2 px-2 mt-4 relative">
 
       <!--модальное окно истории формул-->
-      <section v-if="false" class="absolute z-30">
-        <div>
-          <svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M34.6668 17.3334L17.3335 34.6667M34.6668 34.6667L17.3335 17.3334" stroke="#8F0101" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-
-        </div>
-
-        <h1>История просмотра формул</h1>
-
-      </section>
+      <Transition>
+        <section v-if="showHistory" class="absolute flex flex-col gap-y-4 items-center z-30 p-4 rounded-xl min-w-[500px] bg-white">
+          <div class="absolute right-0 top-0 cursor-pointer" @click="hideHistoryMW">
+            <svg class="w-10 h-10" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M34.6668 17.3334L17.3335 34.6667M34.6668 34.6667L17.3335 17.3334" stroke="#8F0101" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+  
+          <h1 class="text-2xl text-color-theme cursor-default">История просмотра формул</h1>
+  
+          <article class="flex flex-col items-center gap-y-3 scrollable rounded-lg max-h-[500px] w-full p-2 bg-gray-100">
+  
+            <HistoryFormulaItem :formula="sameFormula"/>
+            <HistoryFormulaItem :formula="sameFormula"/>
+            <HistoryFormulaItem :formula="sameFormula"/>
+            <HistoryFormulaItem :formula="sameFormula"/>
+            <HistoryFormulaItem :formula="sameFormula"/>
+            <HistoryFormulaItem :formula="sameFormula"/>
+            <HistoryFormulaItem :formula="sameFormula"/>
+            <HistoryFormulaItem :formula="sameFormula"/>
+  
+          </article>
+        </section>
+      </Transition>
 
       <section class="flex flex-col items-center gap-y-6 flex-grow">
         <h1 class="text-center w-full text-2xl">Редактор формул</h1>
@@ -21,18 +34,18 @@
         <!--окно с отрендеренной формулой-->
         <article class="flex flex-col gap-2 items-start">
           <p class=" text-lg font-medium ml-1">Ввод с помощью калькулятора: </p>
-          <div class="flex flex-row w-[400px]">
+          <div class="flex flex-row max-h-[500px]">
             <span 
               id="formula-area" 
               v-html="formulaHTML" 
-              class="flex flex-row justify-start items-center px-2 py-1 text-xl outline-none flex-grow rounded-l-lg border border-solid border-gray-400" 
+              class="flex flex-row justify-start min-w-[500px] items-center px-2 py-1 text-xl outline-none flex-grow rounded-l-lg border border-solid border-gray-400" 
               contenteditable="true" 
               @input="updateFormulaFromHTML" 
               @focusout="updateFormula">
             </span>
 
             <div class="btn rounded-r-lg p-1 cursor-pointer">
-              <svg class="w-11 h-11" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg class="w-9 h-9" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M18.8519 21.4883V29.4795C18.8519 33.4283 22.0531 36.6295 26.0019 36.6295C29.9508 36.6295 33.1519 33.4283 33.1519 29.4795V19.3854C33.1519 17.2948 31.4572 15.6001 29.3667 15.6001C27.2761 15.6001 25.5814 17.2948 25.5814 19.3854V29.0589M14.2998 5.20007H37.7003C40.5722 5.20007 42.9004 7.52825 42.9003 10.4002L42.8997 41.6002C42.8997 44.472 40.5716 46.8001 37.6997 46.8L14.2996 46.8C11.4277 46.7999 9.09962 44.4718 9.09964 41.5999L9.09984 10.4C9.09986 7.52818 11.428 5.20007 14.2998 5.20007Z" stroke="white" stroke-width="4" stroke-linecap="round"/>
               </svg>
             </div>
@@ -109,14 +122,14 @@
         <!--окно с LaTeX представлением формулы-->
         <article class="flex flex-col gap-2 items-start">
           <p class=" text-lg font-medium ml-1">LaTeX: </p>
-          <div class="flex flex-row w-[400px]">
+          <div class="flex flex-row">
             <input 
               type="text" 
-              class="max-w-none flex-grow outline-none text-lg px-2 py-1 rounded-l-lg border border-solid border-gray-400 focus:border-sky-500" 
+              class="max-w-none flex-grow w-[500px] outline-none text-lg px-2 py-1 rounded-l-lg border border-solid border-gray-400 focus:border-sky-500" 
               v-model="formula"
             />
             <div class="btn rounded-r-lg p-1 cursor-pointer">
-              <svg class="w-11 h-11" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg class="w-9 h-9" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M43.3333 28.4375L43.3333 9.49979C43.3333 7.84292 41.9902 6.49977 40.3333 6.49979L21.3958 6.50001M30.3333 45.5L15.7083 45.5C13.016 45.5 10.8333 43.3174 10.8333 40.625L10.8333 19.5C10.8333 16.8076 13.016 14.625 15.7083 14.625L30.3333 14.625C33.0257 14.625 35.2083 16.8076 35.2083 19.5L35.2083 40.625C35.2083 43.3174 33.0257 45.5 30.3333 45.5Z" stroke="white" stroke-width="4" stroke-linecap="round"/>
               </svg>
             </div>
@@ -124,15 +137,15 @@
         </article>
 
         <article class="flex flex-row gap-x-4">
-          <div class="flex flex-row gap-x-2 px-2 py-1 cursor-pointer rounded-xl select-none btn">
-            <svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <div @click="showHistoryMW" class="flex flex-row gap-x-2 px-2 py-1 cursor-pointer rounded-xl select-none btn">
+            <svg class="w-9" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M42.2601 26C42.2601 36.7696 33.5274 45.5 22.7551 45.5C11.9827 45.5 3.25 36.7696 3.25 26C3.25 15.2304 11.9827 6.5 22.7551 6.5C29.9747 6.5 36.2782 10.4214 39.6507 16.25M36.9093 28.1399L41.7856 23.2649L46.6619 28.1399M30.0625 31.3173L22.75 28.8798V18.6875" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
             <p class="text-white text-xl">История просмотра</p>
           </div>
 
           <div class="flex flex-row gap-x-2 px-2 py-1 cursor-pointer rounded-xl select-none btn">
-            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg class="w-9" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M34 42V26H14V42M14 6V16H30M38 42H10C8.93913 42 7.92172 41.5786 7.17157 40.8284C6.42143 40.0783 6 39.0609 6 38V10C6 8.93913 6.42143 7.92172 7.17157 7.17157C7.92172 6.42143 8.93913 6 10 6H32L42 16V38C42 39.0609 41.5786 40.0783 40.8284 40.8284C40.0783 41.5786 39.0609 42 38 42Z" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
             <p class="text-white text-xl">Сохранить формулу</p>
@@ -147,15 +160,15 @@
         <!--окно с отрендеренной формулой и анализом-->
         <article class="flex flex-col gap-2 items-start">
 
-          <div class="flex flex-row w-[400px] mt-9">
+          <div class="flex flex-row mt-9">
             <span 
               id="analyse-formula" 
               v-html="analyseFormulaHTML" 
-              class="flex flex-row justify-start items-center px-2 py-1 text-xl outline-none flex-grow rounded-l-lg border border-solid border-gray-400" >
+              class="flex flex-row w-[500px] justify-start items-center px-2 py-1 text-xl outline-none flex-grow rounded-l-lg border border-solid border-gray-400" >
             </span>
 
             <div class="btn rounded-r-lg p-1 cursor-pointer">
-              <svg class="w-11 h-11" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg class="w-9 h-9" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M12.175 26.9457L9.40572 29.715M9.11635 19.5599H5.19995M9.40572 9.40669L12.175 12.176M19.5608 5.19995V9.11635M29.714 9.40669L26.9447 12.176M34.7047 34.6568L44.6763 31.1759C46.5454 30.5234 46.6178 27.9062 44.7868 27.1795L21.9729 19.2346C20.2579 18.554 18.5335 20.2363 19.1709 21.9681L26.6413 45.4173C27.3216 47.2652 29.9375 47.2594 30.6377 45.4084L34.7047 34.6568Z" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </div>
@@ -197,11 +210,14 @@
 import katex from 'katex';
 import { mapStores } from 'pinia';
 import { useCalculatorStore } from '@/stores/calculatorStore';
+import { useBlurStore } from '@/stores/blurStore';
+import { API_Health } from '@/api/api';
+import { insertHTMLBeforeCursor, parseLatexFromHTML } from '@/helpers/latexHTMLParser';
 
 import CalculatorButtonClaster from '@/shared/calculatorButtonClaster.vue';
 import CalculatorButtonItem from '@/shared/calculatorButtonItem.vue';
-import { API_Health } from '@/api/api';
-import { insertHTMLBeforeCursor, parseLatexFromHTML } from '@/helpers/latexHTMLParser';
+import HistoryFormulaItem from '@/shared/historyFormulaItem.vue';
+import { nextTick } from 'vue';
 
 const StandartButtons = [
   [ // standar buttons
@@ -386,22 +402,22 @@ const StandartButtons = [
   ],
   [
     [
-      {id: 4110, formula: '\\lim_{a \\to b} ', argument: '\\lim_{{a} \\to {b}} ', alternatives: []},
-      {id: 4120, formula: '\\lim_{a \\to b^-}', argument: '\\lim_{{a} \\to {{b}^{-}}}', alternatives: []},
-      {id: 4130, formula: '\\lim_{a \\to b^+}', argument: '\\lim_{{a} \\to {{b}^{+}}}', alternatives: []},
+      {id: 4110, formula: '\\lim_{a \\to b} ', argument: '\\lim_{{a} \\to {b}}{}', alternatives: []},
+      {id: 4120, formula: '\\lim_{a \\to b^-}', argument: '\\lim_{{a} \\to {{b}^{-}}}{}', alternatives: []},
+      {id: 4130, formula: '\\lim_{a \\to b^+}', argument: '\\lim_{{a} \\to {{b}^{+}}}{}', alternatives: []},
       {id: 4140, formula: '\\infin', argument: '\\infin', alternatives: []},
     ],
     [
       {id: 4210, formula: '\\cfrac{d}{dx}', argument: '\\cfrac{d}{dx}', alternatives: []},
-      {id: 4220, formula: '\\int', argument: '\\int', alternatives: []},
-      {id: 4230, formula: '\\int_a^b', argument: '\\int_{a}^{b}', alternatives: []},
-      {id: 4240, formula: '\\sum_{i=a}^b', argument: '\\sum_{i=a}^{b}', alternatives: []},
+      {id: 4220, formula: '\\int', argument: '\\int{}', alternatives: []},
+      {id: 4230, formula: '\\int_a^b', argument: '\\int_{a}^{b}{}', alternatives: []},
+      {id: 4240, formula: '\\sum_{i=a}^b', argument: '\\sum_{i=a}^{b}{}', alternatives: []},
     ],
     [
-      {id: 4310, formula: '\\log_{10}', argument: '\\log_{10}', alternatives: []},
-      {id: 4320, formula: '\\log_2', argument: '\\log_{2}', alternatives: []},
-      {id: 4330, formula: '\\log_x', argument: '\\log_{x}', alternatives: []},
-      {id: 4340, formula: '\\sum_{i=a}^b', argument: '\\sum_{i=a}^{b}', alternatives: []},
+      {id: 4310, formula: '\\log_{10}', argument: '\\log_{10}{}', alternatives: []},
+      {id: 4320, formula: '\\log_2', argument: '\\log_{2}{}', alternatives: []},
+      {id: 4330, formula: '\\log_x', argument: '\\log_{x}{}', alternatives: []},
+      {id: 4340, formula: '\\sum_{i=a}^b', argument: '\\sum_{i=a}^{b}{}', alternatives: []},
     ],
   ],
 ];
@@ -410,6 +426,7 @@ export default {
   components:{
     CalculatorButtonClaster,
     CalculatorButtonItem,
+    HistoryFormulaItem,
   },
   data() {
     return{
@@ -422,10 +439,12 @@ export default {
       sameFormulaHTML: '',
 
       needUpdateformula: true,
+
+      showHistory: false,
     }
   },
   computed: {
-    ...mapStores(useCalculatorStore),
+    ...mapStores(useCalculatorStore, useBlurStore),
 
     getButtonsPreset() {
       return StandartButtons[this.calculatorStore.currentTypeButtons];
@@ -474,9 +493,33 @@ export default {
         output: 'mathml',
         trust: false,
       });
+      nextTick(() => {
+        console.log('resize!');
+        if(this.formulaContainer!.offsetWidth > 500){
+          this.formulaContainer!.classList.add('scroll-x');
+        }
+        else{
+          this.formulaContainer!.classList.remove('scroll-x');
+        }
+
+        if(this.formulaContainer!.offsetHeight >= 500){
+          this.formulaContainer!.classList.add('scroll-y');
+        }
+        else{
+          this.formulaContainer!.classList.remove('scroll-y');
+        }
+      })
     },
     APIRequest(){
       API_Health();
+    },
+    showHistoryMW(){
+      this.blurStore.showBlur = true;
+      this.showHistory = true;
+    },
+    hideHistoryMW(){
+      this.blurStore.showBlur = false;
+      this.showHistory = false;
     }
   },
   watch: {
