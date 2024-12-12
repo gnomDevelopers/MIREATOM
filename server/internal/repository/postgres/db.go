@@ -37,6 +37,6 @@ func NewDatabase() (*sqlx.DB, error) {
 func CreateTable(db *sqlx.DB) {
 	db.MustExec(createUserTable)
 	db.MustExec(createArticleTable)
-	db.MustExec(createArticleVCSTable)
 	db.MustExec(createTableFormula)
+	db.MustExec(createFormulaVCSTable)
 }

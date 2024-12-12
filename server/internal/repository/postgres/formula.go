@@ -4,7 +4,9 @@ import (
 	"database/sql"
 	"errors"
 	"github.com/jmoiron/sqlx"
+	"log"
 	"server/internal/entities"
+	"server/util"
 )
 
 func DBFormulaExists(db *sqlx.DB, email string) (bool, error) {
@@ -44,18 +46,47 @@ func DBFormulaGetByUserID(db *sqlx.DB, userID int64) (*[]entities.Formula, error
 }
 
 func DBFormulaCreate(db *sqlx.DB, formula *entities.Formula) (*entities.Formula, error) {
-	query := `INSERT INTO formula (title, value, user_id)
-	VALUES (:title, :value, :user_id) RETURNING id`
-
-	stmt, err := db.PrepareNamed(query)
-	if stmt == nil {
-		return nil, errors.New("error preparing statement")
-	}
-	err = stmt.Get(&formula.ID, *formula)
+	tx, err := db.Beginx()
+	log.Println(err)
 	if err != nil {
 		return nil, err
 	}
 
+	query := `INSERT INTO formula (title, value, user_id)
+	VALUES (:title, :value, :user_id) RETURNING id`
+
+	stmt, err := tx.PrepareNamed(query)
+	log.Println(err)
+	if stmt == nil {
+		tx.Rollback()
+		return nil, errors.New("error preparing statement")
+	}
+
+	err = stmt.Get(&formula.ID, *formula)
+	log.Println(err)
+	if err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	formulaHistory := entities.FormulaHistory{
+		FormulaID:  formula.ID,
+		Difference: "",
+		Hash:       util.GenerateHash(formula.Value),
+		CodeName:   util.GenerateName(),
+	}
+
+	query = `INSERT INTO formula_vcs (formula_id, difference, hash, code_name) VALUES (:formula_id, :difference, :hash, :code_name) RETURNING id`
+
+	stmt, err = tx.PrepareNamed(query)
+	log.Println(err)
+	if err != nil {
+		tx.Rollback()
+	}
+	err = stmt.Get(&formulaHistory.ID, formulaHistory)
+	log.Println(err)
+
+	tx.Commit()
 	return formula, nil
 }
 

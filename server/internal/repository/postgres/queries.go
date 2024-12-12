@@ -23,17 +23,6 @@ const (
 		FOREIGN KEY (user_id) REFERENCES users (id)
 );
 `
-
-	createArticleVCSTable = `
-		CREATE TABLE IF NOT EXISTS article_vcs (
-		id SERIAL PRIMARY KEY,
-		article_id INT NOT NULL,
-		difference VARCHAR NOT NULL,
-		hash VARCHAR NOT NULL,
-		FOREIGN KEY (article_id) REFERENCES articles (id)
-);
-	`
-
 	createTableFormula = `
 		CREATE TABLE IF NOT EXISTS formula (
 		id SERIAL PRIMARY KEY,
@@ -41,6 +30,18 @@ const (
 		value VARCHAR NOT NULL,
 		user_id INT NOT NULL,
 		FOREIGN KEY (user_id) REFERENCES users (id)
+);
+	`
+
+	createFormulaVCSTable = `
+		CREATE TABLE IF NOT EXISTS formula_vcs (
+		id SERIAL PRIMARY KEY,
+		formula_id INT NOT NULL,
+		difference VARCHAR NOT NULL,
+		hash VARCHAR NOT NULL,
+		code_name VARCHAR NOT NULL,
+		created_at TIMESTAMP DEFAULT now(),
+		FOREIGN KEY (formula_id) REFERENCES formula (id)
 );
 	`
 )
