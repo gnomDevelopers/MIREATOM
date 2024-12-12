@@ -18,7 +18,7 @@ function getTextContent(node: Element){
 function latexFromHTML(html: Element){
   let latex = "";
 
-  console.log('element: ', html);
+  // console.log('element: ', html);
 
   //если это текстовый элемент то возвращаем его содержимое
   if(['mi', 'mo', 'mn'].includes(html.tagName)){
