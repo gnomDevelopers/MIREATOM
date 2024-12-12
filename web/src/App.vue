@@ -1,4 +1,7 @@
 <template>
+  <!--блюр-->
+  <div v-if="false" class="absolute w-svw h-svh opacity-45 bg-black z-20"></div>
+
   <StatusWindow />
   <Header />
   <AcceptCookie />
