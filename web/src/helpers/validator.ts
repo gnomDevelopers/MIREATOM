@@ -9,9 +9,15 @@ export function ValidUserLogin(value: string): IValidAnswer{
   if(value.length > 60) {
     return {value: '', error: 'Слишком длинный логин!'};
   }
-  if(value.match(/^[a-z_]+@[a-z\.]+\.[a-z]{2,6}$/) === null) {
-    return {value: '', error: 'Некорректный логин!'};
-  }
+  // Проверка на корректные символы: буквы и цифры
+  if (value.match(/^[a-zA-Z0-9]+$/) === null) {
+    return { value: '', error: 'Логин может содержать только буквы и цифры!' };
+}
+
+// Проверка на наличие хотя бы одной буквы
+if (value.match(/[a-zA-Z]/) === null) {
+    return { value: '', error: 'Логин должен содержать хотя бы одну букву!' };
+}
   return {value: value, error: ''};
 }
 
@@ -22,12 +28,6 @@ export function ValidUserPassword(value: string): IValidAnswer{
   }
   if(value.match(/[a-z]+/) === null){
     return {value: '', error: 'Пароль должен содержать латинские буквы в нижнем регистре!'};
-  }
-  if(value.match(/[A-Z]+/) === null){
-    return {value: '', error: 'Пароль должен содержать латинские буквы в верхнем регистре!'};
-  }
-  if(value.match(/[0-9]+/) === null){
-    return {value: '', error: 'Пароль должен содержать хотя бы одну цифру!'};
   }
   // if(value.match(/[!"№;%:\?\*()_\+`~@#\$\^&\-=]+/) === null){
   //   return {value: '', error: 'Пароль должен содержать хотя бы один спецсимвол!'};
@@ -42,4 +42,28 @@ export function ValidUserPassword(value: string): IValidAnswer{
     return {value: '', error: 'Слишком длинный пароль!'};
   }
   return {value: value, error: ''};
+}
+
+export function ValidUserName(value: string): IValidAnswer {
+  // Проверка на наличие только букв и пробелов
+  if (value.match(/^[a-zA-Zа-яА-ЯёЁ\s]+$/) === null) {
+      return { value: '', error: 'ФИО должно содержать только буквы и пробелы!' };
+  }
+
+  // Проверка на минимальную длину (например, 3 символа)
+  if (value.length < 3) {
+      return { value: '', error: 'ФИО слишком короткое!' };
+  }
+
+  // Проверка на максимальную длину (например, 100 символов)
+  if (value.length > 100) {
+      return { value: '', error: 'ФИО слишком длинное!' };
+  }
+
+  // Проверка на наличие хотя бы одного пробела (для разделения ФИО)
+  if (!value.includes(' ')) {
+      return { value: '', error: 'ФИО должно содержать хотя бы одно пробел для разделения!' };
+  }
+
+  return { value: value, error: '' };
 }

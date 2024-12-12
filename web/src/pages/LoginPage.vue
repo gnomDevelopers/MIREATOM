@@ -30,7 +30,7 @@
 
             <div class="mb-4 h-full">
 
-              <loginInput type="text"  text="Электронная почта:" @input-change="checkLogin"/><br>
+              <loginInput type="text" text="Электронная почта:" @input-change="checkLogin"/><br>
               <loginInput type="password" text="Ваш пароль:" @input-change="checkPassword"/>
               <div class="w-full flex justify-center mt-16">
                 <submitButton value="Войти" class="btn w-5/6" @click="sendLogin"/>
@@ -50,10 +50,10 @@
 <!--ПРОПИСАТЬ ПРОВЕРКУ ДЛЯ РЕГИСТРАЦИЙ-->
 
             <div class="mb-4 h-full">
-              <signupInput type="name"  text="ФИО:" /><br> <!--@input-change="checkLogin"-->
-              <signupInput type="login"  text="Электронная почта:" /><br>
-              <signupInput type="password" text="Ваш пароль:" /><br>
-              <signupInput type="repPassword" text="Повторите пароль:" /> <!--ПРОВЕРИТЬ СОВПАДАЮТ ЛИ-->
+              <signupInput type="name"  text="ФИО:" @input-change="checkFIO"/><br> <!--@input-change="checkLogin"-->
+              <signupInput type="login"  text="Электронная почта:" @input-change="checkLogin"/><br>
+              <signupInput type="password" text="Ваш пароль:" @input-change="checkPassword"/><br>
+              <signupInput type="repPassword" text="Повторите пароль:" @input-change="checkRepPassword"/> <!--ПРОВЕРИТЬ СОВПАДАЮТ ЛИ-->
               <div class="w-full flex justify-center mt-16">
                 <submitButton value="Зарегистрироваться" class="btn w-5/6" @click="sendReg"/>
               </div>
@@ -75,10 +75,9 @@ import { useUserInfoStore } from '@/stores/userInfoStore';
 import loginInput from '../shared/loginInput.vue';
 import signupInput from "@/shared/signupInput.vue";
 import submitButton from '../shared/submitButton.vue';
-import { ValidUserLogin, ValidUserPassword } from '../helpers/validator';
-import { type IValidAnswer, StatusCodes, type IAPI_Login } from '../helpers/constants';
-import {API_Login} from '@/api/api';
-import { defineStore } from 'pinia';
+import { ValidUserLogin, ValidUserPassword, ValidUserName } from '../helpers/validator';
+import { type IValidAnswer, StatusCodes, type IAPI_Login, type IAPI_Register } from '../helpers/constants';
+import {API_Login, API_Register} from '@/api/api';
 
 
 export default {
@@ -94,7 +93,7 @@ export default {
       entranceType: 'login',
       login: {value: '', error: ''} as IValidAnswer,
       password: {value: '', error: ''} as IValidAnswer,
-      name: {value: '', error: ''} as IValidAnswer,
+      fullname: {value: '', error: ''} as IValidAnswer,
       repPassword: {value: '', error: ''} as IValidAnswer,
 
       showPassword: false, // Для отображения пароля
@@ -109,13 +108,13 @@ export default {
     sendLogin(){
       if(this.login.value !== '' && this.password.value !== ''){
         const stID = this.statusWindowStore.showStatusWindow(StatusCodes.loading, 'Отправляем данные на сервер...', -1);
-
-        const data:IAPI_Login = { login: this.login.value, password: this.password.value };
+        console.log("Тест");
+        const data:IAPI_Login = { email: this.login.value, password: this.password.value };
 
         API_Login(data)
             .then(async (response:any) => {
               await this.userInfoStore.onAuthorized(response);
-
+              
               this.statusWindowStore.deteleStatusWindow(stID);
               this.statusWindowStore.showStatusWindow(StatusCodes.success, 'Авторизация успешна!');
               this.$router.push('/');
@@ -149,26 +148,34 @@ export default {
       this.password = ValidUserPassword(value);
       if(value === '') this.password.error = '';
     },
+    checkRepPassword(value: string){
+      this.repPassword = ValidUserPassword(value);
+      if(value === '' || this.repPassword != this.password) this.repPassword.error = '';
+    },
+    checkFIO(value: string){
+      this.fullname = ValidUserName(value);
+      if(value === '') this.password.error = '';
+    },
 
     sendReg(){
-      if(this.login.value !== '' && this.password.value !== '' && this.name.value !== '' && this.repPassword.value !== ''){
+      if(this.login.value !== '' && this.password.value !== '' && this.fullname.value !== '' && this.repPassword.value !== ''){
         const stID = this.statusWindowStore.showStatusWindow(StatusCodes.loading, 'Отправляем данные на сервер...', -1);
+        
+        const data:IAPI_Register = { email: this.login.value, password: this.password.value, fullname: this.fullname.value};
 
-        const data:IAPI_Login = { login: this.login.value, password: this.password.value };
-
-        API_Login(data)
+        API_Register(data)
             .then(async (response:any) => {
               await this.userInfoStore.onAuthorized(response);
 
               this.statusWindowStore.deteleStatusWindow(stID);
-              this.statusWindowStore.showStatusWindow(StatusCodes.success, 'Авторизация успешна!');
+              this.statusWindowStore.showStatusWindow(StatusCodes.success, 'Регистрация успешна!');
               this.$router.push('/');
               //ЛОГИКА ВХОДА
             })
             .catch(error => {
               this.statusWindowStore.deteleStatusWindow(stID);
 
-              if(error.status === 500 || error.status === 400) this.statusWindowStore.showStatusWindow(StatusCodes.error, 'Неверный логин или пароль!');
+              if(error.status === 500 || error.status === 400) this.statusWindowStore.showStatusWindow(StatusCodes.error, 'Неверные данные!');
               else this.statusWindowStore.showStatusWindow(StatusCodes.error, 'Что-то пошло не так при авторизации!');
             });
         return;
@@ -182,9 +189,15 @@ export default {
         if(this.password.error === '')this.statusWindowStore.showStatusWindow(StatusCodes.error, 'Введите пароль!');
         else this.statusWindowStore.showStatusWindow(StatusCodes.error, this.password.error);
       }
+      if(this.fullname.value === ''){
+        if(this.fullname.error === '')this.statusWindowStore.showStatusWindow(StatusCodes.error, 'Введите ФИО!');
+        else this.statusWindowStore.showStatusWindow(StatusCodes.error, this.fullname.error);
+      }
+      if(this.repPassword.value === ''){
+        if(this.repPassword.error === '')this.statusWindowStore.showStatusWindow(StatusCodes.error, 'Введите повторный пароль!');
+        else this.statusWindowStore.showStatusWindow(StatusCodes.error, this.repPassword.error);
+      }
     },
-
-
   },
 };
 </script>

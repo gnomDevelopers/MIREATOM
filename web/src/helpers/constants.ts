@@ -30,13 +30,13 @@ export interface IStatusWindow{
 };
 
 export interface IAPI_Login{
-  login: string,
+  email: string,
   password: string,
 };
 
 export interface IAPI_Register{
-  name: string,
-  login: string,
+  fullname: string,
+  email: string,
   password: string,
 };
 //types

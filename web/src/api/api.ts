@@ -1,5 +1,5 @@
 import axios from "axios";
-import { API, DEVMODE, GET_COOKIE, type IAPI_Login } from "@/helpers/constants";
+import { API, DEVMODE, GET_COOKIE, type IAPI_Login, type IAPI_Register } from "@/helpers/constants";
 
 //проверка аутентификации пользователя
 export function API_Authenticate(){
@@ -60,6 +60,21 @@ export function API_Health(){
     })
     .catch(error => {
       if(DEVMODE) console.log('Health get error: ', error);
+      reject(error);
+    })
+  });
+};
+
+//регистрация
+export function API_Register(data: IAPI_Register){
+  return new Promise((resolve, reject) => {
+    axios.post(`${API}/signup`, data)
+    .then(response => {
+      if(DEVMODE) console.log('Sign up post success: ', response);
+      resolve(response);
+    })
+    .catch(error => {
+      if(DEVMODE) console.log('Sign up post error: ', error);
       reject(error);
     })
   });

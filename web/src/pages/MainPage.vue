@@ -14,7 +14,16 @@
           </div>
           <div class="flex flex-row gap-x-2 items-center">
             <p class=" text-lg font-medium">Формула: </p>
-            <span id="formula-area" v-html="formulaHTML" class="text-xl" contenteditable="true" @input="updateFormulaFromHTML"></span>
+            <span 
+              id="formula-area" 
+              ref="formulaArea"
+              v-html="formulaHTML" 
+              class="text-xl" 
+              contenteditable="true" 
+              @input="updateFormulaFromHTML" 
+              @focusout="updateFormula">
+            
+            </span>
           </div>
         </div>
 
@@ -65,14 +74,14 @@
                 <CalculatorButtonClaster :id="button.id" :show-extra-btns="button.alternatives.length !== 0">
                   
                   <template #main_btn>
-                    <CalculatorButtonItem :is-empty="button.formula === ''" @click="updateFormula(button.argument)">
+                    <CalculatorButtonItem :is-empty="button.formula === ''" @click.prevent="updateFormulaFromButton(button.argument)">
                       <div v-html="calculatorStore.getButtonByID(button.id, button.formula)"></div>
                     </CalculatorButtonItem>
                   </template>
   
                   <template #extra_btns v-if="button.alternatives.length !== 0">
                     <div v-for="extraButton of button.alternatives">
-                      <CalculatorButtonItem @click="updateFormula(extraButton.argument)">
+                      <CalculatorButtonItem @click.prevent="updateFormulaFromButton(extraButton.argument)">
                         <div v-html="calculatorStore.getButtonByID(extraButton.id, extraButton.formula)"></div>
                       </CalculatorButtonItem>
                     </div>
@@ -98,7 +107,7 @@ import { useCalculatorStore } from '@/stores/calculatorStore';
 import CalculatorButtonClaster from '@/shared/calculatorButtonClaster.vue';
 import CalculatorButtonItem from '@/shared/calculatorButtonItem.vue';
 import { API_Health } from '@/api/api';
-import { parseLatexFromHTML } from '@/helpers/latexHTMLParser';
+import { insertHTMLBeforeCursor, parseLatexFromHTML } from '@/helpers/latexHTMLParser';
 
 const StandartButtons = [
   [ // standar buttons
@@ -313,6 +322,8 @@ export default {
       formulaContainer: null as null | HTMLElement,
       formula: '',
       formulaHTML: '',
+
+      needUpdateformula: true,
     }
   },
   computed: {
@@ -325,32 +336,31 @@ export default {
   },
   mounted(){
     this.formulaContainer = document.getElementById('formula-area');
-    // katex.render("c = \\pm\\sqrt{a^2 + b^2}", this.formulaContainer!, {
-    //   throwOnError: true,
-    //   displayMode: false,
-    //   output: 'mathml',
-    //   trust: false,
-    // });
-
-    // this.calculatorStore.renderButtons();
-    // console.log(this.calculatorStore.buttonsList);
-
-    // this.$watch("$refs.htmlInput", (new_value, old_value) => {
-    //     console.log(new_value);
-    //   }
-    // );
   },
   methods: {
     setButtonsType(type: number){
       this.calculatorStore.currentTypeButtons = type;
     },
-    updateFormula(newPart: string){
-      this.formula += newPart;
+    updateFormulaFromButton(newFormulaPart: string){
+      //скрываем экстра кнопки
+      this.calculatorStore.currentOpenedButtonID = null;
+      //вставляем в DOM введеную с кнопки формулу
+      insertHTMLBeforeCursor(this.formulaContainer!, newFormulaPart);
+      //обновляем формулу
+      this.formula = parseLatexFromHTML(this.formulaContainer!);
     },
     updateFormulaFromHTML(event: any){
       console.log('ZOV: ', event.target);
+      this.needUpdateformula = false;
       this.formula = parseLatexFromHTML(event.target);
-      // this.formula = parseLatexFromHTML(event.target)
+    },
+    updateFormula(){
+      this.formulaHTML = katex.renderToString(this.formula, {
+        throwOnError: true,
+        displayMode: false,
+        output: 'mathml',
+        trust: false,
+      });
     },
     APIRequest(){
       API_Health();
@@ -358,14 +368,10 @@ export default {
   },
   watch: {
     formula(val){
-      this.formulaHTML = katex.renderToString(val, {
-        throwOnError: true,
-        displayMode: false,
-        output: 'mathml',
-        trust: false,
-      });
-      console.log('new formula: ', val);
-      console.log('new formulaHTML: ', this.formulaHTML);
+      if(this.needUpdateformula){
+        this.updateFormula();
+      }
+      else this.needUpdateformula = true;
     },
   }
 };
