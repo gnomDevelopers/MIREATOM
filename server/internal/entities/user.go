@@ -9,6 +9,14 @@ type User struct {
 	ThirdName string `json:"third_name" db:"third_name"`
 }
 
+type UserData struct {
+	ID        int    `json:"id" db:"id"`
+	Email     string `json:"email" db:"email"`
+	Name      string `json:"name" db:"name"`
+	Surname   string `json:"surname" db:"surname"`
+	ThirdName string `json:"third_name" db:"third_name"`
+}
+
 type CreateUserRequest struct {
 	Password string `json:"password"`
 	Email    string `json:"email"`

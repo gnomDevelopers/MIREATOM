@@ -42,6 +42,7 @@ func (h *Handler) Router() *fiber.App {
 	})
 	f.Post("/signup", h.SignUp)
 	f.Post("/login", h.Login)
+	f.Get("/user/:id", h.GetUserDataByID)
 
 	f.Get("/formula/id/:id", h.GetFormulaById)
 	f.Get("/formula/user_id/:id", h.GetFormulaByUserId)

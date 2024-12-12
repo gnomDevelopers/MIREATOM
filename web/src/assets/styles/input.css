@@ -79,6 +79,9 @@ div,section,article,aside,input,button,label,p,h1,h2,h3,h4,h5,h6,span{
   font-family: 'Arsenal', 'Arial', sans-serif;
 } */
 
+.text-color-theme{
+  color: var(--btn-color-normal);
+}
 .btn{
   @apply flex flex-row justify-center items-center text-center;
   background-color: var(--btn-color-normal);
@@ -225,6 +228,19 @@ div,section,article,aside,input,button,label,p,h1,h2,h3,h4,h5,h6,span{
 }
 .button-style-selected{
   background-color: rgb(241 245 249);
+}
+
+.scroll-x{
+  width: 501px;
+  overflow-x: scroll !important;
+  overflow-y: visible;
+}
+.scroll-y{
+  overflow-x: visible;
+  overflow-y: scroll !important;
+}
+.scroll-y>span{
+  margin: 30px 0;
 }
 
 @keyframes timeLine{
