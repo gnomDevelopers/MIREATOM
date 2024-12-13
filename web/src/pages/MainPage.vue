@@ -212,7 +212,7 @@ import { mapStores } from 'pinia';
 import { useCalculatorStore } from '@/stores/calculatorStore';
 import { useBlurStore } from '@/stores/blurStore';
 import { API_Health } from '@/api/api';
-import { insertHTMLBeforeCursor, parseLatexFromHTML } from '@/helpers/latexHTMLParser';
+import { garbageCollector, insertHTMLBeforeCursor, parseLatexFromHTML } from '@/helpers/latexHTMLParser';
 
 import CalculatorButtonClaster from '@/shared/calculatorButtonClaster.vue';
 import CalculatorButtonItem from '@/shared/calculatorButtonItem.vue';
@@ -487,14 +487,20 @@ export default {
       this.formula = parseLatexFromHTML(event.target);
     },
     updateFormula(){
+      
+
+      //рендерим формулу
       this.formulaHTML = katex.renderToString(this.formula, {
         throwOnError: true,
         displayMode: false,
         output: 'mathml',
         trust: false,
       });
+
       nextTick(() => {
-        console.log('resize!');
+        //удаляем пустые элементы
+        garbageCollector(this.formulaContainer!);
+        
         if(this.formulaContainer!.offsetWidth > 500){
           this.formulaContainer!.classList.add('scroll-x');
         }
