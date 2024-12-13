@@ -273,5 +273,7 @@ export function garbageCollector(parentNode: HTMLElement){
   console.log('вызов спортиков');
   console.log('mrow = ', mrow.innerHTML);
   //вызываем спортиков
-  recursiveGarbageWatcher(mrow);
+  const clearMrow = recursiveGarbageWatcher(mrow);
+  console.log('clear whole mrow: ', clearMrow);
+  if(clearMrow) mrow.innerHTML = '';
 }

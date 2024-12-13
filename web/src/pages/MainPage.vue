@@ -487,8 +487,8 @@ export default {
       this.formula = parseLatexFromHTML(event.target);
     },
     updateFormula(){
-      //удаляем пустые элементы
-      garbageCollector(this.formulaContainer!);
+      
+
       //рендерим формулу
       this.formulaHTML = katex.renderToString(this.formula, {
         throwOnError: true,
@@ -496,8 +496,11 @@ export default {
         output: 'mathml',
         trust: false,
       });
+
       nextTick(() => {
-        console.log('resize!');
+        //удаляем пустые элементы
+        garbageCollector(this.formulaContainer!);
+        
         if(this.formulaContainer!.offsetWidth > 500){
           this.formulaContainer!.classList.add('scroll-x');
         }
