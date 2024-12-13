@@ -4,8 +4,8 @@
 
       <!--модальное окно истории формул-->
       <Transition>
-        <section v-if="showHistory" class="absolute flex flex-col gap-y-4 items-center z-30 p-4 rounded-xl min-w-[500px] bg-white">
-          <div class="absolute right-0 top-0 cursor-pointer" @click="hideHistoryMW">
+        <section v-if="showHistoryMW" class="absolute flex flex-col gap-y-4 items-center z-30 p-4 rounded-xl min-w-[500px] bg-white">
+          <div class="absolute right-0 top-0 cursor-pointer" @click="hideHistory">
             <svg class="w-10 h-10" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M34.6668 17.3334L17.3335 34.6667M34.6668 34.6667L17.3335 17.3334" stroke="#8F0101" stroke-width="2" stroke-linecap="round"/>
             </svg>
@@ -24,6 +24,40 @@
             <HistoryFormulaItem :formula="sameFormula"/>
             <HistoryFormulaItem :formula="sameFormula"/>
   
+          </article>
+        </section>
+      </Transition>
+
+      <!--модальное окно сохранения формулы-->
+      <Transition>
+        <section v-if="showSaveFormulaMW" class="absolute flex flex-col gap-y-4 items-center z-30 p-4 rounded-xl min-w-[500px] bg-white">
+          <div class="absolute right-0 top-0 cursor-pointer" @click="hideSaveFormula">
+            <svg class="w-10 h-10" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M34.6668 17.3334L17.3335 34.6667M34.6668 34.6667L17.3335 17.3334" stroke="#8F0101" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+
+          <h1 class="text-2xl text-color-theme cursor-default">Сохранение формулы</h1>
+
+          <article class="flex flex-col items-center gap-y-4 rounded-lg max-h-[500px] w-full py-2 px-4 bg-gray-100">
+            <span v-html="formulaHTML" class="text-xl my-4"></span>
+
+            <div class="flex flex-col gap-y-2 w-full py-2 px-4 rounded-lg bg-gray-200">
+              <label class="text-lg cursor-pointer" for="formulaName">Введите название формулы</label>
+              <input 
+                type="text" 
+                id="formulaName"
+                placeholder="Название формулы" 
+                v-model="saveFormulaName"
+                class="text-lg px-2 py-1 outline-none rounded border border-solid border-gray-300 focus:border-sky-500"/>
+            </div>
+
+            <div @click="saveFormula" class="flex flex-row gap-x-2 items-center btn cursor-pointer rounded-lg px-2 py-1 my-2">
+              <svg class="w-9 h-9" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M34 42V26H14V42M14 6V16H30M38 42H10C8.93913 42 7.92172 41.5786 7.17157 40.8284C6.42143 40.0783 6 39.0609 6 38V10C6 8.93913 6.42143 7.92172 7.17157 7.17157C7.92172 6.42143 8.93913 6 10 6H32L42 16V38C42 39.0609 41.5786 40.0783 40.8284 40.8284C40.0783 41.5786 39.0609 42 38 42Z" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <p class="text-xl text-white">Сохранить формулу</p>
+            </div>
           </article>
         </section>
       </Transition>
@@ -137,14 +171,14 @@
         </article>
 
         <article class="flex flex-row gap-x-4">
-          <div @click="showHistoryMW" class="flex flex-row gap-x-2 px-2 py-1 cursor-pointer rounded-xl select-none btn">
+          <div @click="showHistory" class="flex flex-row gap-x-2 px-2 py-1 cursor-pointer rounded-xl select-none btn">
             <svg class="w-9" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M42.2601 26C42.2601 36.7696 33.5274 45.5 22.7551 45.5C11.9827 45.5 3.25 36.7696 3.25 26C3.25 15.2304 11.9827 6.5 22.7551 6.5C29.9747 6.5 36.2782 10.4214 39.6507 16.25M36.9093 28.1399L41.7856 23.2649L46.6619 28.1399M30.0625 31.3173L22.75 28.8798V18.6875" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
             <p class="text-white text-xl">История просмотра</p>
           </div>
 
-          <div class="flex flex-row gap-x-2 px-2 py-1 cursor-pointer rounded-xl select-none btn">
+          <div @click="showSaveFormula" class="flex flex-row gap-x-2 px-2 py-1 cursor-pointer rounded-xl select-none btn">
             <svg class="w-9" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M34 42V26H14V42M14 6V16H30M38 42H10C8.93913 42 7.92172 41.5786 7.17157 40.8284C6.42143 40.0783 6 39.0609 6 38V10C6 8.93913 6.42143 7.92172 7.17157 7.17157C7.92172 6.42143 8.93913 6 10 6H32L42 16V38C42 39.0609 41.5786 40.0783 40.8284 40.8284C40.0783 41.5786 39.0609 42 38 42Z" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
@@ -211,13 +245,15 @@ import katex from 'katex';
 import { mapStores } from 'pinia';
 import { useCalculatorStore } from '@/stores/calculatorStore';
 import { useBlurStore } from '@/stores/blurStore';
+import { useStatusWindowStore } from '@/stores/statusWindowStore';
 import { API_Health } from '@/api/api';
 import { garbageCollector, insertHTMLBeforeCursor, parseLatexFromHTML } from '@/helpers/latexHTMLParser';
+import { nextTick } from 'vue';
 
 import CalculatorButtonClaster from '@/shared/calculatorButtonClaster.vue';
 import CalculatorButtonItem from '@/shared/calculatorButtonItem.vue';
 import HistoryFormulaItem from '@/shared/historyFormulaItem.vue';
-import { nextTick } from 'vue';
+import { StatusCodes } from '@/helpers/constants';
 
 const StandartButtons = [
   [ // standar buttons
@@ -440,11 +476,14 @@ export default {
 
       needUpdateformula: true,
 
-      showHistory: false,
+      showHistoryMW: false,
+      showSaveFormulaMW: false,
+
+      saveFormulaName: '',
     }
   },
   computed: {
-    ...mapStores(useCalculatorStore, useBlurStore),
+    ...mapStores(useCalculatorStore, useBlurStore, useStatusWindowStore),
 
     getButtonsPreset() {
       return StandartButtons[this.calculatorStore.currentTypeButtons];
@@ -487,8 +526,6 @@ export default {
       this.formula = parseLatexFromHTML(event.target);
     },
     updateFormula(){
-      
-
       //рендерим формулу
       this.formulaHTML = katex.renderToString(this.formula, {
         throwOnError: true,
@@ -519,13 +556,32 @@ export default {
     APIRequest(){
       API_Health();
     },
-    showHistoryMW(){
+    showHistory(){
       this.blurStore.showBlur = true;
-      this.showHistory = true;
+      this.showHistoryMW = true;
     },
-    hideHistoryMW(){
+    hideHistory(){
       this.blurStore.showBlur = false;
-      this.showHistory = false;
+      this.showHistoryMW = false;
+    },
+    showSaveFormula(){
+      if(this.formula === ''){
+        this.statusWindowStore.showStatusWindow(StatusCodes.error, 'Вы не ввели формулу!', 1500);
+        return;
+      }
+      this.blurStore.showBlur = true;
+      this.showSaveFormulaMW = true;
+    },
+    hideSaveFormula(){
+      this.blurStore.showBlur = false;
+      this.showSaveFormulaMW = false;
+    },
+    saveFormula(){
+      if(this.saveFormulaName === ''){
+        this.statusWindowStore.showStatusWindow(StatusCodes.error, 'Назовите свою формулу!');
+        return;
+      }
+      //API
     }
   },
   watch: {
