@@ -23,6 +23,12 @@ export const router = createRouter({
       component: () => import('@/pages/ArticlesPage.vue'),
       meta: { requiresAuth: false },
     },
+    {
+      name: 'MyFormulesPage',
+      path: '/myformules',
+      component: () => import('@/pages/MyFormulesPage.vue'),
+      meta: { requiresAuth: false },
+    },
   ],
 });
 

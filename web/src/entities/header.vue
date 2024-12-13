@@ -16,18 +16,25 @@
       <button class="box-shadow flex justify-center items-center px-3 mb:px-4 text-xl mb:text-2xl uus:text-base text-color border-2 border-b-gray-600 rounded-lg cursor-pointer transition-bg hover:bg-red-100 active:bg-red-300" @click="$router.push({name: 'MainPage'})">Формулы</button>
       <button class="box-shadow flex justify-center items-center px-3 mb:px-4 text-xl mb:text-2xl uus:text-base text-color border-2 border-hr-color rounded-lg cursor-pointer transition-bg hover:bg-red-100 active:bg-red-300">Статьи</button>
     </div> -->
-    <div class="h-full flex flex-row gap-x-2 flex-grow">
+    <div class="flex justify-center items-center gap-x-6 ">
+      <div
+        @click="$router.push({name: 'MyFormulesPage'})"
+        class="box-shadow flex justify-center items-center px-3 mb:px-4 text-xl mb:text-2xl text-color border-2 border-b-gray-600 rounded-lg cursor-pointer transition-bg hover:bg-red-100 active:bg-red-300"
+        :class="{'border-hr-color': $route.path === '/myformules'}">
+        
+        <a class="text-xl">Мои формулы</a>
+      </div>
       <div
         @click="$router.push({name: 'MainPage'})"
-        class="h-full min-w-16 grid cursor-pointer justify-center content-center border-bottom border-gray-500 hover:border-b-sky-500"
-        :class="{'border-b-sky-500': $route.path === '/'}">
+        class="box-shadow flex justify-center items-center px-3 mb:px-4 text-xl mb:text-2xl uus:text-base text-color border-2 border-b-gray-600 rounded-lg cursor-pointer transition-bg hover:bg-red-100 active:bg-red-300"
+        :class="{'border-hr-color': $route.path === '/'}">
         
         <a class="text-xl">Формулы</a>
       </div>
       <div
         @click="$router.push({name: 'ArticlesPage'})"
-        class="h-full min-w-16 grid cursor-pointer justify-center content-center border-bottom border-gray-500 hover:border-b-sky-500"
-        :class="{'border-b-sky-500': $route.path === '/articles'}">
+        class="box-shadow flex justify-center items-center px-3 mb:px-4 text-xl mb:text-2xl uus:text-base text-color border-2 border-b-gray-600 rounded-lg cursor-pointer transition-bg hover:bg-red-100 active:bg-red-300"
+        :class="{'border-hr-color': $route.path === '/articles'}">
         
         <a class="text-xl">Статьи</a>
       </div>
