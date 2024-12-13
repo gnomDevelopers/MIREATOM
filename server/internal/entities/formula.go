@@ -8,9 +8,8 @@ type Formula struct {
 }
 
 type CreateFormulaRequest struct {
-	Value  string `json:"value" db:"value"`
-	Title  string `json:"title" db:"title"`
-	UserID int    `json:"user_id" db:"user_id"`
+	Value string `json:"value" db:"value"`
+	Title string `json:"title" db:"title"`
 }
 
 type CreateFormulaResponse struct {

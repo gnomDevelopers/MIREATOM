@@ -509,6 +509,58 @@ const docTemplate = `{
                 }
             }
         },
+        "/auth/formula/id/{id}/commits": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Fetches all commits associated with a given formula ID.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "formula"
+                ],
+                "summary": "Retrieve commits for a specific formula",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Formula ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of commits for the specified formula",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/entities.FormulaHistory"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid formula ID",
+                        "schema": {
+                            "$ref": "#/definitions/entities.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/entities.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/formula/file": {
             "post": {
                 "consumes": [
@@ -874,9 +926,6 @@ const docTemplate = `{
                 "title": {
                     "type": "string"
                 },
-                "user_id": {
-                    "type": "integer"
-                },
                 "value": {
                     "type": "string"
                 }
@@ -940,6 +989,29 @@ const docTemplate = `{
                 },
                 "value": {
                     "type": "string"
+                }
+            }
+        },
+        "entities.FormulaHistory": {
+            "type": "object",
+            "properties": {
+                "code_name": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "difference": {
+                    "type": "string"
+                },
+                "formula_id": {
+                    "type": "integer"
+                },
+                "hash": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
                 }
             }
         },

@@ -66,6 +66,7 @@ func (h *Handler) Router() *fiber.App {
 	authGroup.Delete("/formula/id/:id", h.DeleteFormula)
 	authGroup.Put("/formula", h.UpdateFormula)
 	authGroup.Post("/formula", h.CreateFormula)
+	authGroup.Get("/formula/id/:id/commits", h.GetFormulaCommits)
 
 	return f
 }

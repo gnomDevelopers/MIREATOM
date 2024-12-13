@@ -19,8 +19,6 @@ definitions:
     properties:
       title:
         type: string
-      user_id:
-        type: integer
       value:
         type: string
     type: object
@@ -62,6 +60,21 @@ definitions:
         type: integer
       value:
         type: string
+    type: object
+  entities.FormulaHistory:
+    properties:
+      code_name:
+        type: string
+      created_at:
+        type: string
+      difference:
+        type: string
+      formula_id:
+        type: integer
+      hash:
+        type: string
+      id:
+        type: integer
     type: object
   entities.GetFormulaFromArticleResponse:
     properties:
@@ -440,6 +453,39 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Delete formula
+      tags:
+      - formula
+  /auth/formula/id/{id}/commits:
+    get:
+      consumes:
+      - application/json
+      description: Fetches all commits associated with a given formula ID.
+      parameters:
+      - description: Formula ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of commits for the specified formula
+          schema:
+            items:
+              $ref: '#/definitions/entities.FormulaHistory'
+            type: array
+        "400":
+          description: Invalid formula ID
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Retrieve commits for a specific formula
       tags:
       - formula
   /formula/file:

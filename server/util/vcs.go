@@ -3,11 +3,19 @@ package util
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"github.com/sergi/go-diff/diffmatchpatch"
 	"math/rand"
 	"time"
 )
+
+type Change struct {
+	Type    string `json:"type"`    // Тип изменения: "insert", "delete", "equal"
+	Content string `json:"content"` // Содержимое изменения
+	Start   int    `json:"start"`   // Начальная позиция (только для insert/delete)
+	End     int    `json:"end"`     // Конечная позиция (только для insert/delete)
+}
 
 func GenerateHash(content string) string {
 	hash := sha256.Sum256([]byte(content))
@@ -19,8 +27,40 @@ func GenerateName() string {
 	return fmt.Sprintf("%x", rand.Int63())
 }
 
-func CalculateDiff(oldContent, newContent string) string {
+func CompareStrings(oldContent, newContent string) (string, error) {
 	dmp := diffmatchpatch.New()
 	diffs := dmp.DiffMain(oldContent, newContent, false)
-	return dmp.DiffPrettyText(diffs)
+
+	var changes []Change
+	currentIndex := 0
+
+	for _, diff := range diffs {
+		switch diff.Type {
+		case diffmatchpatch.DiffInsert:
+			changes = append(changes, Change{
+				Type:    "insert",
+				Content: diff.Text,
+				Start:   currentIndex,
+				End:     currentIndex + len(diff.Text),
+			})
+			currentIndex += len(diff.Text)
+		case diffmatchpatch.DiffDelete:
+			changes = append(changes, Change{
+				Type:    "delete",
+				Content: diff.Text,
+				Start:   currentIndex,
+				End:     currentIndex,
+			})
+		case diffmatchpatch.DiffEqual:
+			currentIndex += len(diff.Text)
+		}
+	}
+
+	// Преобразуем массив изменений в строку JSON
+	jsonData, err := json.Marshal(changes)
+	if err != nil {
+		return "", err
+	}
+
+	return string(jsonData), nil
 }
