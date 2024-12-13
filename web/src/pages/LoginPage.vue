@@ -1,6 +1,6 @@
 <template>
   <div class="flex h-screen">
-    <div class="flex flex-col md:w-1/2 uus:w-full h-full items-start justify-start p-4">
+    <div @click="this.$router.push('/')" class="flex flex-col md:w-1/2 uus:w-full h-full items-start justify-start p-4">
       <img class="w-8 mb:w-12 h-8 mb:h-12 mb: m-4" src="../assets/icons/icon-sigma.svg"/>
       <div class="flex flex-col w-full h-full items-center justify-center">
         <div class="flex flex-col w-10/12 h-full items-center m-10">
