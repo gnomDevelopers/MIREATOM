@@ -224,3 +224,54 @@ function insertChildrenBeforeElement(children: HTMLCollection, element: Node, pa
 
   }
 }
+
+export function garbageCollector(parentNode: HTMLElement){
+  console.log('вызов гарбадж коллектора');
+  //начальный mrow
+  const mrow = getTextContent(parentNode);
+  if(!mrow){
+    //если не нашелся начальный mrow - бред, удаляем все и выходим
+    parentNode.innerHTML = '';
+    return;
+  }
+
+  let count = 0;
+
+  function recursiveGarbageWatcher(html: Element): boolean{
+    //если у элемента есть id содержащий фразу dnd, то этот элемент очищать нельзя
+    if(html.id.match(/dnd/) !== null) return false;
+    //если у элемента нет потомков и он не пустой, то оставляем его
+    if(html.textContent !== '' && html.children.length === 0) return false;
+    //если у элемента нет потомков и он пустой, то удаляем его
+    if(html.textContent === '' && html.children.length === 0) return true;
+
+    //флаг для проверки, нужно ли удалять текущий элемент или нет
+    let needToDelete = true;
+
+    const childrenToDelete = [] as Element[];
+
+    //проходимся по детям элемента
+    for(const child of html.children){
+      const thisCount = count++;
+      console.log(`элемент №${thisCount} до: ${child.innerHTML}`);
+
+      //просматриваем его детей
+      const childDelete = recursiveGarbageWatcher(child);
+
+      console.log(`элемент №${thisCount} после: ${child.innerHTML}, вердикт: ${childDelete}`);
+
+      //если его детей удалять нельзя, то флаг будет true и текущий элемент не удалится
+      needToDelete &&= childDelete;
+      //если дочерний элемент бесполезен - сохраняем в список на удаление
+      if(childDelete) childrenToDelete.push(child);
+    }
+    //удаляем все бесполезные дочерние элементы
+    for(const child of childrenToDelete) html.removeChild(child);
+    //возвращаем вердитк текущего элемента
+    return needToDelete;
+  }
+  console.log('вызов спортиков');
+  console.log('mrow = ', mrow.innerHTML);
+  //вызываем спортиков
+  recursiveGarbageWatcher(mrow);
+}
