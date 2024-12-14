@@ -6,6 +6,7 @@ import (
 	"server/internal/handler"
 	logger "server/internal/log"
 	"server/internal/repository/postgres"
+	"server/util"
 )
 
 // @title Σigma API
@@ -20,7 +21,7 @@ func main() {
 	if err != nil {
 		log.Fatal().Msg(fmt.Sprintf("could not initialize database connection: %s", err))
 	}
-
+	util.CreateTmp()
 	handlers := handler.NewHandler(db, log)
 
 	app := handlers.Router()

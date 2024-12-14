@@ -168,7 +168,7 @@ func (h *Handler) CreateArticle(c *fiber.Ctx) error {
 // @Summary      Get all articles
 // @Accept       json
 // @Produce      json
-// @Success 200 {object} []entities.Article
+// @Success 200 {object} []entities.ArticleInfo
 // @Failure 400 {object} entities.ErrorResponse
 // @Failure 401 {object} entities.ErrorResponse
 // @Failure 500 {object} entities.ErrorResponse

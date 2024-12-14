@@ -187,8 +187,7 @@
           <div class="flex flex-col flex-grow gap-y-4 w-full px-4 scrollable" style="height: calc(100svh - 62px - 32px - 32px - 32px);">
 
             <ArticleItem v-for="article in articles":key="article.id" :title="article.title" :author="'Автор неизвестен'" :science="article.science" :science-type="article.section"/>
-            <ArticleItem :title="'Простые реакции'" :author="'Сергеев Сергей Сергеевич'" :science="'Химия'" :science-type="'Кинетика'"/>
-            
+
           </div>
         </section>
         <section class="flex flex-col w-1/2 h-full py-4 gap-y-6">
@@ -216,10 +215,11 @@
 import { mapStores } from 'pinia';
 import { useBlurStore } from '@/stores/blurStore';
 import { useArticleStore } from '@/stores/articleStore';
+import { useUserInfoStore } from '@/stores/userInfoStore';
 
 import ArticleItem from '@/shared/articleItem.vue';
 import HistoryFormulaItem from '@/shared/historyFormulaItem.vue';
-import { API_Articles_Get, API_ArticleFile_Get } from '@/api/api';
+import { API_Articles_Get, API_ArticleFile_Get, API_Article_Get_ByID } from '@/api/api';
 import type { Article } from '@/helpers/constants';
 
 export default{
@@ -229,14 +229,16 @@ export default{
   },
   data(){
     return {
-      articles: [] as Article[]
+      articles: [] as Article[],
+      myArticles: [] as Article[]
     }
   },
   computed: {
-    ...mapStores(useBlurStore, useArticleStore),
+    ...mapStores(useUserInfoStore, useBlurStore, useArticleStore),
   },
   mounted() {
     this.getArticles();
+    this.getMyArticles();
   },
   methods: {
     hideArticleFormuls(){
@@ -247,6 +249,14 @@ export default{
       try {
         const response = await API_Articles_Get(); // Вызов API
         this.articles = response; // Сохранение данных студентов в состоянии компонента
+      } catch (error) {
+        console.error('Ошибка при получении студентов:', error);
+      }
+    },
+    async getMyArticles() {
+      try {
+        const response = await API_Article_Get_ByID(this.userInfoStore.userID!); // Вызов API
+        this.myArticles = response;
       } catch (error) {
         console.error('Ошибка при получении студентов:', error);
       }

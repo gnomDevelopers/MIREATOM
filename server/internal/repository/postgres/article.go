@@ -37,9 +37,14 @@ func DBArticleCreate(db *sqlx.DB, article *entities.Article) (*entities.Article,
 	return article, nil
 }
 
-func DBArticleGetAll(db *sqlx.DB) (*[]entities.Article, error) {
-	articles := []entities.Article{}
-	query := `SELECT id, user_id, title, id, user_id, title, science, section, path FROM articles`
+func DBArticleGetAll(db *sqlx.DB) (*[]entities.ArticleInfo, error) {
+	articles := []entities.ArticleInfo{}
+	query := `
+		SELECT articles.id AS article_id, articles.title, articles.science, articles.section, users.id AS user_id,
+    	CONCAT(users.surname, ' ', users.name, ' ', users.third_name) AS full_name
+		FROM articles
+		JOIN users ON articles.user_id = users.id;
+	`
 
 	err := db.Select(&articles, query)
 	if err != nil {

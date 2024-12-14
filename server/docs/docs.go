@@ -33,7 +33,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/entities.Article"
+                                "$ref": "#/definitions/entities.ArticleInfo"
                             }
                         }
                     },
@@ -769,7 +769,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "authentication"
+                    "user"
                 ],
                 "summary": "Authorization check",
                 "parameters": [
@@ -949,14 +949,14 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "entities.Article": {
+        "entities.ArticleInfo": {
             "type": "object",
             "properties": {
+                "full_name": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
-                },
-                "path": {
-                    "type": "string"
                 },
                 "science": {
                     "type": "string"
