@@ -1085,6 +1085,10 @@ video {
   border-style: solid;
 }
 
+.border-dashed {
+  border-style: dashed;
+}
+
 .border-gray-200 {
   --tw-border-opacity: 1;
   border-color: rgb(229 231 235 / var(--tw-border-opacity));
@@ -1105,6 +1109,11 @@ video {
   border-color: rgb(220 38 38 / var(--tw-border-opacity));
 }
 
+.border-red-800 {
+  --tw-border-opacity: 1;
+  border-color: rgb(153 27 27 / var(--tw-border-opacity));
+}
+
 .border-sky-500 {
   --tw-border-opacity: 1;
   border-color: rgb(14 165 233 / var(--tw-border-opacity));
@@ -1118,6 +1127,10 @@ video {
 .border-slate-500 {
   --tw-border-opacity: 1;
   border-color: rgb(100 116 139 / var(--tw-border-opacity));
+}
+
+.border-transparent {
+  border-color: transparent;
 }
 
 .border-b-gray-600 {
@@ -1799,6 +1812,26 @@ div,section,article,aside,input,button,label,p,h1,h2,h3,h4,h5,h6,span{
   }
 }
 
+.hover\:border-2:hover {
+  border-width: 2px;
+}
+
+.hover\:border-b-2:hover {
+  border-bottom-width: 2px;
+}
+
+.hover\:border-dashed:hover {
+  border-style: dashed;
+}
+
+.hover\:border-dotted:hover {
+  border-style: dotted;
+}
+
+.hover\:border-double:hover {
+  border-style: double;
+}
+
 .hover\:border-sky-500:hover {
   --tw-border-opacity: 1;
   border-color: rgb(14 165 233 / var(--tw-border-opacity));
@@ -1807,6 +1840,16 @@ div,section,article,aside,input,button,label,p,h1,h2,h3,h4,h5,h6,span{
 .hover\:border-sky-600:hover {
   --tw-border-opacity: 1;
   border-color: rgb(2 132 199 / var(--tw-border-opacity));
+}
+
+.hover\:border-red-100:hover {
+  --tw-border-opacity: 1;
+  border-color: rgb(254 226 226 / var(--tw-border-opacity));
+}
+
+.hover\:border-red-800:hover {
+  --tw-border-opacity: 1;
+  border-color: rgb(153 27 27 / var(--tw-border-opacity));
 }
 
 .hover\:bg-red-100:hover {
@@ -1844,6 +1887,11 @@ div,section,article,aside,input,button,label,p,h1,h2,h3,h4,h5,h6,span{
   border-color: rgb(14 165 233 / var(--tw-border-opacity));
 }
 
+.active\:border-red-800:active {
+  --tw-border-opacity: 1;
+  border-color: rgb(153 27 27 / var(--tw-border-opacity));
+}
+
 .active\:bg-red-300:active {
   --tw-bg-opacity: 1;
   background-color: rgb(252 165 165 / var(--tw-bg-opacity));
@@ -1876,6 +1924,10 @@ div,section,article,aside,input,button,label,p,h1,h2,h3,h4,h5,h6,span{
 }
 
 @media (min-width: 576px) {
+  .mb\:m-4 {
+    margin: 1rem;
+  }
+
   .mb\:h-10 {
     height: 2.5rem;
   }
