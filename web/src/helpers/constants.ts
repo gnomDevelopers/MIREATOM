@@ -44,7 +44,7 @@ export interface IAPI_Login{
 };
 
 export interface IAPI_Register{
-  fullname: string,
+  full_name: string,
   email: string,
   password: string,
 };

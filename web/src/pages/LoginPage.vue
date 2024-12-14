@@ -103,16 +103,20 @@ export default {
     sendLogin(){
       if(this.login.value !== '' && this.password.value !== ''){
         const stID = this.statusWindowStore.showStatusWindow(StatusCodes.loading, 'Отправляем данные на сервер...', -1);
-        const data:IAPI_Login = { email: this.login.value, password: this.password.value };
+        
+        const data:IAPI_Login = { 
+          email: this.login.value, 
+          password: this.password.value 
+        };
 
         API_Login(data)
-        .then(async (response:any) => {
-          await this.userInfoStore.onAuthorized(response);
+        .then((response:any) => {
+          this.userInfoStore.onAuthorized(response);
           
           this.statusWindowStore.deteleStatusWindow(stID);
           this.statusWindowStore.showStatusWindow(StatusCodes.success, 'Авторизация успешна!');
+
           this.$router.push('/');
-          //ЛОГИКА ВХОДА
         })
         .catch(error => {
           this.statusWindowStore.deteleStatusWindow(stID);
@@ -139,18 +143,18 @@ export default {
         const data:IAPI_Register = { 
           email: this.regLogin.value, 
           password: this.regPassword.value, 
-          fullname: this.regFullname.value
+          full_name: this.regFullname.value
         };
 
         API_Register(data)
-        .then(async (response:any) => {
-          await this.userInfoStore.onAuthorized(response);
-
+        .then((response:any) => {
+          //устанавливаем куки
+          this.userInfoStore.onAuthorized(response);
+          //уведомления
           this.statusWindowStore.deteleStatusWindow(stID);
           this.statusWindowStore.showStatusWindow(StatusCodes.success, 'Регистрация успешна!');
-          
+          //редирект на мейн страницу
           this.$router.push('/');
-          //ЛОГИКА ВХОДА
         })
         .catch(error => {
           this.statusWindowStore.deteleStatusWindow(stID);

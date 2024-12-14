@@ -13,16 +13,11 @@
   
           <h1 class="text-2xl text-color-theme cursor-default">История просмотра формул</h1>
   
-          <article class="flex flex-col items-center gap-y-3 scrollable rounded-lg max-h-[500px] w-full p-2 bg-gray-100">
+          <article id="formulaHistoryScrollWrapper" class="flex flex-col items-center gap-y-3 scrollable rounded-lg max-h-[500px] w-full p-2 bg-gray-100">
   
-            <HistoryFormulaItem :formula="sameFormula"/>
-            <HistoryFormulaItem :formula="sameFormula"/>
-            <HistoryFormulaItem :formula="sameFormula"/>
-            <HistoryFormulaItem :formula="sameFormula"/>
-            <HistoryFormulaItem :formula="sameFormula"/>
-            <HistoryFormulaItem :formula="sameFormula"/>
-            <HistoryFormulaItem :formula="sameFormula"/>
-            <HistoryFormulaItem :formula="sameFormula"/>
+            <div v-for="formula of formulaHistoryList" class="w-full">
+              <HistoryFormulaItem :formula="formula"/>
+            </div>
   
           </article>
         </section>
@@ -246,7 +241,8 @@ import { mapStores } from 'pinia';
 import { useCalculatorStore } from '@/stores/calculatorStore';
 import { useBlurStore } from '@/stores/blurStore';
 import { useStatusWindowStore } from '@/stores/statusWindowStore';
-import { API_Health } from '@/api/api';
+import { useUserInfoStore } from '@/stores/userInfoStore';
+import { API_Get_Formuls_History, API_Health, API_Save_Formula } from '@/api/api';
 import { garbageCollector, insertHTMLBeforeCursor, parseLatexFromHTML } from '@/helpers/latexHTMLParser';
 import { nextTick } from 'vue';
 
@@ -480,10 +476,13 @@ export default {
       showSaveFormulaMW: false,
 
       saveFormulaName: '',
+
+      formulaHistoryList: [] as string[],
+      formulaHistoryPage: 1,
     }
   },
   computed: {
-    ...mapStores(useCalculatorStore, useBlurStore, useStatusWindowStore),
+    ...mapStores(useCalculatorStore, useBlurStore, useStatusWindowStore, useUserInfoStore),
 
     getButtonsPreset() {
       return StandartButtons[this.calculatorStore.currentTypeButtons];
@@ -557,8 +556,43 @@ export default {
       API_Health();
     },
     showHistory(){
+      //если пользователь не атворизован - выход
+      if(this.userInfoStore.userID === null){
+        this.statusWindowStore.showStatusWindow(StatusCodes.error, 'Войдите в аккаунт, чтобы просматривать историю ваших формул!');
+        return;
+      }
+      //открываем окно истории
       this.blurStore.showBlur = true;
       this.showHistoryMW = true;
+
+      //сбро до заводских настроек
+      this.formulaHistoryPage = 1;
+      this.formulaHistoryList = [];
+
+      const stID = this.statusWindowStore.showStatusWindow(StatusCodes.loading, 'Подгружаем историю формул...', -1);
+        
+      //получение первой страницы истории
+      API_Get_Formuls_History(this.userInfoStore.userID, this.formulaHistoryPage)
+      .then((response:any) => {
+        this.statusWindowStore.deteleStatusWindow(stID);
+        //сохраняем полученные формулы в массив
+        for(const item of response.data){
+          this.formulaHistoryList.push(item.value);
+        }
+        //если получено меньше 20 элементов - значит больше формул нет
+        if(response.data.length < 20) return;
+        
+        //получаем обертку для истории формул
+        const historyHTML = document.getElementById('formulaHistoryScrollWrapper');
+        //если ничего нет - выход
+        if(!historyHTML) return;
+        //иначе добавляем слушатель на скролл
+        historyHTML.addEventListener('scroll', this.handleHistoryScroll.bind(this, historyHTML));
+      })
+      .catch(error => {
+        this.statusWindowStore.deteleStatusWindow(stID);
+        this.statusWindowStore.showStatusWindow(StatusCodes.error, 'Что-то пошло не так при получении истории!');
+      })
     },
     hideHistory(){
       this.blurStore.showBlur = false;
@@ -582,6 +616,45 @@ export default {
         return;
       }
       //API
+      const data = {title: this.saveFormulaName, value: this.formula};
+      const stID = this.statusWindowStore.showStatusWindow(StatusCodes.loading, 'Сохраняем формулу...', -1);
+
+      API_Save_Formula(data)
+      .then((response:any) => {
+        this.statusWindowStore.deteleStatusWindow(stID);
+        this.statusWindowStore.showStatusWindow(StatusCodes.success, 'Формула сохранена!');
+
+        this.hideSaveFormula();
+      })
+      .catch(error => {
+        this.statusWindowStore.deteleStatusWindow(stID);
+        this.statusWindowStore.showStatusWindow(StatusCodes.error, 'Что-то пошло не так при сохранении формулы!');
+      })
+    },
+    handleHistoryScroll(HTML: HTMLElement){
+      const scrollHeight = HTML.scrollHeight;
+      const scrollTop = HTML.scrollTop;
+      const clientHeight = HTML.clientHeight;
+
+      if (scrollTop + clientHeight >= scrollHeight) {    
+        console.log("Scrolled to bottom!");
+
+        if(this.userInfoStore.userID === null) return;
+
+        this.formulaHistoryPage++;
+        API_Get_Formuls_History(this.userInfoStore.userID, this.formulaHistoryPage)
+        .then((response:any) => {
+          //сохраняем полученные формулы в массив
+          for(const item of response.data){
+            this.formulaHistoryList.push(item.value);
+          }
+
+          //если получено меньше 20 элементов - значит больше формул нет
+          if(response.data.length < 20) return;
+
+          HTML.removeEventListener('scroll', this.handleHistoryScroll.bind(this, HTML));
+        })
+      }
     }
   },
   watch: {

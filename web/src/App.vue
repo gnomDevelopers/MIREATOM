@@ -28,8 +28,8 @@ export default {
     ...mapStores(useUserInfoStore, useBlurStore),
   },
   async mounted() {
-    //проверка авторизации
-    // await this.userInfoStore.Authenticate();
+    // проверка авторизации
+    await this.userInfoStore.Authenticate();
   },
   methods: {
 

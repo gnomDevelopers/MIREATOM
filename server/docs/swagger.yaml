@@ -619,6 +619,43 @@ paths:
       tags:
       - formula
   /login:
+    get:
+      consumes:
+      - application/json
+      description: Validates the JWT token from the Authorization header, extracts
+        user ID, and generates a new access token.
+      parameters:
+      - description: Bearer JWT token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: New access token and user ID
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Missing auth token
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Invalid auth header or token
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Authorization check
+      tags:
+      - authentication
     post:
       consumes:
       - application/json

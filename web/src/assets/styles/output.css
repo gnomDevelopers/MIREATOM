@@ -1085,10 +1085,6 @@ video {
   border-style: solid;
 }
 
-.border-dashed {
-  border-style: dashed;
-}
-
 .border-gray-200 {
   --tw-border-opacity: 1;
   border-color: rgb(229 231 235 / var(--tw-border-opacity));
@@ -1109,11 +1105,6 @@ video {
   border-color: rgb(220 38 38 / var(--tw-border-opacity));
 }
 
-.border-red-800 {
-  --tw-border-opacity: 1;
-  border-color: rgb(153 27 27 / var(--tw-border-opacity));
-}
-
 .border-sky-500 {
   --tw-border-opacity: 1;
   border-color: rgb(14 165 233 / var(--tw-border-opacity));
@@ -1129,8 +1120,14 @@ video {
   border-color: rgb(100 116 139 / var(--tw-border-opacity));
 }
 
-.border-transparent {
-  border-color: transparent;
+.border-gray-700 {
+  --tw-border-opacity: 1;
+  border-color: rgb(55 65 81 / var(--tw-border-opacity));
+}
+
+.border-red-800 {
+  --tw-border-opacity: 1;
+  border-color: rgb(153 27 27 / var(--tw-border-opacity));
 }
 
 .border-b-gray-600 {
@@ -1324,6 +1321,11 @@ video {
 .text-white {
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity));
+}
+
+.text-gray-500 {
+  --tw-text-opacity: 1;
+  color: rgb(107 114 128 / var(--tw-text-opacity));
 }
 
 .shadow {
@@ -1812,20 +1814,8 @@ div,section,article,aside,input,button,label,p,h1,h2,h3,h4,h5,h6,span{
   }
 }
 
-.hover\:border-2:hover {
-  border-width: 2px;
-}
-
 .hover\:border-b-2:hover {
   border-bottom-width: 2px;
-}
-
-.hover\:border-dashed:hover {
-  border-style: dashed;
-}
-
-.hover\:border-dotted:hover {
-  border-style: dotted;
 }
 
 .hover\:border-double:hover {
@@ -1842,9 +1832,9 @@ div,section,article,aside,input,button,label,p,h1,h2,h3,h4,h5,h6,span{
   border-color: rgb(2 132 199 / var(--tw-border-opacity));
 }
 
-.hover\:border-red-100:hover {
+.hover\:border-gray-600:hover {
   --tw-border-opacity: 1;
-  border-color: rgb(254 226 226 / var(--tw-border-opacity));
+  border-color: rgb(75 85 99 / var(--tw-border-opacity));
 }
 
 .hover\:border-red-800:hover {
@@ -1885,11 +1875,6 @@ div,section,article,aside,input,button,label,p,h1,h2,h3,h4,h5,h6,span{
 .active\:border-sky-500:active {
   --tw-border-opacity: 1;
   border-color: rgb(14 165 233 / var(--tw-border-opacity));
-}
-
-.active\:border-red-800:active {
-  --tw-border-opacity: 1;
-  border-color: rgb(153 27 27 / var(--tw-border-opacity));
 }
 
 .active\:bg-red-300:active {

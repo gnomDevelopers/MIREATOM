@@ -244,3 +244,52 @@ func (h *Handler) GetUserDataByID(c *fiber.Ctx) error {
 	logEvent.Msg("success")
 	return c.Status(fiber.StatusOK).JSON(user)
 }
+
+// CheckAuth
+// @Tags         user
+// @Summary      Authorization check
+// @Description  Validates the JWT token from the Authorization header, extracts user ID, and generates a new access token.
+// @Accept       json
+// @Produce      json
+// @Param        Authorization header string true "Bearer JWT token"
+// @Success      200 {object} map[string]interface{} "New access token and user ID"
+// @Failure      400 {object} map[string]interface{} "Missing auth token"
+// @Failure      401 {object} map[string]interface{} "Invalid auth header or token"
+// @Failure      500 {object} map[string]interface{} "Internal server error"
+// @Router       /login [get]
+func (h *Handler) CheckAuth(c *fiber.Ctx) error {
+	header := c.Get("Authorization")
+
+	if header == "" {
+		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+			Url: c.OriginalURL(), Status: fiber.StatusBadRequest})
+		logEvent.Msg("Missing auth token")
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Missing auth token"})
+	}
+
+	tokenString := strings.Split(header, " ")
+	if len(tokenString) != 2 {
+		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+			Url: c.OriginalURL(), Status: fiber.StatusUnauthorized})
+		logEvent.Msg("Invalid auth header")
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid auth header"})
+	}
+
+	token := tokenString[1]
+
+	id, err := pkg.ParseToken(token, config.SigningKey)
+	if err != nil {
+		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+			Url: c.OriginalURL(), Status: fiber.StatusUnauthorized})
+		logEvent.Msg(err.Error())
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Info", Method: c.Method(),
+		Url: c.OriginalURL(), Status: fiber.StatusOK})
+	logEvent.Msg("success")
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"access_token": token,
+		"id":           id,
+	})
+}

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="showAcceptCookie" class="absolute bottom-5 left-5 flex flex-col justify-center items-center p-4 rounded-xl bg-color-light header-shadow">
+  <div v-if="showAcceptCookie" class="absolute bottom-5 left-5 flex flex-col justify-center items-center p-4 rounded-xl bg-color-light header-shadow bg-white">
     <div class="flex flex-col justify-between items-stretch w-80 gap-y-2">
       <div class="flex flex-row gap-x-2 justify-center items-center">
         <img class="w-7 h-7" src="../assets/icons/icon-cookie.svg"/>
@@ -10,7 +10,7 @@
       </p>
       <div class="flex flex-row justify-evenly">
         <div @click="setCookiePolicy(true)" class="py-2 px-4 text-xl rounded-xl border-2 border-solid cursor-pointer font-semibold select-none text-white bg-sky-700 border-sky-700 hover:bg-sky-600 hover:border-sky-600 active:bg-sky-500 active:border-sky-500">Принять</div>
-        <div @click="setCookiePolicy(false)" class="py-2 px-4 text-xl rounded-xl border-2 border-solid cursor-pointer font-semibold select-none text-sky-700 bg-white border-sky-700 hover:bg-slate-50 hover:border-sky-600 active:bg-slate-100 active:border-sky-500">Отклонить</div>
+        <div class="py-2 px-4 text-xl rounded-xl border-2 border-solid cursor-pointer font-semibold select-none text-gray-500 bg-white border-gray-700 hover:border-gray-600">Отклонить</div>
       </div>
     </div>
   </div>
