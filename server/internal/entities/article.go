@@ -10,11 +10,12 @@ type Article struct {
 }
 
 type ArticleInfo struct {
-	Id      int    `json:"id" db:"id"`
-	UserId  int    `json:"user_id" db:"user_id"`
-	Title   string `json:"title" db:"title"`
-	Science string `json:"science" db:"science"`
-	Section string `json:"section" db:"section"`
+	Id       int    `json:"id" db:"article_id"`
+	UserId   int    `json:"user_id" db:"user_id"`
+	Title    string `json:"title" db:"title"`
+	Science  string `json:"science" db:"science"`
+	Section  string `json:"section" db:"section"`
+	FullName string `json:"full_name" db:"full_name"`
 }
 
 type CreateArticleRequest struct {
