@@ -164,7 +164,7 @@ div,section,article,aside,input,button,label,p,h1,h2,h3,h4,h5,h6,span{
 
 .scrollable{
   --scroll-bar-width: 8px;
-  --border-radius-scroll-bar: 2px; /*calc(var(--scroll-bar-width) / 2);*/
+  --border-radius-scroll-bar: 4px; /*calc(var(--scroll-bar-width) / 2);*/
   --bg-color-0: var(--bg-color-bold); /*slider color*/
   --bg-color-1: #c4d3e2; /*track color*/
   overflow-y: scroll;
