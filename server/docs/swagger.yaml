@@ -102,6 +102,11 @@ definitions:
       message:
         type: string
     type: object
+  entities.RecognizedFormula:
+    properties:
+      formula:
+        type: string
+    type: object
   entities.UpdateArticleRequest:
     properties:
       id:
@@ -584,6 +589,38 @@ paths:
           schema:
             $ref: '#/definitions/entities.ErrorResponse'
       summary: Get formula by id
+      tags:
+      - formula
+  /formula/recognize:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: Photo file
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.RecognizedFormula'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+      summary: Recognizes the formula from the image
       tags:
       - formula
   /formula/user_id/{id}:

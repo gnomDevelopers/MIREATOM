@@ -1,8 +1,13 @@
 package handler
 
 import (
+	"bytes"
+	"encoding/json"
 	"github.com/gofiber/fiber/v2"
+	"net/http"
 	"os"
+	"path/filepath"
+	"server/internal/config"
 	"server/internal/entities"
 	"server/internal/log"
 	"server/internal/repository/postgres"
@@ -311,4 +316,86 @@ func (h *Handler) GetFormulasHistory(c *fiber.Ctx) error {
 		Url: c.OriginalURL(), Status: fiber.StatusOK})
 	logEvent.Msg("success")
 	return c.Status(fiber.StatusOK).JSON(formulas)
+}
+
+// FormulaRecognize
+// @Tags formula
+// @Summary      Recognizes the formula from the image
+// @Accept       multipart/form-data
+// @Produce      json
+// @Param file formData file true "Photo file"
+// @Success 200 {object} entities.RecognizedFormula
+// @Failure 400 {object} entities.ErrorResponse
+// @Failure 401 {object} entities.ErrorResponse
+// @Failure 500 {object} entities.ErrorResponse
+// @Router       /formula/recognize [post]
+func (h *Handler) FormulaRecognize(c *fiber.Ctx) error {
+	file, err := c.FormFile("file")
+	if err != nil {
+		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+			Url: c.OriginalURL(), Status: fiber.StatusBadRequest})
+		logEvent.Msg("failed to retrieve file")
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "failed to retrieve file"})
+	}
+
+	if file.Header.Get("Content-Type") != "image/jpeg" {
+		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+			Url: c.OriginalURL(), Status: fiber.StatusBadRequest})
+		logEvent.Msg("only JPEG images are allowed")
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "only JPEG images are allowed"})
+	}
+
+	saveDir := "./tmp"
+	savePath := filepath.Join(saveDir, file.Filename)
+
+	if err := c.SaveFile(file, savePath); err != nil {
+		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
+		logEvent.Msg("failed to save file")
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "failed to save file"})
+	}
+
+	payload := map[string]string{
+		"type": "1",
+		"path": savePath,
+	}
+
+	payloadBytes, err := json.Marshal(payload)
+	if err != nil {
+		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
+		logEvent.Msg("failed to prepare request payload")
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "failed to prepare request payload"})
+	}
+
+	resp, err := http.Post(config.LlamaAPI, "application/json", bytes.NewBuffer(payloadBytes))
+	if err != nil {
+		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
+		logEvent.Msg("failed to send request to external API")
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "failed to send request to external API"})
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
+		logEvent.Msg("external API returned an error")
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "external API returned an error"})
+	}
+
+	var apiResponse struct {
+		Formula string `json:"formula"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&apiResponse); err != nil {
+		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
+		logEvent.Msg("failed to parse external API response")
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "failed to parse external API response"})
+	}
+
+	logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Info", Method: c.Method(),
+		Url: c.OriginalURL(), Status: fiber.StatusOK})
+	logEvent.Msg("success")
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"formula": apiResponse.Formula})
 }

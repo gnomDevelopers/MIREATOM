@@ -47,7 +47,7 @@ func (h *Handler) Router() *fiber.App {
 
 	f.Get("/formula/id/:id", h.GetFormulaById)
 	f.Get("/formula/user_id/:id", h.GetFormulaByUserId)
-
+	f.Post("/formula/recognize", h.FormulaRecognize)
 	f.Get("/formula/history/user/:id/page/:number", h.GetFormulasHistory)
 
 	f.Post("/formula/file", h.GetFormulaFromArticle)
