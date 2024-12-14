@@ -3,9 +3,10 @@ package postgres
 import (
 	"database/sql"
 	"errors"
-	"github.com/jmoiron/sqlx"
 	"server/internal/entities"
 	"server/util"
+
+	"github.com/jmoiron/sqlx"
 )
 
 func DBFormulaExists(db *sqlx.DB, email string) (bool, error) {
@@ -147,7 +148,7 @@ func DBFormulaHistoryGet(db *sqlx.DB, userID int64, pageNumber int64) (*[]entiti
 		OFFSET $2
 	`
 
-	err := db.Select(&formulas, query, userID, pageNumber-1)
+	err := db.Select(&formulas, query, userID, (pageNumber-1)*20)
 	if err != nil {
 		return nil, err
 	}
