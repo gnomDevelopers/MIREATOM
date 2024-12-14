@@ -10,23 +10,23 @@
     <div class="flex justify-center items-center gap-x-6 ">
       <div
         @click="$router.push({name: 'MyFormulesPage'})"
-        class="box-shadow flex justify-center items-center px-3 mb:px-4 text-xl mb:text-2xl text-color border-2 rounded-lg cursor-pointer transition-bg hover:bg-red-50 active:bg-red-100"
-        :class="{'border-hr-color': $route.path === '/myformules'}">
+        class="h-full flex justify-center items-center px-3 mb:px-4 text-xl mb:text-2xl text-color border-b-2 cursor-pointer transition-bg"
+        :class="{'border-red-800': $route.path === '/myformules'}">
         
         <a class="text-xl">Мои формулы</a>
       </div>
       <div
         @click="$router.push({name: 'MainPage'})"
-        class="box-shadow flex justify-center items-center px-3 mb:px-4 text-xl mb:text-2xl text-color border-2 rounded-lg cursor-pointer transition-bg hover:bg-red-50 active:bg-red-100"
-        :class="{'border-hr-color': $route.path === '/'}">
+        class="h-full flex justify-center items-center px-3 mb:px-4 text-xl mb:text-2xl text-color border-b-2 cursor-pointer transition-bg "
+        :class="{'border-red-800': $route.path === '/'}">
         
         <a class="text-xl">Формулы</a>
       </div>
       <div
         @click="$router.push({name: 'ArticlesPage'})"
-        class="box-shadow flex justify-center items-center px-3 mb:px-4 text-xl mb:text-2xl text-color border-2 rounded-lg cursor-pointer transition-bg hover:bg-red-50 active:bg-red-100"
-        :class="{'border-hr-color': $route.path === '/articles'}">
-        <!--box-shadow flex justify-center items-center px-3 mb:px-4 text-xl mb:text-2xl text-color border-2 border-b-gray-600 rounded-lg cursor-pointer transition-bg hover:bg-red-100 active:bg-red-300-->
+        class="h-full flex justify-center items-center px-3 mb:px-4 text-xl mb:text-2xl text-color border-b-2 cursor-pointer transition-bg "
+        :class="{'border-red-800': $route.path === '/articles'}">
+        
         <a class="text-xl">Статьи</a>
       </div>
     </div>

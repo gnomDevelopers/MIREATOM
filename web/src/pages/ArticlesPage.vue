@@ -186,19 +186,9 @@
 
           <div class="flex flex-col flex-grow gap-y-4 w-full px-4 scrollable" style="height: calc(100svh - 62px - 32px - 32px - 32px);">
 
+            <ArticleItem v-for="article in articles":key="article.id" :title="article.title" :author="'Автор неизвестен'" :science="article.science" :science-type="article.section"/>
             <ArticleItem :title="'Простые реакции'" :author="'Сергеев Сергей Сергеевич'" :science="'Химия'" :science-type="'Кинетика'"/>
-            <ArticleItem :title="'Простые реакции'" :author="'Сергеев Сергей Сергеевич'" :science="'Химия'" :science-type="'Кинетика'"/>
-            <ArticleItem :title="'Простые реакции'" :author="'Сергеев Сергей Сергеевич'" :science="'Химия'" :science-type="'Кинетика'"/>
-            <ArticleItem :title="'Простые реакции'" :author="'Сергеев Сергей Сергеевич'" :science="'Химия'" :science-type="'Кинетика'"/>
-            <ArticleItem :title="'Простые реакции'" :author="'Сергеев Сергей Сергеевич'" :science="'Химия'" :science-type="'Кинетика'"/>
-            <ArticleItem :title="'Простые реакции'" :author="'Сергеев Сергей Сергеевич'" :science="'Химия'" :science-type="'Кинетика'"/>
-            <ArticleItem :title="'Простые реакции'" :author="'Сергеев Сергей Сергеевич'" :science="'Химия'" :science-type="'Кинетика'"/>
-            <ArticleItem :title="'Простые реакции'" :author="'Сергеев Сергей Сергеевич'" :science="'Химия'" :science-type="'Кинетика'"/>
-            <ArticleItem :title="'Простые реакции'" :author="'Сергеев Сергей Сергеевич'" :science="'Химия'" :science-type="'Кинетика'"/>
-            <ArticleItem :title="'Простые реакции'" :author="'Сергеев Сергей Сергеевич'" :science="'Химия'" :science-type="'Кинетика'"/>
-            <ArticleItem :title="'Простые реакции'" :author="'Сергеев Сергей Сергеевич'" :science="'Химия'" :science-type="'Кинетика'"/>
-            <ArticleItem :title="'Простые реакции'" :author="'Сергеев Сергей Сергеевич'" :science="'Химия'" :science-type="'Кинетика'"/>
-
+            
           </div>
         </section>
         <section class="flex flex-col w-1/2 h-full py-4 gap-y-6">
@@ -229,6 +219,8 @@ import { useArticleStore } from '@/stores/articleStore';
 
 import ArticleItem from '@/shared/articleItem.vue';
 import HistoryFormulaItem from '@/shared/historyFormulaItem.vue';
+import { API_Articles_Get, API_ArticleFile_Get } from '@/api/api';
+import type { Article } from '@/helpers/constants';
 
 export default{
   components: {
@@ -237,17 +229,28 @@ export default{
   },
   data(){
     return {
-
+      articles: [] as Article[]
     }
   },
   computed: {
     ...mapStores(useBlurStore, useArticleStore),
   },
+  mounted() {
+    this.getArticles();
+  },
   methods: {
     hideArticleFormuls(){
       this.blurStore.showBlur = false;
       this.articleStore.showArticleFormulsMW = false;
-    }
+    },
+    async getArticles() {
+      try {
+        const response = await API_Articles_Get(); // Вызов API
+        this.articles = response; // Сохранение данных студентов в состоянии компонента
+      } catch (error) {
+        console.error('Ошибка при получении студентов:', error);
+      }
+    },
   }
 }
 </script>
