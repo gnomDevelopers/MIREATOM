@@ -230,14 +230,18 @@ export default defineComponent({
       }
     },
     filter() {
+      
+      console.log('!!!Current sciences array:', this.sciences);
       console.log('Starting filter with sciences:', this.sciences);
       console.log('Starting filter with scienceParts:', this.scienceParts);
 
       this.filteredArticles = this.articles.filter(article => {
+        console.log(`Article science: ${article.science}`);
         const matchesTitle = !this.filters.articleTitle || article.title.toLowerCase().includes(this.filters.articleTitle.toLowerCase());
         const matchesAuthor = !this.filters.author || article.full_name.toLowerCase().includes(this.filters.author.toLowerCase());
-        const matchesScience = !this.filters.science || this.sciences.some(science => article.science.toLowerCase().includes(science.toLowerCase()));
-        const matchesSection = !this.filters.section || this.scienceParts.some(part => article.section.toLowerCase().includes(part.toLowerCase()));
+        const matchesScience = (this.sciences.length === 0 || this.sciences.some(science => article.science.toLowerCase().includes(science.toLowerCase())));
+        const matchesSection = (this.scienceParts.length === 0 || this.scienceParts.some(part => article.section.toLowerCase().includes(part.toLowerCase())));
+
 
         console.log('Matches for article', article.title, '->', {
           matchesTitle,
@@ -255,6 +259,8 @@ export default defineComponent({
       if (this.newScience.trim() !== '') {
         this.sciences.push(this.newScience.trim());
         this.newScience = '';
+        this.filters.science = '';  
+        this.filter();  
       }
     },
     removeScience(index: number) {
@@ -264,6 +270,8 @@ export default defineComponent({
       if (this.newSciencePart.trim() !== '') {
         this.scienceParts.push(this.newSciencePart.trim());
         this.newSciencePart = '';
+        this.filters.section = '';  
+        this.filter();  
       }
     },
     removeSciencePart(index: number) {
