@@ -113,3 +113,17 @@ export function API_ArticleFile_Get(articleId: number){
     })
   });
 };
+
+export function API_Article_Get_ByID(userID: number){
+  return new Promise((resolve, reject) => {
+    axios.get(`${API}/formula/user_id/${userID}`)
+    .then(response => {
+      if(DEVMODE) console.log('Article get by id success: ', response);
+      resolve(response);
+    })
+    .catch(error => {
+      if(DEVMODE) console.log('Article get by id error: ', error);
+      reject(error);
+    })
+  });
+};

@@ -187,8 +187,7 @@
           <div class="flex flex-col flex-grow gap-y-4 w-full px-4 scrollable" style="height: calc(100svh - 62px - 32px - 32px - 32px);">
 
             <ArticleItem v-for="article in articles":key="article.id" :title="article.title" :author="'Автор неизвестен'" :science="article.science" :science-type="article.section"/>
-            <ArticleItem :title="'Простые реакции'" :author="'Сергеев Сергей Сергеевич'" :science="'Химия'" :science-type="'Кинетика'"/>
-            
+
           </div>
         </section>
         <section class="flex flex-col w-1/2 h-full py-4 gap-y-6">
