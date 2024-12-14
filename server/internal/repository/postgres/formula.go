@@ -3,9 +3,10 @@ package postgres
 import (
 	"database/sql"
 	"errors"
-	"github.com/jmoiron/sqlx"
 	"server/internal/entities"
 	"server/util"
+
+	"github.com/jmoiron/sqlx"
 )
 
 func DBFormulaExists(db *sqlx.DB, email string) (bool, error) {
