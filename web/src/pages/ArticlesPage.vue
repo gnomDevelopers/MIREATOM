@@ -215,10 +215,11 @@
 import { mapStores } from 'pinia';
 import { useBlurStore } from '@/stores/blurStore';
 import { useArticleStore } from '@/stores/articleStore';
+import { useUserInfoStore } from '@/stores/userInfoStore';
 
 import ArticleItem from '@/shared/articleItem.vue';
 import HistoryFormulaItem from '@/shared/historyFormulaItem.vue';
-import { API_Articles_Get, API_ArticleFile_Get } from '@/api/api';
+import { API_Articles_Get, API_ArticleFile_Get, API_Article_Get_ByID } from '@/api/api';
 import type { Article } from '@/helpers/constants';
 
 export default{
@@ -228,14 +229,16 @@ export default{
   },
   data(){
     return {
-      articles: [] as Article[]
+      articles: [] as Article[],
+      myArticles: [] as Article[]
     }
   },
   computed: {
-    ...mapStores(useBlurStore, useArticleStore),
+    ...mapStores(useUserInfoStore, useBlurStore, useArticleStore),
   },
   mounted() {
     this.getArticles();
+    this.getMyArticles();
   },
   methods: {
     hideArticleFormuls(){
@@ -246,6 +249,14 @@ export default{
       try {
         const response = await API_Articles_Get(); // Вызов API
         this.articles = response; // Сохранение данных студентов в состоянии компонента
+      } catch (error) {
+        console.error('Ошибка при получении студентов:', error);
+      }
+    },
+    async getMyArticles() {
+      try {
+        const response = await API_Article_Get_ByID(this.userInfoStore.userID!); // Вызов API
+        this.myArticles = response;
       } catch (error) {
         console.error('Ошибка при получении студентов:', error);
       }
