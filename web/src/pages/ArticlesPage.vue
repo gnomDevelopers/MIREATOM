@@ -34,34 +34,15 @@
             <input 
               type="text" 
               placeholder="Высшая математика"
+              v-model="filters.articleTitle"
               class="border border-solid rounded-l-lg outline-none px-2 border-gray-300 focus:border-sky-500"/>
-            <div class="px-2 py-1 rounded-r-lg cursor-pointer btn">
+              <div class="px-2 py-1 rounded-r-lg cursor-pointer btn">
               <svg class="w-6 h-6" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M23.8333 23.8334L21.6667 21.6667M22.75 12.4584C22.75 18.1423 18.1423 22.7501 12.4583 22.7501C6.7744 22.7501 2.16667 18.1423 2.16667 12.4584C2.16667 6.77448 6.7744 2.16675 12.4583 2.16675C18.1423 2.16675 22.75 6.77448 22.75 12.4584Z" stroke="#FAFCFF" stroke-width="1.625" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </div>
           </div>
 
-          <ul class="list-none flex flex-col gap-y-2 mt-2 w-full">
-            <li class="self-start flex flex-row items-center gap-x-2 px-2 cursor-default rounded-md border border-solid border-red-600">
-              <div class="cursor-pointer">
-                <svg class="w-4 h-4" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M10.5 3.5L3.50002 10.5M3.50002 3.5L10.5 10.5" stroke="#1E1E1E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </div>
-
-              <p>Теория струн</p>
-            </li>
-            <li class="self-start flex flex-row items-center gap-x-2 px-2 cursor-default rounded-md border border-solid border-red-600">
-              <div class="cursor-pointer">
-                <svg class="w-4 h-4" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M10.5 3.5L3.50002 10.5M3.50002 3.5L10.5 10.5" stroke="#1E1E1E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </div>
-
-              <p>Теория струн</p>
-            </li>
-          </ul>
         </section>
 
         <section class="flex flex-col">
@@ -71,6 +52,7 @@
             <input 
               type="text" 
               placeholder="Иванов Иван"
+              v-model="filters.author"
               class="border border-solid rounded-l-lg outline-none px-2 border-gray-300 focus:border-sky-500"/>
             <div class="px-2 py-1 rounded-r-lg cursor-pointer btn">
               <svg class="w-6 h-6" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -78,27 +60,7 @@
               </svg>
             </div>
           </div>
-
-          <ul class="list-none flex flex-col gap-y-2 mt-2 w-full">
-            <li class="self-start flex flex-row items-center gap-x-2 px-2 cursor-default rounded-md border border-solid border-red-600">
-              <div class="cursor-pointer">
-                <svg class="w-4 h-4" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M10.5 3.5L3.50002 10.5M3.50002 3.5L10.5 10.5" stroke="#1E1E1E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </div>
-
-              <p>Теория струн</p>
-            </li>
-            <li class="self-start flex flex-row items-center gap-x-2 px-2 cursor-default rounded-md border border-solid border-red-600">
-              <div class="cursor-pointer">
-                <svg class="w-4 h-4" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M10.5 3.5L3.50002 10.5M3.50002 3.5L10.5 10.5" stroke="#1E1E1E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </div>
-
-              <p>Теория струн</p>
-            </li>
-          </ul>
+          
         </section>
 
         <section class="flex flex-col">
@@ -108,10 +70,11 @@
             <input 
               type="text" 
               placeholder="Физика"
+              v-model="filters.science"
               class="border border-solid rounded-l-lg outline-none px-2 border-gray-300 focus:border-sky-500"/>
             <div class="px-2 py-1 rounded-r-lg cursor-pointer btn">
               <svg class="w-6 h-6" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M23.8333 23.8334L21.6667 21.6667M22.75 12.4584C22.75 18.1423 18.1423 22.7501 12.4583 22.7501C6.7744 22.7501 2.16667 18.1423 2.16667 12.4584C2.16667 6.77448 6.7744 2.16675 12.4583 2.16675C18.1423 2.16675 22.75 6.77448 22.75 12.4584Z" stroke="#FAFCFF" stroke-width="1.625" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M6.5 13H19.5M13 19.5V6.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </div>
           </div>
@@ -145,10 +108,11 @@
             <input 
               type="text" 
               placeholder="Механика"
+              v-model="filters.section"
               class="border border-solid rounded-l-lg outline-none px-2 border-gray-300 focus:border-sky-500"/>
             <div class="px-2 py-1 rounded-r-lg cursor-pointer btn">
               <svg class="w-6 h-6" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M23.8333 23.8334L21.6667 21.6667M22.75 12.4584C22.75 18.1423 18.1423 22.7501 12.4583 22.7501C6.7744 22.7501 2.16667 18.1423 2.16667 12.4584C2.16667 6.77448 6.7744 2.16675 12.4583 2.16675C18.1423 2.16675 22.75 6.77448 22.75 12.4584Z" stroke="#FAFCFF" stroke-width="1.625" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M6.5 13H19.5M13 19.5V6.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </div>
           </div>
@@ -175,7 +139,7 @@
           </ul>
         </section>
 
-        <div class="btn px-4 py-1 rounded-lg cursor-pointer">
+        <div @click="filter" class="btn px-4 py-1 rounded-lg cursor-pointer">
           <p class="text-xl text-white select-none">Поиск</p>
         </div>
       </aside>
@@ -185,7 +149,7 @@
           <h1 class=" text-center w-full text-2xl">Статьи пользователей</h1>
 
           <div class="flex flex-col flex-grow gap-y-4 w-full px-4 scrollable" style="height: calc(100svh - 62px - 32px - 32px - 32px);">
-            <ArticleItem v-for="article in articles":key="article.id" :title="article.title" :author="article.full_name" :science="article.science" :science-type="article.section"/>
+            <ArticleItem v-for="article in filteredArticles":key="article.id" :title="article.title" :author="article.full_name" :science="article.science" :science-type="article.section"/>
           </div>
         </section>
         <section class="flex flex-col w-1/2 h-full py-4 gap-y-6">
@@ -229,7 +193,14 @@ export default{
   data(){
     return {
       articles: [] as Article[],
-      myArticles: [] as Article[]
+      myArticles: [] as Article[],
+      filteredArticles: [] as Article[],
+      filters: {
+        articleTitle: '',
+        author: '',
+        science: '',
+        section: ''
+      },
     }
   },
   computed: {
@@ -247,6 +218,7 @@ export default{
     async getArticles() {
       try {
         const response = await API_Articles_Get(); // Вызов API
+        this.filteredArticles = response;
         this.articles = response; // Сохранение данных студентов в состоянии компонента
       } catch (error) {
         console.error('Ошибка при получении студентов:', error);
@@ -259,6 +231,19 @@ export default{
       } catch (error) {
         console.error('Ошибка при получении студентов:', error);
       }
+    },
+    filter() {
+      console.log("test1")
+      this.filteredArticles = this.articles.filter(article => {
+        console.log(this.filters.articleTitle, this.filters.author, this.filters.science, this.filters.section)
+        console.log("test2")
+        return (
+          (!this.filters.articleTitle || article.title.toLowerCase().includes(this.filters.articleTitle.toLowerCase())) &&
+          (!this.filters.author || article.full_name.toLowerCase().includes(this.filters.author.toLowerCase())) &&
+          (!this.filters.science || article.science.toLowerCase().includes(this.filters.science.toLowerCase())) &&
+          (!this.filters.section || article.section.toLowerCase().includes(this.filters.section.toLowerCase()))
+        );
+      });
     },
   }
 }

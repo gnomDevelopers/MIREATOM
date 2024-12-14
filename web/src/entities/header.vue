@@ -39,7 +39,7 @@
         Вход
       </div>
       <div v-else>
-        <p class="text-xl">{{ getUserSurName }} {{ getUserName }}</p>
+        <p class="text-xl cursor-default">{{ getUserSurName }} {{ getUserName }}</p>
       </div>
     </div>
   </div>
