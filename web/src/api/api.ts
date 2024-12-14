@@ -1,5 +1,10 @@
 import axios from "axios";
-import { API, DEVMODE, GET_COOKIE, type IAPI_Login, type IAPI_Register } from "@/helpers/constants";
+import {
+  API, DEVMODE, GET_COOKIE,
+  type IAPI_Login,
+  type IAPI_Register,
+  type Article,
+} from "@/helpers/constants";
 
 //проверка аутентификации пользователя
 export function API_Authenticate(){
@@ -75,6 +80,35 @@ export function API_Register(data: IAPI_Register){
     })
     .catch(error => {
       if(DEVMODE) console.log('Sign up post error: ', error);
+      reject(error);
+    })
+  });
+};
+
+//////// СТАТЬИ ////////
+export function API_Articles_Get(): Promise<Article[]>{
+  return new Promise((resolve, reject) => {
+    axios.get(`${API}/article`)
+    .then(response => {
+      if(DEVMODE) console.log('Articles get success: ', response);
+      resolve(response.data as Article[]);
+    })
+    .catch(error => {
+      if(DEVMODE) console.log('Articles get error: ', error);
+      reject(error);
+    })
+  });
+};
+
+export function API_ArticleFile_Get(articleId: number){
+  return new Promise((resolve, reject) => {
+    axios.get(`${API}/auth/article/file/${articleId}`)
+    .then(response => {
+      if(DEVMODE) console.log('Articles file get success: ', response);
+      resolve(response);
+    })
+    .catch(error => {
+      if(DEVMODE) console.log('Articles file error: ', error);
       reject(error);
     })
   });
