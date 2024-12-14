@@ -32,7 +32,8 @@ func CompareStrings(oldContent, newContent string) (string, error) {
 	diffs := dmp.DiffMain(oldContent, newContent, false)
 
 	var changes []Change
-	currentIndex := 0
+	oldIndex := 0
+	newIndex := 0
 
 	for _, diff := range diffs {
 		switch diff.Type {
@@ -40,19 +41,27 @@ func CompareStrings(oldContent, newContent string) (string, error) {
 			changes = append(changes, Change{
 				Type:    "insert",
 				Content: diff.Text,
-				Start:   currentIndex,
-				End:     currentIndex + len(diff.Text),
+				Start:   newIndex,
+				End:     newIndex + len(diff.Text),
 			})
-			currentIndex += len(diff.Text)
+			newIndex += len(diff.Text)
 		case diffmatchpatch.DiffDelete:
 			changes = append(changes, Change{
 				Type:    "delete",
 				Content: diff.Text,
-				Start:   currentIndex,
-				End:     currentIndex,
+				Start:   oldIndex,
+				End:     oldIndex + len(diff.Text),
 			})
+			oldIndex += len(diff.Text)
 		case diffmatchpatch.DiffEqual:
-			currentIndex += len(diff.Text)
+			changes = append(changes, Change{
+				Type:    "equal",
+				Content: diff.Text,
+				Start:   oldIndex,
+				End:     oldIndex + len(diff.Text),
+			})
+			oldIndex += len(diff.Text)
+			newIndex += len(diff.Text)
 		}
 	}
 

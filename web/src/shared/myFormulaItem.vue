@@ -3,7 +3,7 @@
       <div class="flex flex-row justify-between">
         <p> </p>
         <div class="pb-2 flex justify-center">
-          <p class="text-xl">{{ name }}</p>
+          <p class="text-xl">{{ title }}</p>
         </div>
         <img @click="editFormula" class="cursor-pointer" src="@/assets/icons/icon-edit.svg" />
       </div>
@@ -31,22 +31,22 @@
   import { mapStores } from 'pinia';
   import { useStatusWindowStore } from '@/stores/statusWindowStore';
   import { StatusCodes } from '@/helpers/constants';
+import { getTokenSourceMapRange } from 'typescript';
   
   export default {
     props: {
+      id: {
+        type: Number,
+        required: true,
+      },
       formula: {
         type: String,
         required: true,
       },
-      name: {
+      title: {
         type: String,
         required: true,
       },
-
-      index: {
-        type: Number,
-        required: true,
-      }
     },
     data() {
       return {
@@ -55,14 +55,6 @@
     },
     computed: {
       ...mapStores(useStatusWindowStore),
-    },
-    mounted() {
-      this.formulaHTML = katex.renderToString(this.formula, {
-        throwOnError: true,
-        displayMode: false,
-        output: 'mathml',
-        trust: false,
-      });
     },
     methods: {
       copyFormula() {
@@ -74,9 +66,21 @@
           console.error('Could not copy text: ', err);
         });
       },
-  
       editFormula() {
-        this.$emit('edit-formula', this.index);  
+        this.$emit('edit-formula');  
+      }
+    },
+    watch: {
+      formula: {
+        handler(val){
+          this.formulaHTML = katex.renderToString(this.formula, {
+            throwOnError: true,
+            displayMode: false,
+            output: 'mathml',
+            trust: false,
+          });
+        },
+        immediate: true,
       }
     }
   };

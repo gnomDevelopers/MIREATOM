@@ -650,6 +650,10 @@ video {
   margin: 0.5rem;
 }
 
+.m-6 {
+  margin: 1.5rem;
+}
+
 .mx-12 {
   margin-left: 3rem;
   margin-right: 3rem;
@@ -1607,7 +1611,7 @@ div,section,article,aside,input,button,label,p,h1,h2,h3,h4,h5,h6,span{
 
 .scrollable{
   --scroll-bar-width: 8px;
-  --border-radius-scroll-bar: 2px;
+  --border-radius-scroll-bar: 4px;
   /*calc(var(--scroll-bar-width) / 2);*/
   --bg-color-0: var(--bg-color-bold);
   /*slider color*/
@@ -1671,7 +1675,7 @@ div,section,article,aside,input,button,label,p,h1,h2,h3,h4,h5,h6,span{
 
 .scrollable-table{
   --scroll-bar-width: 8px;
-  --border-radius-scroll-bar: 2px;
+  --border-radius-scroll-bar: 4px;
   /*calc(var(--scroll-bar-width) / 2);*/
   --bg-color-0: var(--bg-color-bold);
   /*slider color*/
@@ -1836,11 +1840,6 @@ div,section,article,aside,input,button,label,p,h1,h2,h3,h4,h5,h6,span{
 .focus\:border-sky-500:focus {
   --tw-border-opacity: 1;
   border-color: rgb(14 165 233 / var(--tw-border-opacity));
-}
-
-.focus\:border-red-500:focus {
-  --tw-border-opacity: 1;
-  border-color: rgb(239 68 68 / var(--tw-border-opacity));
 }
 
 .focus\:border-red-800:focus {

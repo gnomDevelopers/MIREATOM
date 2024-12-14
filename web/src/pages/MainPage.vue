@@ -244,12 +244,12 @@ import { useStatusWindowStore } from '@/stores/statusWindowStore';
 import { useUserInfoStore } from '@/stores/userInfoStore';
 import { API_Get_Formuls_History, API_Health, API_Save_Formula } from '@/api/api';
 import { garbageCollector, insertHTMLBeforeCursor, parseLatexFromHTML } from '@/helpers/latexHTMLParser';
+import { StatusCodes } from '@/helpers/constants';
 import { nextTick } from 'vue';
 
 import CalculatorButtonClaster from '@/shared/calculatorButtonClaster.vue';
 import CalculatorButtonItem from '@/shared/calculatorButtonItem.vue';
 import HistoryFormulaItem from '@/shared/historyFormulaItem.vue';
-import { StatusCodes } from '@/helpers/constants';
 
 const StandartButtons = [
   [ // standar buttons

@@ -135,6 +135,8 @@ export function API_Get_Formuls_History(userID: number, page: number){
 };
 
 //////// СТАТЬИ ////////
+
+//получение всех статей
 export function API_Articles_Get(): Promise<Article[]>{
   return new Promise((resolve, reject) => {
     axios.get(`${API}/article`)
@@ -149,6 +151,7 @@ export function API_Articles_Get(): Promise<Article[]>{
   });
 };
 
+//получение файла статьи
 export function API_ArticleFile_Get(articleId: number){
   return new Promise((resolve, reject) => {
     axios.get(`${API}/auth/article/file/${articleId}`)
@@ -163,6 +166,7 @@ export function API_ArticleFile_Get(articleId: number){
   });
 };
 
+//получение статьи пользователя
 export function API_Article_Get_ByID(userID: number): Promise<Article[]>{
   return new Promise((resolve, reject) => {
     axios.get(`${API}/article/user_id/${userID}`)
@@ -172,6 +176,45 @@ export function API_Article_Get_ByID(userID: number): Promise<Article[]>{
     })
     .catch(error => {
       if(DEVMODE) console.log('Article get by id error: ', error);
+      reject(error);
+    })
+  });
+};
+
+
+//обновление формулы
+export function API_Update_Formula(data: {id: number, title: string, value: string}){
+  return new Promise((resolve, reject) => {
+    axios.put(`${API}/auth/formula`, data, {
+      headers: {
+        Authorization: 'Bearer ' + GET_COOKIE('access_token'),
+      }
+    })
+    .then(response => {
+      if(DEVMODE) console.log('Update formula success: ', response);
+      resolve(response);
+    })
+    .catch(error => {
+      if(DEVMODE) console.log('Update formula error: ', error);
+      reject(error);
+    })
+  });
+};
+
+//получение истории коммитов формулы
+export function API_Get_Formula_Commits(formulaID: number){
+  return new Promise((resolve, reject) => {
+    axios.get(`${API}/auth/formula/id/${formulaID}/commits`, {
+      headers: {
+        Authorization: 'Bearer ' + GET_COOKIE('access_token'),
+      }
+    })
+    .then(response => {
+      if(DEVMODE) console.log('Get formula commits success: ', response);
+      resolve(response);
+    })
+    .catch(error => {
+      if(DEVMODE) console.log('Get formula commits error: ', error);
       reject(error);
     })
   });

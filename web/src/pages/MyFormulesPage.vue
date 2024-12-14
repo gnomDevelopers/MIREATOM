@@ -1,88 +1,45 @@
 <template>
   <!-- модальное окно для редактирования формулы -->
   <Transition>
-    <section v-if="showEditFormulaMW" class=" fixed inset-0 flex justify-center items-center z-30 p-4">
-      <div class="flex flex-col gap-y-4 items-center z-30 p-4 rounded-xl min-w-[500px] bg-white relative">
-        <div class="absolute right-0 top-0 cursor-pointer" @click="hideEditFormula">
-          <svg class="w-10 h-10" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M34.6668 17.3334L17.3335 34.6667M34.6668 34.6667L17.3335 17.3334" stroke="#8F0101" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-        </div>
-        <h1 class="text-2xl text-color-theme cursor-default">Изменить формулу</h1>
-
-        <article class="flex flex-col items-center gap-y-4 rounded-lg max-h-[500px] w-full py-2 px-4 bg-gray-100">
-          <span v-html="formulaHTML" class="text-xl my-4"></span>
-
-          <div class="flex flex-col gap-y-2 w-full py-2 px-4 rounded-lg bg-gray-200">
-            <label class="text-lg cursor-pointer" for="formulaName">Введите название формулы</label>
-            <input 
-            type="text" 
-            id="formulaName"
-            placeholder="Название формулы" 
-            v-model="saveFormulaName"
-            class="text-lg px-2 py-1 outline-none rounded border border-solid border-gray-300 focus:border-sky-500"/>
-          </div>
-
-          <div class="flex flex-col gap-y-2 w-full py-2 px-4 rounded-lg bg-gray-200">
-            <label class="text-lg cursor-pointer" for="formulaName">Измените формулу</label>        
-            <input 
-            type="text" 
-            id="formulaText"
-            placeholder="Содержание формулы" 
-            v-model=formula
-            class="text-lg px-2 py-1 outline-none rounded border border-solid border-gray-300 focus:border-sky-500"/>
-          </div>
-
-          <div @click="saveFormula" class="flex flex-row gap-x-2 items-center btn cursor-pointer rounded-lg px-2 py-1 my-2">
-            <svg class="w-9 h-9" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M34 42V26H14V42M14 6V16H30M38 42H10C8.93913 42 7.92172 41.5786 7.17157 40.8284C6.42143 40.0783 6 39.0609 6 38V10C6 8.93913 6.42143 7.92172 7.17157 7.17157C7.92172 6.42143 8.93913 6 10 6H32L42 16V38C42 39.0609 41.5786 40.0783 40.8284 40.8284C40.0783 41.5786 39.0609 42 38 42Z" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <p class="text-xl text-white">Сохранить изменения</p>
-          </div>
-        </article>
-      </div>
-      
-    </section>
+    <UpdateMyFormula v-if="showUpdateFormulaMW" :id="updateFormulaID" :value="updateFormulaValue" :title="updateFormulaName" @close-window="hideEditFormula"/>
   </Transition>
 
-
-  <div class="flex h-screen scrollable">
-    <div class="flex flex-col w-1/2 border-r border-gray-200">
-      <div class="flex justify-center m-12">
+  <div class="flex flex-row h-full scrollable">
+    <div class="flex flex-col w-1/2 border-r-2 border-gray-200">
+      <div class="flex justify-center m-6">
         <p class="text-2xl">Сохранённые формулы</p>
       </div>
-      <div class="flex flex-col h-screen mb-4 mx-6 scrollable">
+      <div class="flex flex-col h-full mb-4 mx-6 scrollable" id="myFormulaScrollWrapper">
         <div class="flex flex-col justify-center gap-4">
-          <MyFormulaItem 
-            v-for="(formulaItem, index) in formulaItems" 
-            :key="index"
-            :formula="formulaItem.formula" 
-            :name="formulaItem.name"
-            :index="index" 
-            :class="{
-              'border-2 border-gray-400': selectedFormulaIndex === index
-            }"
-            @click="selectFormula(index)"
-            @edit-formula="showEditFormula(formulaItem.formula, formulaItem.name)" 
-          />
+          <div v-for="formulaItem in getFormulsList" >
+            <MyFormulaItem
+              :formula="formulaItem.value"
+              :title="formulaItem.title"
+              :id="formulaItem.id"
+              :class="{'border-2 border-gray-400': selectedFormulaID === formulaItem.id}"
+              @click="selectFormula(formulaItem.value, formulaItem.title, formulaItem.id)"
+              @edit-formula="showEditFormula(formulaItem.value, formulaItem.title, formulaItem.id)"
+            />
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="flex flex-col w-1/2 border-l border-gray-200">
-      <div class="flex justify-center m-12">
+    <div class="flex flex-col w-1/2">
+      <div class="flex justify-center m-6">
         <p class="text-2xl">История изменений формулы</p>
       </div>
 
-      <div v-if="selectedFormulaIndex !== null" class="flex flex-col h-screen mb-4 mx-6 scrollable">
+      <div v-if="selectedFormulaID !== -1" class="flex flex-col h-screen mb-4 mx-6 scrollable">
         <div class="flex flex-col">
           <div class="flex justify-center mt-4 mx-12 rounded-lg bg-gray-300">
             <p>Формула была изменена 15.02.2024</p>
           </div>
           <MyFormulaItem 
-            :formula="formulaItems[selectedFormulaIndex].formula" 
-            :name="formulaItems[selectedFormulaIndex].name"
-            :index="selectedFormulaIndex" 
+            v-if="selectedFormulaID !== -1"
+            :id="selectedFormulaID"
+            :formula="selectedFormulaValue" 
+            :title="selectedFormulaTitle"
           />
         </div>
       </div>
@@ -94,67 +51,130 @@
   import { mapStores } from 'pinia';
   import { useBlurStore } from '@/stores/blurStore';
   import { useStatusWindowStore } from '@/stores/statusWindowStore';
-  import { StatusCodes } from '@/helpers/constants';
+  import { useUserInfoStore } from '@/stores/userInfoStore';
+  import { useFormulsStore } from '@/stores/formulsStore';
+  import { StatusCodes, type TMaybeNumber, type TMaybeString } from '@/helpers/constants';
   
   import MyFormulaItem from '@/shared/myFormulaItem.vue';
+  import { API_Get_Formula_Commits, API_Get_Formuls_History } from '@/api/api';
+  import UpdateMyFormula from '@/entities/updateMyFormula.vue';
 
   export default {
     components: {
-      MyFormulaItem
+      MyFormulaItem,
+      UpdateMyFormula,
     },
     data() {
       return {
-        formulaItems: [
-          { formula: '\\sin^{2}{(\\alpha)} + \\cos^{2}{(\\alpha)} = 1', name: 'Основное тригонометрическое тождество' },
-          { formula: '\\int_{0}^{1} x^2 dx', name: 'Интеграл от x^2' },
-          { formula: 'E = mc^2', name: 'Уравнение Эйнштейна' },
-          { formula: 'a^2 + b^2 = c^2', name: 'Теорема Пифагора' },
-          { formula: '\\log(x) + \\log(y) = \\log(xy)', name: 'Логарифмическое тождество' },
-          { formula: 'F = ma', name: 'Закон Ньютона' },
-        ],
-        selectedFormulaIndex: null as number | null,
-        formulaContainer: null as null | HTMLElement,
-        formula: '',
-        formulaHTML: '',
-        sameFormulaHTML: '',
+        formulaItems: [] as {id: number, title: string, value: string, user_id: number}[],
+
+        selectedFormulaID: -1,
+        selectedFormulaTitle: '',
+        selectedFormulaValue: '',
   
-        showHistoryMW: false,
-        showEditFormulaMW: false,
-  
-        saveFormulaName: '',
-        saveFormulaText: 'ВАававыаыва',
+        showUpdateFormulaMW: false,
+        updateFormulaID: -1,
+        updateFormulaName: '',
+        updateFormulaValue: '',
+
+        formulasPage: 1,
+
+        selectedFormulaCommits: [],
       };
     },
     computed: {
-      ...mapStores(useBlurStore, useStatusWindowStore)
+      ...mapStores(useBlurStore, useStatusWindowStore, useUserInfoStore, useFormulsStore),
+
+      getFormulsList(){
+        return this.formulsStore.formulsList;
+      }
+    },
+    mounted(){
+      if(this.userInfoStore.userID === null) return;
+      //получение первой страницы истории
+      API_Get_Formuls_History(this.userInfoStore.userID, this.formulasPage)
+      .then((response:any) => {
+        this.formulsStore.formulsList = response.data;
+
+        //если получено меньше 20 элементов - значит больше формул нет
+        if(response.data.length < 20) return;
+
+        //иначе находим элемент-обертку списка
+        const myFormulasHTML = document.getElementById('myFormulaScrollWrapper');
+        //если не нашли - выходим
+        if(myFormulasHTML === null) return;
+        //добавляем слушатель события скролл
+        myFormulasHTML.addEventListener('scroll', this.handleMyFromulaScroll);
+      })
+      .catch(error => {
+        this.statusWindowStore.showStatusWindow(StatusCodes.error, 'Что-то пошло не так при получении формул!');
+      })
     },
     methods: {
-      selectFormula(index: number) {
-        this.selectedFormulaIndex = index;
+      selectFormula(formula: string, title: string, formulaID: number) {
+        this.selectedFormulaID = formulaID;
+        this.selectedFormulaTitle = title;
+        this.selectedFormulaValue = formula;
+
+        const stID = this.statusWindowStore.showStatusWindow(StatusCodes.loading, 'Получаем историю изменений формулы...', -1);
+
+        API_Get_Formula_Commits(formulaID)
+        .then(async (response: any) => {
+          this.statusWindowStore.deteleStatusWindow(stID);
+
+          this.selectedFormulaCommits = [];
+          for(const commit of response.data){
+            try{
+              console.log('try to parse: ', commit.difference);
+              const diff = await JSON.parse(commit.difference);
+              console.log(diff);
+
+            }
+            catch(error){
+              console.log(error);
+            }
+          }
+        })
+        .catch(error => {
+          this.statusWindowStore.deteleStatusWindow(stID);
+          this.statusWindowStore.showStatusWindow(StatusCodes.error, 'Что-то пошло не так при получении истории изменения формулы!');
+        })
       },
-      showEditFormula(formula: string, name: string) {
-        this.formula = formula;  
-        this.saveFormulaName = name;  
-        this.showEditFormulaMW = true; 
+      showEditFormula(formula: string, title: string, formulaID: number) {
+        this.updateFormulaValue = formula;  
+        this.updateFormulaName = title; 
+        this.updateFormulaID = formulaID;
+
+        this.showUpdateFormulaMW = true; 
         this.blurStore.showBlur = true;
       },
-  
       hideEditFormula() {
-        this.showEditFormulaMW = false; 
+        this.showUpdateFormulaMW = false; 
         this.blurStore.showBlur = false;
       },
+      handleMyFromulaScroll(event: any){
+        const scrollHeight = event.target.scrollHeight;
+        const scrollTop = event.target.scrollTop;
+        const clientHeight = event.target.clientHeight;
 
-      saveFormula() {
-        if (this.saveFormulaName === '') {
-          this.statusWindowStore.showStatusWindow(StatusCodes.error, 'Назовите свою формулу!');
-          return;
+        console.log("Scrolled!");
+        if (scrollTop + clientHeight >= scrollHeight) {    
+          console.log("Scrolled to bottom!");
+
+          if(this.userInfoStore.userID === null) return;
+
+          this.formulasPage++;
+          API_Get_Formuls_History(this.userInfoStore.userID, this.formulasPage)
+          .then((response:any) => {
+            //сохраняем полученные формулы в массив
+            for(const item of response.data){
+              this.formulsStore.formulsList.push(item);
+            }
+            //если получено меньше 20 элементов - значит больше формул нет
+            if(response.data.length < 20) event.target.removeEventListener('scroll', this.handleMyFromulaScroll);
+          });
         }
-
-        this.formulaItems[this.selectedFormulaIndex!].name = this.saveFormulaName;  
-        this.showEditFormulaMW = false; 
-        this.blurStore.showBlur = false;
-      }
+      },
     }
   };
   </script>
-  
