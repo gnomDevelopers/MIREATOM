@@ -285,6 +285,22 @@ func (h *Handler) CheckAuth(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": err.Error()})
 	}
 
+	h.logger.Debug().Msg("call postgres.DBUserExistsID")
+	exists, err := postgres.DBUserExistsID(h.db, int64(id))
+	if err != nil {
+		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
+		logEvent.Msg(err.Error())
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	if !exists {
+		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
+		logEvent.Msg("user not exists")
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "user not exists"})
+	}
+
 	logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Info", Method: c.Method(),
 		Url: c.OriginalURL(), Status: fiber.StatusOK})
 	logEvent.Msg("success")
