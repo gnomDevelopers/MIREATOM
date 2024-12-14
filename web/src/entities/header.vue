@@ -35,11 +35,11 @@
 
       <img class="w-8 mb:w-10 h-8 mb:h-10" src="../assets/icons/icon-profile.svg"/>
 
-      <div v-if="!userInfoStore.authorized" class="box-shadow flex justify-center items-center px-3 mb:px-4 text-xl mb:text-2xl uus:text-base text-color border-2 border-hr-color rounded-lg cursor-pointer transition-bg hover:bg-red-100 active:bg-red-300" @click="$router.push({name: 'LoginPage'})">
+      <div v-if="!userInfoStore.authorized" class="h-full flex justify-center items-center px-3 mb:px-4 text-xl mb:text-2xl  text-color cursor-pointer transition-bg hover:border-b-2 hover: border-red-800 " @click="$router.push({name: 'LoginPage'})">
         Вход
       </div>
       <div v-else>
-        <p class="text-xl">{{ getUserSurName }} {{ getUserName }}</p>
+        <p class="text-xl cursor-default">{{ getUserSurName }} {{ getUserName }}</p>
       </div>
     </div>
   </div>

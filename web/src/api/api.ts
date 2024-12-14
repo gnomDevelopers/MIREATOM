@@ -169,7 +169,7 @@ export function API_ArticleFile_Get(articleId: number){
 //получение статьи пользователя
 export function API_Article_Get_ByID(userID: number): Promise<Article[]>{
   return new Promise((resolve, reject) => {
-    axios.get(`${API}/formula/user_id/${userID}`)
+    axios.get(`${API}/article/user_id/${userID}`)
     .then(response => {
       if(DEVMODE) console.log('Article get by id success: ', response);
       resolve(response.data);

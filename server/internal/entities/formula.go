@@ -25,3 +25,7 @@ type UpdateFormulaRequest struct {
 type GetFormulaFromArticleResponse struct {
 	Formula string `json:"formula"`
 }
+
+type RecognizedFormula struct {
+	Formula string `json:"formula"`
+}

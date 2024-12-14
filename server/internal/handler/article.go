@@ -189,6 +189,42 @@ func (h *Handler) GetAllArticles(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(articles)
 }
 
+// GetArticlesByUserId
+// @Tags article
+// @Summary      Get all articles
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "User ID"
+// @Success 200 {object} []entities.ArticleInfo
+// @Failure 400 {object} entities.ErrorResponse
+// @Failure 401 {object} entities.ErrorResponse
+// @Failure 500 {object} entities.ErrorResponse
+// @Router       /article/user_id/{id} [get]
+func (h *Handler) GetArticlesByUserId(c *fiber.Ctx) error {
+	idStr := c.Params("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
+		logEvent.Msg(err.Error())
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	h.logger.Debug().Msg("call postgres.DBArticleGetAll")
+	articles, err := postgres.DBArticleGetByUserId(h.db, id)
+	if err != nil {
+		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
+		logEvent.Msg(err.Error())
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Info", Method: c.Method(),
+		Url: c.OriginalURL(), Status: fiber.StatusOK})
+	logEvent.Msg("success")
+	return c.Status(fiber.StatusOK).JSON(articles)
+}
+
 // GetArticleFile
 // @Tags article
 // @Summary      Get articles file

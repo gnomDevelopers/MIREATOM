@@ -53,6 +53,22 @@ func DBArticleGetAll(db *sqlx.DB) (*[]entities.ArticleInfo, error) {
 	return &articles, nil
 }
 
+func DBArticleGetByUserId(db *sqlx.DB, id int) (*[]entities.ArticleInfo, error) {
+	articles := []entities.ArticleInfo{}
+	query := `
+		SELECT articles.id AS article_id, articles.title, articles.science, articles.section, users.id AS user_id,
+    	CONCAT(users.surname, ' ', users.name, ' ', users.third_name) AS full_name
+		FROM articles
+		JOIN users ON articles.user_id = users.id WHERE user_id = $1;
+	`
+
+	err := db.Select(&articles, query, id)
+	if err != nil {
+		return nil, err
+	}
+	return &articles, nil
+}
+
 func DBArticleGetPath(db *sqlx.DB, id int) (string, error) {
 	var path string
 	query := `SELECT path FROM articles WHERE id = $1`
