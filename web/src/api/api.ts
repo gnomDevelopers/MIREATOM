@@ -16,7 +16,7 @@ export function API_Authenticate(){
     .catch(error => {
       if(DEVMODE) console.log('Authentication error: ', error);
       reject(error);
-    })
+    });
   });
 };
 
@@ -31,7 +31,7 @@ export function API_Login(data: IAPI_Login){
     .catch(error => {
       if(DEVMODE) console.log('Login post error: ', error);
       reject(error);
-    })
+    });
   });
 };
 
@@ -46,7 +46,7 @@ export function API_Logout(){
     .catch(error => {
       if(DEVMODE) console.log('Logout post error: ', error);
       reject(error);
-    })
+    });
   });
 };
 
@@ -61,7 +61,7 @@ export function API_Health(){
     .catch(error => {
       if(DEVMODE) console.log('Health get error: ', error);
       reject(error);
-    })
+    });
   });
 };
 
@@ -76,6 +76,55 @@ export function API_Register(data: IAPI_Register){
     .catch(error => {
       if(DEVMODE) console.log('Sign up post error: ', error);
       reject(error);
+    });
+  });
+};
+
+//вход в аккаунт
+export function API_Get_User_Data(userID: number){
+  return new Promise((resolve, reject) => {
+    axios.get(`${API}/user/${userID}`)
+    .then(response => {
+      if(DEVMODE) console.log('User data get success: ', response);
+      resolve(response);
     })
+    .catch(error => {
+      if(DEVMODE) console.log('User data get error: ', error);
+      reject(error);
+    });
+  });
+};
+
+//сохранение формулы
+export function API_Save_Formula(data:{title: string, value: string}){
+  return new Promise((resolve, reject) => {
+    axios.post(`${API}/auth/formula`, data, {
+      headers: {
+        Authorization: 'Bearer ' + GET_COOKIE('access_token'),
+      }
+    })
+    .then(response => {
+      if(DEVMODE) console.log('Save formula success: ', response);
+      resolve(response);
+    })
+    .catch(error => {
+      if(DEVMODE) console.log('Save formula error: ', error);
+      reject(error);
+    });
+  });
+};
+
+//получение истории формул
+export function API_Get_Formuls_History(userID: number, page: number){
+  return new Promise((resolve, reject) => {
+    axios.get(`${API}/formula/history/user/${userID}/page/${page}`)
+    .then(response => {
+      if(DEVMODE) console.log('Get formula history success: ', response);
+      resolve(response);
+    })
+    .catch(error => {
+      if(DEVMODE) console.log('Get formula history error: ', error);
+      reject(error);
+    });
   });
 };
