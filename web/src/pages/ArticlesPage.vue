@@ -35,7 +35,7 @@
               type="text" 
               placeholder="Высшая математика"
               v-model="filters.articleTitle"
-              class="border border-solid rounded-l-lg outline-none px-2 border-gray-300 focus:border-sky-500"/>
+              class="border border-solid rounded-l-lg outline-none px-2 border-gray-300 focus:border-red-800"/>
               <div class="px-2 py-1 rounded-r-lg cursor-pointer btn">
               <svg class="w-6 h-6" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M23.8333 23.8334L21.6667 21.6667M22.75 12.4584C22.75 18.1423 18.1423 22.7501 12.4583 22.7501C6.7744 22.7501 2.16667 18.1423 2.16667 12.4584C2.16667 6.77448 6.7744 2.16675 12.4583 2.16675C18.1423 2.16675 22.75 6.77448 22.75 12.4584Z" stroke="#FAFCFF" stroke-width="1.625" stroke-linecap="round" stroke-linejoin="round"/>
@@ -53,7 +53,7 @@
               type="text" 
               placeholder="Иванов Иван"
               v-model="filters.author"
-              class="border border-solid rounded-l-lg outline-none px-2 border-gray-300 focus:border-sky-500"/>
+              class="border border-solid rounded-l-lg outline-none px-2 border-gray-300 focus:border-red-800"/>
             <div class="px-2 py-1 rounded-r-lg cursor-pointer btn">
               <svg class="w-6 h-6" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M23.8333 23.8334L21.6667 21.6667M22.75 12.4584C22.75 18.1423 18.1423 22.7501 12.4583 22.7501C6.7744 22.7501 2.16667 18.1423 2.16667 12.4584C2.16667 6.77448 6.7744 2.16675 12.4583 2.16675C18.1423 2.16675 22.75 6.77448 22.75 12.4584Z" stroke="#FAFCFF" stroke-width="1.625" stroke-linecap="round" stroke-linejoin="round"/>
@@ -70,9 +70,11 @@
             <input 
               type="text" 
               placeholder="Физика"
-              v-model="filters.science"
-              class="border border-solid rounded-l-lg outline-none px-2 border-gray-300 focus:border-sky-500"/>
-            <div class="px-2 py-1 rounded-r-lg cursor-pointer btn">
+              v-model="newScience"
+              class="border border-solid rounded-l-lg outline-none px-2 border-gray-300 focus:border-red-800"/>
+            <div 
+              class="px-2 py-1 rounded-r-lg cursor-pointer btn"
+              @click="addScience">
               <svg class="w-6 h-6" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M6.5 13H19.5M13 19.5V6.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
@@ -80,27 +82,20 @@
           </div>
 
           <ul class="list-none flex flex-col gap-y-2 mt-2 w-full">
-            <li class="self-start flex flex-row items-center gap-x-2 px-2 cursor-default rounded-md border border-solid border-red-600">
-              <div class="cursor-pointer">
+            <li 
+              v-for="(science, index) in sciences" 
+              :key="index" 
+              class="self-start flex flex-row items-center gap-x-2 px-2 cursor-default rounded-md border border-solid border-red-600">
+              <div class="cursor-pointer" @click="removeScience(index)">
                 <svg class="w-4 h-4" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M10.5 3.5L3.50002 10.5M3.50002 3.5L10.5 10.5" stroke="#1E1E1E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
               </div>
 
-              <p>Теория струн</p>
-            </li>
-            <li class="self-start flex flex-row items-center gap-x-2 px-2 cursor-default rounded-md border border-solid border-red-600">
-              <div class="cursor-pointer">
-                <svg class="w-4 h-4" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M10.5 3.5L3.50002 10.5M3.50002 3.5L10.5 10.5" stroke="#1E1E1E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </div>
-
-              <p>Теория струн</p>
+              <p>{{ science }}</p>
             </li>
           </ul>
         </section>
-
         <section class="flex flex-col">
           <label class="text-lg ml-2">Раздел науки</label>
 
@@ -108,9 +103,11 @@
             <input 
               type="text" 
               placeholder="Механика"
-              v-model="filters.section"
-              class="border border-solid rounded-l-lg outline-none px-2 border-gray-300 focus:border-sky-500"/>
-            <div class="px-2 py-1 rounded-r-lg cursor-pointer btn">
+              v-model="newSciencePart"
+              class="border border-solid rounded-l-lg outline-none px-2 border-gray-300 focus:border-red-800"/>
+            <div 
+              class="px-2 py-1 rounded-r-lg cursor-pointer btn"
+              @click="addSciencePart">
               <svg class="w-6 h-6" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M6.5 13H19.5M13 19.5V6.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
@@ -118,26 +115,22 @@
           </div>
 
           <ul class="list-none flex flex-col gap-y-2 mt-2 w-full">
-            <li class="self-start flex flex-row items-center gap-x-2 px-2 cursor-default rounded-md border border-solid border-red-600">
-              <div class="cursor-pointer">
+            <li 
+              v-for="(sciencePart, index) in scienceParts" 
+              :key="index" 
+              class="self-start flex flex-row items-center gap-x-2 px-2 cursor-default rounded-md border border-solid border-red-600">
+              <div class="cursor-pointer" @click="removeSciencePart(index)">
                 <svg class="w-4 h-4" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M10.5 3.5L3.50002 10.5M3.50002 3.5L10.5 10.5" stroke="#1E1E1E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
               </div>
 
-              <p>Теория струн</p>
-            </li>
-            <li class="self-start flex flex-row items-center gap-x-2 px-2 cursor-default rounded-md border border-solid border-red-600">
-              <div class="cursor-pointer">
-                <svg class="w-4 h-4" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M10.5 3.5L3.50002 10.5M3.50002 3.5L10.5 10.5" stroke="#1E1E1E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </div>
-
-              <p>Теория струн</p>
+              <p>{{ sciencePart }}</p>
             </li>
           </ul>
         </section>
+
+        
 
         <div @click="filter" class="btn px-4 py-1 rounded-lg cursor-pointer">
           <p class="text-xl text-white select-none">Поиск</p>
@@ -201,6 +194,10 @@ export default{
         science: '',
         section: ''
       },
+      newScience: '', 
+      sciences: [],
+      newSciencePart: '',
+      scienceParts: []
     }
   },
   computed: {
@@ -245,6 +242,24 @@ export default{
         );
       });
     },
+    addScience() {
+      if (this.newScience.trim() !== '') {
+        this.sciences.push(this.newScience.trim());
+        this.newScience = ''; 
+      }
+    },
+    removeScience(index) {
+      this.sciences.splice(index, 1);
+    },
+    addSciencePart() {
+      if (this.newSciencePart.trim() !== '') {
+        this.scienceParts.push(this.newSciencePart.trim());
+        this.newSciencePart = ''; 
+      }
+    },
+    removeSciencePart(index) {
+      this.scienceParts.splice(index, 1);
+    }
   }
 }
 </script>
