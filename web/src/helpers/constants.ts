@@ -17,7 +17,7 @@ export enum StatusCodes {
 
 export interface Article {
   id: number;          // Идентификатор статьи
-  fullname: string
+  full_name: string
   path: string;       // Путь в бд до статьи
   science: string;    // Научная область
   section: string;    // Раздел статьи

@@ -54,6 +54,7 @@ func (h *Handler) Router() *fiber.App {
 
 	f.Get("/article", h.GetAllArticles)
 	f.Get("/article/file/:id", h.GetArticleFile)
+	f.Get("/article/user_id/:id", h.GetArticlesByUserId)
 
 	authGroup := f.Group("/auth")
 	authGroup.Use(func(c *fiber.Ctx) error {
