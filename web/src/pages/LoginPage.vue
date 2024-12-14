@@ -1,7 +1,7 @@
 <template>
   <div class="flex h-screen">
-    <div @click="this.$router.push('/')" class="flex flex-col md:w-1/2 uus:w-full h-full items-start justify-start p-4">
-      <img class="w-8 mb:w-12 h-8 mb:h-12 mb: m-4" src="../assets/icons/icon-sigma.svg"/>
+    <div class="flex flex-col md:w-1/2 uus:w-full h-full items-start justify-start p-4">
+      <img @click="$router.push('/')" class="w-8 mb:w-12 h-8 mb:h-12 mb:m-4" src="../assets/icons/icon-sigma.svg"/>
       <div class="flex flex-col w-full h-full items-center justify-center">
         <div class="flex flex-col w-10/12 h-full items-center m-10">
 
@@ -67,7 +67,7 @@
 import { mapStores } from 'pinia';
 import { useStatusWindowStore } from '@/stores/statusWindowStore';
 import { useUserInfoStore } from '@/stores/userInfoStore';
-import { ValidUserLogin, ValidUserPassword, ValidUserName } from '../helpers/validator';
+import { ValidUserLogin, ValidUserPassword, ValidUserName} from '../helpers/validator';
 import { type IValidAnswer, StatusCodes, type IAPI_Login, type IAPI_Register } from '../helpers/constants';
 import {API_Login, API_Register} from '@/api/api';
 
@@ -136,7 +136,11 @@ export default {
       if(this.regLogin.value !== '' && this.regPassword.value !== '' && this.regFullname.value !== '' && this.regRepeatPassword.value !== ''){
         const stID = this.statusWindowStore.showStatusWindow(StatusCodes.loading, 'Отправляем данные на сервер...', -1);
         
-        const data:IAPI_Register = { email: this.login.value, password: this.password.value, fullname: this.regFullname.value};
+        const data:IAPI_Register = { 
+          email: this.regLogin.value, 
+          password: this.regPassword.value, 
+          fullname: this.regFullname.value
+        };
 
         API_Register(data)
         .then(async (response:any) => {
@@ -195,8 +199,13 @@ export default {
       if(value === '') this.regPassword.error = '';
     },
     checkRegRepeatPassword(value: string){
-      this.regRepeatPassword = ValidUserPassword(value);
-      if(value === '' || this.regRepeatPassword != this.password) this.regRepeatPassword.error = '';
+      // this.regRepeatPassword = ValidUserPassword(value);
+      // if(value === '') this.regRepeatPassword.error = '';
+      if(value !== this.regPassword.value) {
+        this.regRepeatPassword = { value: '', error: 'Повторный пароль не совпадает!' };
+        return;
+      }
+      this.regRepeatPassword = { value: value, error: '' };
     },
     checkRegFIO(value: string){
       this.regFullname = ValidUserName(value);
