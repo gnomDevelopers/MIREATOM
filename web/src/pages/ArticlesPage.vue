@@ -185,14 +185,13 @@
           <h1 class=" text-center w-full text-2xl">Статьи пользователей</h1>
 
           <div class="flex flex-col flex-grow gap-y-4 w-full px-4 scrollable" style="height: calc(100svh - 62px - 32px - 32px - 32px);">
-
-            <ArticleItem v-for="article in articles":key="article.id" :title="article.title" :author="'Автор неизвестен'" :science="article.science" :science-type="article.section"/>
-
+            <ArticleItem v-for="article in articles":key="article.id" :title="article.title" :author="article.fullname" :science="article.science" :science-type="article.section"/>
           </div>
         </section>
         <section class="flex flex-col w-1/2 h-full py-4 gap-y-6">
           <h1 class=" text-center w-full text-2xl">Мои статьи</h1>
           <div class="flex flex-col flex-grow gap-y-4 w-full px-4 scrollable">
+            <ArticleItem v-for="myArticles in articles":key="myArticles.id" :title="myArticles.title" :author="myArticles.fullname" :science="myArticles.science" :science-type="myArticles.section"/>
             <article class="w-full items-center rounded-lg p-2 cursor-default border border-solid border-gray-300 bg-gray-100">
               <p class="w-full text-center text-xl ">Войдите, чтобы просматривать и добавлять свои статьи!</p>
             </article>
