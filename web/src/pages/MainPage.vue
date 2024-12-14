@@ -157,7 +157,7 @@
               class="max-w-none flex-grow w-[500px] outline-none text-lg px-2 py-1 rounded-l-lg border border-solid border-gray-400 focus:border-sky-500" 
               v-model="formula"
             />
-            <div class="btn rounded-r-lg p-1 cursor-pointer">
+            <div @click="copyFormula" class="btn rounded-r-lg p-1 cursor-pointer">
               <svg class="w-9 h-9" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M43.3333 28.4375L43.3333 9.49979C43.3333 7.84292 41.9902 6.49977 40.3333 6.49979L21.3958 6.50001M30.3333 45.5L15.7083 45.5C13.016 45.5 10.8333 43.3174 10.8333 40.625L10.8333 19.5C10.8333 16.8076 13.016 14.625 15.7083 14.625L30.3333 14.625C33.0257 14.625 35.2083 16.8076 35.2083 19.5L35.2083 40.625C35.2083 43.3174 33.0257 45.5 30.3333 45.5Z" stroke="white" stroke-width="4" stroke-linecap="round"/>
               </svg>
@@ -192,7 +192,7 @@
           <div class="flex flex-row mt-9">
             <span 
               id="analyse-formula" 
-              v-html="analyseFormulaHTML" 
+              v-html="formulaHTML" 
               class="flex flex-row w-[500px] justify-start items-center px-2 py-1 text-xl outline-none flex-grow rounded-l-lg border border-solid border-gray-400" >
             </span>
 
@@ -523,6 +523,10 @@ export default {
       console.log('ZOV: ', event.target);
       this.needUpdateformula = false;
       this.formula = parseLatexFromHTML(event.target);
+
+      nextTick(() => {
+        this.handleFormulaWindowSize();
+      });
     },
     updateFormula(){
       //рендерим формулу
@@ -537,23 +541,26 @@ export default {
         //удаляем пустые элементы
         garbageCollector(this.formulaContainer!);
         
-        if(this.formulaContainer!.offsetWidth > 500){
-          this.formulaContainer!.classList.add('scroll-x');
-        }
-        else{
-          this.formulaContainer!.classList.remove('scroll-x');
-        }
-
-        if(this.formulaContainer!.offsetHeight >= 500){
-          this.formulaContainer!.classList.add('scroll-y');
-        }
-        else{
-          this.formulaContainer!.classList.remove('scroll-y');
-        }
+        this.handleFormulaWindowSize();
       })
     },
     APIRequest(){
       API_Health();
+    },
+    handleFormulaWindowSize(){
+      if(this.formulaContainer!.offsetWidth > 500){
+        this.formulaContainer!.classList.add('scroll-x');
+      }
+      else{
+        this.formulaContainer!.classList.remove('scroll-x');
+      }
+
+      if(this.formulaContainer!.offsetHeight >= 500){
+        this.formulaContainer!.classList.add('scroll-y');
+      }
+      else{
+        this.formulaContainer!.classList.remove('scroll-y');
+      }
     },
     showHistory(){
       //если пользователь не атворизован - выход
@@ -586,8 +593,9 @@ export default {
         const historyHTML = document.getElementById('formulaHistoryScrollWrapper');
         //если ничего нет - выход
         if(!historyHTML) return;
+
         //иначе добавляем слушатель на скролл
-        historyHTML.addEventListener('scroll', this.handleHistoryScroll.bind(this, historyHTML));
+        historyHTML.addEventListener('scroll', this.handleHistoryScroll);
       })
       .catch(error => {
         this.statusWindowStore.deteleStatusWindow(stID);
@@ -631,10 +639,10 @@ export default {
         this.statusWindowStore.showStatusWindow(StatusCodes.error, 'Что-то пошло не так при сохранении формулы!');
       })
     },
-    handleHistoryScroll(HTML: HTMLElement){
-      const scrollHeight = HTML.scrollHeight;
-      const scrollTop = HTML.scrollTop;
-      const clientHeight = HTML.clientHeight;
+    handleHistoryScroll(event:any){
+      const scrollHeight = event.target.scrollHeight;
+      const scrollTop = event.target.scrollTop;
+      const clientHeight = event.target.clientHeight;
 
       if (scrollTop + clientHeight >= scrollHeight) {    
         console.log("Scrolled to bottom!");
@@ -650,11 +658,18 @@ export default {
           }
 
           //если получено меньше 20 элементов - значит больше формул нет
-          if(response.data.length < 20) return;
-
-          HTML.removeEventListener('scroll', this.handleHistoryScroll.bind(this, HTML));
-        })
+          if(response.data.length < 20) event.target.removeEventListener('scroll', this.handleHistoryScroll);
+        });
       }
+    },
+    copyFormula(){
+      navigator.clipboard.writeText(this.formula).then(() => {
+        this.statusWindowStore.showStatusWindow(StatusCodes.success, 'Формула скопирована!', 1500);
+      })
+      .catch((err) => {
+        this.statusWindowStore.showStatusWindow(StatusCodes.error, 'Что-то пошло не так при копировании формулы!');
+        console.error('Could not copy text: ', err);
+      });
     }
   },
   watch: {
