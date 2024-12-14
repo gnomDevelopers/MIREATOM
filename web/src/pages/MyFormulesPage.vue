@@ -51,7 +51,7 @@
         <div class="flex justify-center m-12">
           <p class="text-2xl">Сохранённые формулы</p>
         </div>
-        <div class="flex flex-col h-screen mx-6 scrollable">
+        <div class="flex flex-col h-screen mb-4 mx-6 scrollable">
           <div class="flex flex-col justify-center gap-4">
             <MyFormulaItem 
               v-for="(formulaItem, index) in formulaItems" 
@@ -74,7 +74,7 @@
           <p class="text-2xl">История изменений формулы</p>
         </div>
   
-        <div v-if="selectedFormulaIndex !== null" class="flex flex-col h-screen mx-6 scrollable">
+        <div v-if="selectedFormulaIndex !== null" class="flex flex-col h-screen mb-4 mx-6 scrollable">
           <div class="flex flex-col">
             <div class="flex justify-center mt-4 mx-12 rounded-lg bg-gray-300">
               <p>Формула была изменена 15.02.2024</p>

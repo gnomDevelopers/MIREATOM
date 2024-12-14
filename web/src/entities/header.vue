@@ -19,22 +19,22 @@
     <div class="flex justify-center items-center gap-x-6 ">
       <div
         @click="$router.push({name: 'MyFormulesPage'})"
-        class="box-shadow flex justify-center items-center px-3 mb:px-4 text-xl mb:text-2xl text-color border-2 border-b-gray-600 rounded-lg cursor-pointer transition-bg hover:bg-red-100 active:bg-red-300"
-        :class="{'border-hr-color': $route.path === '/myformules'}">
+        class="h-full flex justify-center items-center px-3 mb:px-4 text-xl mb:text-2xl text-color border-b-2 cursor-pointer transition-bg"
+        :class="{'border-red-800': $route.path === '/myformules'}">
         
         <a class="text-xl">Мои формулы</a>
       </div>
       <div
         @click="$router.push({name: 'MainPage'})"
-        class="box-shadow flex justify-center items-center px-3 mb:px-4 text-xl mb:text-2xl uus:text-base text-color border-2 border-b-gray-600 rounded-lg cursor-pointer transition-bg hover:bg-red-100 active:bg-red-300"
-        :class="{'border-hr-color': $route.path === '/'}">
+        class="h-full flex justify-center items-center px-3 mb:px-4 text-xl mb:text-2xl text-color border-b-2 cursor-pointer transition-bg "
+        :class="{'border-red-800': $route.path === '/'}">
         
         <a class="text-xl">Формулы</a>
       </div>
       <div
         @click="$router.push({name: 'ArticlesPage'})"
-        class="box-shadow flex justify-center items-center px-3 mb:px-4 text-xl mb:text-2xl uus:text-base text-color border-2 border-b-gray-600 rounded-lg cursor-pointer transition-bg hover:bg-red-100 active:bg-red-300"
-        :class="{'border-hr-color': $route.path === '/articles'}">
+        class="h-full flex justify-center items-center px-3 mb:px-4 text-xl mb:text-2xl text-color border-b-2 cursor-pointer transition-bg "
+        :class="{'border-red-800': $route.path === '/articles'}">
         
         <a class="text-xl">Статьи</a>
       </div>
@@ -44,7 +44,7 @@
 
       <img class="w-8 mb:w-10 h-8 mb:h-10" src="../assets/icons/icon-profile.svg"/>
 
-      <div class="box-shadow flex justify-center items-center px-3 mb:px-4 text-xl mb:text-2xl uus:text-base text-color border-2 border-hr-color rounded-lg cursor-pointer transition-bg hover:bg-red-100 active:bg-red-300" @click="$router.push({name: 'LoginPage'})">
+      <div class="h-full flex justify-center items-center px-3 mb:px-4 text-xl mb:text-2xl uus:text-base text-color cursor-pointer transition-bg hover:border-red-800 hover:border-double hover:border-b-2 " @click="$router.push({name: 'LoginPage'})">
         Вход
       </div>
     </div>
