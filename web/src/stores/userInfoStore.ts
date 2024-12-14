@@ -22,6 +22,9 @@ export const useUserInfoStore = defineStore('userInfo', {
 
       }catch (error){
         this.authorized = false;
+        //удаляем существующие куки
+        document.cookie = `access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC;`;
+        document.cookie = `refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC;`;
       }
     },
     onAuthorized(response: any){
