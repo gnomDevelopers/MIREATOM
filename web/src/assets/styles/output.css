@@ -1867,6 +1867,11 @@ div,section,article,aside,input,button,label,p,h1,h2,h3,h4,h5,h6,span{
   background-color: rgb(248 250 252 / var(--tw-bg-opacity));
 }
 
+.hover\:bg-red-50:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(254 242 242 / var(--tw-bg-opacity));
+}
+
 .focus\:border-sky-500:focus {
   --tw-border-opacity: 1;
   border-color: rgb(14 165 233 / var(--tw-border-opacity));
@@ -1902,6 +1907,11 @@ div,section,article,aside,input,button,label,p,h1,h2,h3,h4,h5,h6,span{
   background-color: rgb(241 245 249 / var(--tw-bg-opacity));
 }
 
+.active\:bg-red-100:active {
+  --tw-bg-opacity: 1;
+  background-color: rgb(254 226 226 / var(--tw-bg-opacity));
+}
+
 @media (min-width: 120px) {
   .uus\:w-full {
     width: 100%;
@@ -1914,6 +1924,10 @@ div,section,article,aside,input,button,label,p,h1,h2,h3,h4,h5,h6,span{
 }
 
 @media (min-width: 576px) {
+  .mb\:m-4 {
+    margin: 1rem;
+  }
+
   .mb\:h-10 {
     height: 2.5rem;
   }

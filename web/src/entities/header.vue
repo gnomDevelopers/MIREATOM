@@ -6,16 +6,7 @@
     <div class="h-full grid content-center md:ml-16 cursor-pointer">
       <div @click="$router.push({name: 'MainPage'})"><img class="w-8 mb:w-12 h-8 mb:h-12" src="../assets/icons/icon-sigma.svg"/></div>
     </div>
-    <!--  это для норм размера и вкладки для студентоффф-->
-    <!-- <div v-if="isMainPage" class="flex flex-row justify-center items-center gap-4 mt-2">
-      <button class="box-shadow flex justify-center items-center px-3 mb:px-4 text-xl mb:text-2xl uus:text-base text-color border-2 border-hr-color rounded-lg cursor-pointer transition-bg hover:bg-red-100 active:bg-red-300" >Формулы</button>
-      <button class="box-shadow flex justify-center items-center px-3 mb:px-4 text-xl mb:text-2xl uus:text-base text-color border-2 border-b-gray-600 rounded-lg cursor-pointer transition-bg hover:bg-red-100 active:bg-red-300" @click="$router.push({name: 'ArticlesPage'})">Статьи</button>
-    </div>
 
-    <div v-if="isArticlesPage" class="flex flex-row justify-center items-center gap-4 mt-2">
-      <button class="box-shadow flex justify-center items-center px-3 mb:px-4 text-xl mb:text-2xl uus:text-base text-color border-2 border-b-gray-600 rounded-lg cursor-pointer transition-bg hover:bg-red-100 active:bg-red-300" @click="$router.push({name: 'MainPage'})">Формулы</button>
-      <button class="box-shadow flex justify-center items-center px-3 mb:px-4 text-xl mb:text-2xl uus:text-base text-color border-2 border-hr-color rounded-lg cursor-pointer transition-bg hover:bg-red-100 active:bg-red-300">Статьи</button>
-    </div> -->
     <div class="flex justify-center items-center gap-x-6 ">
       <div
         @click="$router.push({name: 'MyFormulesPage'})"
