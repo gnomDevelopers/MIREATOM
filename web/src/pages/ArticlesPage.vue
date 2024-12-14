@@ -172,13 +172,13 @@ import { mapStores } from 'pinia';
 import { useBlurStore } from '@/stores/blurStore';
 import { useArticleStore } from '@/stores/articleStore';
 import { useUserInfoStore } from '@/stores/userInfoStore';
-
+import { defineComponent } from 'vue';
 import ArticleItem from '@/shared/articleItem.vue';
 import HistoryFormulaItem from '@/shared/historyFormulaItem.vue';
 import { API_Articles_Get, API_ArticleFile_Get, API_Article_Get_ByID } from '@/api/api';
 import type { Article } from '@/helpers/constants';
 
-export default{
+export default defineComponent({
   components: {
     ArticleItem,
     HistoryFormulaItem,
@@ -195,9 +195,9 @@ export default{
         section: ''
       },
       newScience: '', 
-      sciences: [],
+      sciences: [] as string[],
       newSciencePart: '',
-      scienceParts: []
+      scienceParts: [] as string[]
     }
   },
   computed: {
@@ -230,36 +230,45 @@ export default{
       }
     },
     filter() {
-      console.log("test1")
+      console.log('Starting filter with sciences:', this.sciences);
+      console.log('Starting filter with scienceParts:', this.scienceParts);
+
       this.filteredArticles = this.articles.filter(article => {
-        console.log(this.filters.articleTitle, this.filters.author, this.filters.science, this.filters.section)
-        console.log("test2")
-        return (
-          (!this.filters.articleTitle || article.title.toLowerCase().includes(this.filters.articleTitle.toLowerCase())) &&
-          (!this.filters.author || article.full_name.toLowerCase().includes(this.filters.author.toLowerCase())) &&
-          (!this.filters.science || article.science.toLowerCase().includes(this.filters.science.toLowerCase())) &&
-          (!this.filters.section || article.section.toLowerCase().includes(this.filters.section.toLowerCase()))
-        );
+        const matchesTitle = !this.filters.articleTitle || article.title.toLowerCase().includes(this.filters.articleTitle.toLowerCase());
+        const matchesAuthor = !this.filters.author || article.full_name.toLowerCase().includes(this.filters.author.toLowerCase());
+        const matchesScience = !this.filters.science || this.sciences.some(science => article.science.toLowerCase().includes(science.toLowerCase()));
+        const matchesSection = !this.filters.section || this.scienceParts.some(part => article.section.toLowerCase().includes(part.toLowerCase()));
+
+        console.log('Matches for article', article.title, '->', {
+          matchesTitle,
+          matchesAuthor,
+          matchesScience,
+          matchesSection
+        });
+
+        return matchesTitle && matchesAuthor && matchesScience && matchesSection;
       });
+
+      console.log('Filtered Articles:', this.filteredArticles);
     },
     addScience() {
       if (this.newScience.trim() !== '') {
         this.sciences.push(this.newScience.trim());
-        this.newScience = ''; 
+        this.newScience = '';
       }
     },
-    removeScience(index) {
+    removeScience(index: number) {
       this.sciences.splice(index, 1);
     },
     addSciencePart() {
       if (this.newSciencePart.trim() !== '') {
         this.scienceParts.push(this.newSciencePart.trim());
-        this.newSciencePart = ''; 
+        this.newSciencePart = '';
       }
     },
-    removeSciencePart(index) {
+    removeSciencePart(index: number) {
       this.scienceParts.splice(index, 1);
     }
   }
-}
+})
 </script>
