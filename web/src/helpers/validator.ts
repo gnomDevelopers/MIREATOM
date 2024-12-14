@@ -9,7 +9,7 @@ export function ValidUserLogin(value: string): IValidAnswer{
   if(value.length > 60) {
     return {value: '', error: 'Слишком длинный логин!'};
   }
-  if(value.match(/^[a-z_]+@[a-z\.]+\.[a-z]{2,6}$/) === null) {
+  if(value.match(/^[a-zA-Z_\.]+@[a-z\.]+\.[a-z]{2,6}$/) === null) {
     return {value: '', error: 'Некорректный логин!'};
   }
   return {value: value, error: ''};
