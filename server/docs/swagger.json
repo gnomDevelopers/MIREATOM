@@ -25,7 +25,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/entities.Article"
+                                "$ref": "#/definitions/entities.ArticleInfo"
                             }
                         }
                     },
@@ -761,7 +761,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "authentication"
+                    "user"
                 ],
                 "summary": "Authorization check",
                 "parameters": [
@@ -941,14 +941,14 @@
         }
     },
     "definitions": {
-        "entities.Article": {
+        "entities.ArticleInfo": {
             "type": "object",
             "properties": {
+                "full_name": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
-                },
-                "path": {
-                    "type": "string"
                 },
                 "science": {
                     "type": "string"

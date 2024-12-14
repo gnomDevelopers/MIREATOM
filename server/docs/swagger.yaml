@@ -1,11 +1,11 @@
 basePath: /
 definitions:
-  entities.Article:
+  entities.ArticleInfo:
     properties:
+      full_name:
+        type: string
       id:
         type: integer
-      path:
-        type: string
       science:
         type: string
       section:
@@ -151,7 +151,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/entities.Article'
+              $ref: '#/definitions/entities.ArticleInfo'
             type: array
         "400":
           description: Bad Request
@@ -655,7 +655,7 @@ paths:
             type: object
       summary: Authorization check
       tags:
-      - authentication
+      - user
     post:
       consumes:
       - application/json
