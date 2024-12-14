@@ -15,6 +15,15 @@ export enum StatusCodes {
 
 //interfaces
 
+export interface Article {
+  id: number;          // Идентификатор статьи
+  path: string;       // Путь в бд до статьи
+  science: string;    // Научная область
+  section: string;    // Раздел статьи
+  title: string;      // Заголовок статьи
+  user_id: number;    // Идентификатор создателя статьи
+}
+
 //validator.ts interface
 export interface IValidAnswer{
   value: string,
