@@ -356,8 +356,8 @@ func (h *Handler) FormulaRecognize(c *fiber.Ctx) error {
 	}
 
 	payload := map[string]string{
-		"type": "1",
-		"path": savePath,
+		"type":    "1",
+		"content": savePath,
 	}
 
 	payloadBytes, err := json.Marshal(payload)
