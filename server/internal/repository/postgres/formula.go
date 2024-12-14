@@ -147,7 +147,7 @@ func DBFormulaHistoryGet(db *sqlx.DB, userID int64, pageNumber int64) (*[]entiti
 		OFFSET $2
 	`
 
-	err := db.Select(&formulas, query, userID, pageNumber-1)
+	err := db.Select(&formulas, query, userID, (pageNumber-1)*20)
 	if err != nil {
 		return nil, err
 	}

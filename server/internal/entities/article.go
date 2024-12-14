@@ -9,6 +9,14 @@ type Article struct {
 	Path    string `json:"path" db:"path"`
 }
 
+type ArticleInfo struct {
+	Id      int    `json:"id" db:"id"`
+	UserId  int    `json:"user_id" db:"user_id"`
+	Title   string `json:"title" db:"title"`
+	Science string `json:"science" db:"science"`
+	Section string `json:"section" db:"section"`
+}
+
 type CreateArticleRequest struct {
 	Title   string `form:"title"`
 	Science string `form:"science"`
