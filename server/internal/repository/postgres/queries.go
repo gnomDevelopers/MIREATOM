@@ -20,7 +20,7 @@ const (
 		science VARCHAR NOT NULL,
 		section VARCHAR NOT NULL,
 		path VARCHAR NOT NULL,
-		FOREIGN KEY (user_id) REFERENCES users (id)
+		FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE 
 );
 `
 	createTableFormula = `
@@ -29,7 +29,7 @@ const (
 		title VARCHAR NOT NULL,
 		value VARCHAR NOT NULL,
 		user_id INT NOT NULL,
-		FOREIGN KEY (user_id) REFERENCES users (id)
+		FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
 	`
 
@@ -41,7 +41,7 @@ const (
 		hash VARCHAR NOT NULL,
 		code_name VARCHAR NOT NULL,
 		created_at TIMESTAMP DEFAULT now(),
-		FOREIGN KEY (formula_id) REFERENCES formula (id)
+		FOREIGN KEY (formula_id) REFERENCES formula (id) ON DELETE CASCADE
 );
 	`
 )
