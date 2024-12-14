@@ -7,7 +7,7 @@ const (
 	TokenExpiration = "1000"
 
 	// PostgreSQL
-	DBHost     = "postgres"
+	DBHost     = "localhost"
 	DBPort     = "5432"
 	DBUser     = "postgres"
 	DBPassword = "Gew1234"
