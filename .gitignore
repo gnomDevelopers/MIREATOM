@@ -4,3 +4,4 @@ database
 .idea
 llm/__pycache__
 .DS_Store
+.ollama

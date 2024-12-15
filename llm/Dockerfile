@@ -48,4 +48,5 @@ COPY . .
 EXPOSE 8090
 
 # Run the application.
-CMD uvicorn '.venv.lib.python3.12.site-packages.httpx._transports.asgi:application' --host=0.0.0.0 --port=8090
+# CMD uvicorn '.venv.lib.python3.12.site-packages.httpx._transports.asgi:application' --host=0.0.0.0 --port=8090
+CMD uvicorn main:app --host=0.0.0.0 --port=8090
