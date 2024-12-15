@@ -1,11 +1,10 @@
 from fastapi import FastAPI
-
 from routers import router as main_router
 
 app = FastAPI(
-    title="My Production-Ready FastAPI Service",
+    title="formula-processor",
     description="Сервис обрабатывает изображения и формулы",
-    version="1.0.0"
+    version="0.0.9"
 )
 
 app.include_router(main_router)
