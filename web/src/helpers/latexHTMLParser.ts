@@ -100,7 +100,7 @@ export function insertHTMLBeforeCursor(parentElement: HTMLElement, insertFormula
   }
 
   //если katex отрендерился но начальный mrow пустой, то рендерим сразу в него
-  if(getFirstMrow(parentElement)?.children.length === 0){
+  if(getFirstMrow(parentElement)!.children.length === 0){
     //удаляем всех потомков корневого элемента
     parentElement.innerHTML = '';
     //рендерим в него формулу
@@ -110,16 +110,22 @@ export function insertHTMLBeforeCursor(parentElement: HTMLElement, insertFormula
   }
 
   //получаем позицию курсора
-  const selection = window.getSelection();
+  const selection = document.getSelection();
   //нода в которой стоит курсор и его позиция в тексте
   const recSearch: {node: Node | null, pos: number | null} = {node: null, pos: null};
 
   // если курсор есть - ищем ноду в которой он находится и позицию курсора
-  if (selection !== null && selection.rangeCount !== 0) {
+  if (selection && selection.rangeCount > 0) {
     //что-то на умном
     const range = selection.getRangeAt(0);
+
+    console.log('before Element: ', range.commonAncestorContainer.parentElement?.innerHTML);
+    console.log('before startOffset: ', range.startOffset);
+    console.log('before endOffset: ', range.endOffset);
     //получаем текстовую ноду и позицию курсора
     Object.assign(recSearch, recursiveSearch(parentElement, range));
+
+    console.log('bebra: ', recSearch);
   } 
 
   //если ниче не надено или курсора нет - ищем последний элемент
@@ -159,7 +165,7 @@ export function insertHTMLBeforeCursor(parentElement: HTMLElement, insertFormula
   //если родительский элемент находится в строке
   if(selectedNodeGrandParent.tagName === 'mrow'){
     //вставляем формулу в деда  
-    insertChildrenBeforeElement(renderedFormula.children, selectedNodeParent, selectedNodeGrandParent, recSearch.pos!);
+    insertChildrenBeforeElement(renderedFormula.children, selectedNodeParent, selectedNodeGrandParent, recSearch.pos!, selectedNodeParent.tagName);
   }
   else{
     //создаем элемент строку mrow
@@ -169,7 +175,7 @@ export function insertHTMLBeforeCursor(parentElement: HTMLElement, insertFormula
     //добавляем копию родительского элемента в mrow
     mrowElement.appendChild(newParentNode);
     //вставляем формулу в деда
-    insertChildrenBeforeElement(renderedFormula.children, newParentNode, mrowElement, recSearch.pos!);
+    insertChildrenBeforeElement(renderedFormula.children, newParentNode, mrowElement, recSearch.pos!, selectedNodeParent.tagName);
     //вставляем mrow в деда перед родительским элементом
     selectedNodeGrandParent.insertBefore(mrowElement, selectedNodeParent);
     //удаляем родительский элемент чтобы не дублировать
@@ -180,6 +186,9 @@ export function insertHTMLBeforeCursor(parentElement: HTMLElement, insertFormula
 // находим текстовую ноду в которой стоит курсор
 function recursiveSearch(node: Node, range: Range): {node: Node | null, pos: number | null} {
   if (node.nodeType === Node.TEXT_NODE && range.isPointInRange(node, range.startOffset)) {
+    console.log('before Element: ', range.commonAncestorContainer.parentElement?.innerHTML);
+    console.log('startOffset: ', range.startOffset);
+    console.log('endOffset: ', range.endOffset);
     return {node: node, pos: range.endOffset};
   }
   for (let i = 0; i < node.childNodes.length; i++) {
@@ -200,14 +209,14 @@ export function renderKatex(element: HTMLElement, formula: string){
     trust: false,
   });
 
-  //вставляем пустые объекты для курсора
+  // //вставляем пустые объекты для курсора
 
-  //находим первый mrow
-  const mrow = getFirstMrow(element);
-  //проверка на существование
-  if(mrow === undefined) return;
-  //обход DOM дерева и вставка пустых объектов
-  insertEmptyElementsInHTML(mrow);
+  // //находим первый mrow
+  // const mrow = getFirstMrow(element);
+  // //проверка на существование
+  // if(mrow === undefined) return;
+  // //обход DOM дерева и вставка пустых объектов
+  // insertEmptyElementsInHTML(mrow);
 }
 
 export function insertEmptyElementsInHTML(parentNode: Element){
@@ -250,10 +259,10 @@ export function insertEmptyElementsInHTML(parentNode: Element){
 }
 
 function getEmptyElement(){
-  const emptyElement = document.createElement('span');
+  const emptyElement = document.createElement('mn');
   emptyElement.dataset.empty = 'true';
-  emptyElement.setAttribute('tabindex', '0');
-  emptyElement.setAttribute('contenteditable','true');
+  // emptyElement.setAttribute('tabindex', '0');
+  // emptyElement.setAttribute('contenteditable','true');
   emptyElement.textContent = '☐';
   // emptyElement.innerText = ' ';
 
@@ -261,7 +270,7 @@ function getEmptyElement(){
 }
 
 //вставка детей перед некоторым элементом
-function insertChildrenBeforeElement(children: HTMLCollection, element: Node, parent: Element, cursorPos: number){
+function insertChildrenBeforeElement(children: HTMLCollection, element: Node, parent: Element, cursorPos: number, tagName: string){
   //переменная для запоминания первого элемента из children
   let firstChild: Element | null = null;
   //расспаковываем все элементы из mrow и добавляем перед элементом
@@ -279,9 +288,12 @@ function insertChildrenBeforeElement(children: HTMLCollection, element: Node, pa
     parent.insertBefore(element, firstChild);
     //т.о. элемент будет стоять перед элементами формулы
   }
-
+  //если нужно было добавить формулу посреди элемента 
   else if (cursorPos !== 0){
-
+    //копируем весь текст до крусора в первый вставленный элемент из children
+    firstChild!.textContent= element.textContent!.slice(0, cursorPos) + firstChild!.textContent;
+    //удаляем весь текст до курсора в изначальном элементе
+    element.textContent = element.textContent!.slice(cursorPos, element.textContent!.length);
   }
 }
 
