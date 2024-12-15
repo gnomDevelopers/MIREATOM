@@ -3,7 +3,6 @@ package postgres
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	"server/internal/entities"
 	"server/util"
 
@@ -67,9 +66,15 @@ func DBFormulaCreate(db *sqlx.DB, formula *entities.Formula) (*entities.Formula,
 		return nil, err
 	}
 
+	diff, err := util.CompareStrings(formula.Value, formula.Value)
+	if err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
 	formulaHistory := entities.FormulaHistory{
 		FormulaID:  formula.ID,
-		Difference: fmt.Sprintf("init %s", formula.Value),
+		Difference: diff,
 		Hash:       util.GenerateHash(formula.Value),
 		CodeName:   util.GenerateName(),
 	}

@@ -7,7 +7,7 @@ const (
 	TokenExpiration = "1000"
 
 	// PostgreSQL
-	DBHost     = "localhost"
+	DBHost     = "postgres"
 	DBPort     = "5432"
 	DBUser     = "postgres"
 	DBPassword = "Gew1234"
@@ -18,5 +18,5 @@ const (
 	RedisPassword = "qwerty123456"
 
 	// Llama
-	LlamaAPI = "llm_api:8090"
+	LlamaAPI = "llm-service:8090"
 )
