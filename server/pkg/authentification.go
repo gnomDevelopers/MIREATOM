@@ -9,11 +9,13 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
+// tokenClaims Структура для полей токена
 type tokenClaims struct {
 	jwt.MapClaims
 	UserId int `json:"user_id"`
 }
 
+// WithJWTAuth Middleware аутентификации
 func WithJWTAuth(c *fiber.Ctx, signingKey string) error {
 	header := c.Get("Authorization")
 
@@ -36,6 +38,7 @@ func WithJWTAuth(c *fiber.Ctx, signingKey string) error {
 	return c.Next()
 }
 
+// GenerateAccessToken Генрация аксес токена
 func GenerateAccessToken(id, expirationTime int, signingKey string) (string, error) {
 	claims := &tokenClaims{
 		jwt.MapClaims{
@@ -49,6 +52,7 @@ func GenerateAccessToken(id, expirationTime int, signingKey string) (string, err
 	return token.SignedString([]byte(signingKey))
 }
 
+// GenerateRefreshToken Генерация рефреш токена
 func GenerateRefreshToken(id int, signingKey string) (string, error) {
 	claims := &tokenClaims{
 		jwt.MapClaims{
@@ -63,6 +67,7 @@ func GenerateRefreshToken(id int, signingKey string) (string, error) {
 	return token.SignedString([]byte(signingKey))
 }
 
+// ParseToken Парсинг токена и получение id пользователя
 func ParseToken(tokenString string, signingKey string) (int, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &tokenClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {

@@ -16,14 +16,19 @@ import (
 // @in header
 // @name Authorization
 func main() {
+	// Инициализация логера
 	log := logger.InitLogger()
+	// Инициализация бд
 	db, err := postgres.NewDatabase()
 	if err != nil {
 		log.Fatal().Msg(fmt.Sprintf("could not initialize database connection: %s", err))
 	}
-	util.CreateTmp()
+	// Создание директорий для статей и временных файлов
+	util.CreateDirectory()
+	// Инициализация ручек
 	handlers := handler.NewHandler(db, log)
 
+	// Запуск сервера
 	app := handlers.Router()
 	app.Listen(":8080")
 }
