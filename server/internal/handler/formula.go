@@ -63,6 +63,62 @@ func (h *Handler) GetFormulaFromArticle(c *fiber.Ctx) error {
 	return c.Status(200).JSON(fiber.Map{"formulas": formulas})
 }
 
+// GetFormulasFromArticleById
+// @Tags         formula
+// @Summary      Get formulas from article by id
+// @Accept       mpfd
+// @Produce      json
+// @Param id path string true "article id"
+// @Success      200 {object} []entities.GetFormulaFromArticleResponse "User  successfully logged in"
+// @Failure      400 {object} entities.ErrorResponse "Invalid email or password"
+// @Failure      500 {object} entities.ErrorResponse "Internal server error"
+// @Router       /formula/file/id [post]
+func (h *Handler) GetFormulasFromArticleById(c *fiber.Ctx) error {
+	idStr := c.Params("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
+		logEvent.Msg(err.Error())
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+	fmt.Println(id)
+	dirName := "tmp"
+	if _, err := os.Stat(dirName); os.IsNotExist(err) {
+		err := os.Mkdir(dirName, 0755)
+		if err != nil {
+			return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+		}
+	}
+
+	var formulas []entities.GetFormulaFromArticleResponse
+	form, err := c.MultipartForm()
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	}
+	files := form.File["file"]
+	if len(files) == 0 {
+		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
+		logEvent.Msg("empty file")
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "empty file"})
+	}
+	for _, file := range files {
+		formulas, err = util.ParseFormulasFromFile(c, file)
+		if err != nil {
+			logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+				Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
+			logEvent.Msg(err.Error())
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		}
+	}
+
+	logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Info", Method: c.Method(),
+		Url: c.OriginalURL(), Status: fiber.StatusOK})
+	logEvent.Msg("success")
+	return c.Status(200).JSON(fiber.Map{"formulas": formulas})
+}
+
 // CreateFormula
 // @Tags formula
 // @Summary      Create formula
@@ -356,25 +412,17 @@ func (h *Handler) FormulaRecognize(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "failed to save file"})
 	}
 
-	payload := map[string]interface{}{
-		"content": savePath,
-	}
+	externalAPIURL := fmt.Sprintf("http://%s/image/process?image_path=%s", config.LlamaAPI, savePath)
 
-	payloadBytes, err := json.Marshal(payload)
+	// Send the request to the external API
+	resp, err := http.Get(externalAPIURL)
 	if err != nil {
 		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
 			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
-		logEvent.Msg("failed to prepare request payload")
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "failed to prepare request payload"})
-	}
-
-	respURL := fmt.Sprintf("%s/image/process", config.LlamaAPI)
-	resp, err := http.Post(respURL, "application/json", bytes.NewBuffer(payloadBytes))
-	if err != nil {
-		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
-			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
-		logEvent.Msg("failed to send request to external API")
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "failed to send request to external API"})
+		logEvent.Err(err).Msg("failed to send request to external API")
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Failed to send request to external API",
+		})
 	}
 	defer resp.Body.Close()
 
@@ -401,6 +449,100 @@ func (h *Handler) FormulaRecognize(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"formula": apiResponse.Formula})
 }
 
-//func FormulaAnalysis(c *fiber.Ctx) error {
-//
-//}
+// FormulaAnalysis
+// @Tags formula
+// @Summary      Create formula
+// @Accept       json
+// @Produce      json
+// @Param data body entities.FormulaAnalysisRequest true "formula data"
+// @Success 200 {object} entities.FormulaAnalysisResponse
+// @Failure 400 {object} entities.ErrorResponse
+// @Failure 401 {object} entities.ErrorResponse
+// @Failure 500 {object} entities.ErrorResponse
+// @Router       /formula/analysis [post]
+func (h *Handler) FormulaAnalysis(c *fiber.Ctx) error {
+	var req entities.FormulaAnalysisRequest
+	err := c.BodyParser(&req)
+	if err != nil {
+		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+			Url: c.OriginalURL(), Status: fiber.StatusBadRequest})
+		logEvent.Err(err).Msg("invalid request body")
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid request body"})
+	}
+
+	h.logger.Debug().Msg("call postgres.DBFormulaGetAll")
+	formulasDB, err := postgres.DBFormulaGetAll(h.db)
+	if err != nil {
+		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
+		logEvent.Msg(err.Error())
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	var formulas []string
+	for i := range formulasDB {
+		formulas = append(formulas, formulasDB[i].Value)
+	}
+
+	payload := map[string]interface{}{
+		"content":        req.Formula,
+		"array_formulas": formulas,
+	}
+
+	payloadBytes, err := json.Marshal(payload)
+	if err != nil {
+		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
+		logEvent.Msg("failed to prepare request payload")
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "failed to prepare request payload"})
+	}
+
+	respURL := fmt.Sprintf("%s/formulas/process", config.LlamaAPI)
+	resp, err := http.Post(respURL, "application/json", bytes.NewBuffer(payloadBytes))
+	if err != nil {
+		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
+		logEvent.Err(err).Msg("failed to send request to external API")
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "failed to send request to external API"})
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
+		logEvent.Err(err).Msg("external API returned an error")
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "external API returned an error"})
+	}
+
+	var apiResponse struct {
+		Origin   string `json:"origin"`
+		Percent  string `json:"percent"`
+		MatchStr string `json:"match_str"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&apiResponse); err != nil {
+		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
+		logEvent.Msg("failed to parse external API response")
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "failed to parse external API response"})
+	}
+
+	h.logger.Debug().Msg("call postgres.DBFormulaGetAll")
+	formulaFull, err := postgres.DBFormulaGetByValue(h.db, apiResponse.MatchStr)
+	if err != nil {
+		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
+		logEvent.Msg(err.Error())
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	var response entities.FormulaAnalysisResponse
+	response.Name = formulaFull.Title
+	response.MatchFormula = formulaFull.Value
+	response.Percent = apiResponse.Percent
+	response.Author = formulaFull.FullName
+
+	logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Info", Method: c.Method(),
+		Url: c.OriginalURL(), Status: fiber.StatusOK})
+	logEvent.Msg("success")
+	return c.Status(fiber.StatusOK).JSON(apiResponse)
+}
