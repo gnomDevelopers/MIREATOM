@@ -10,7 +10,7 @@ export const useFormulsStore = defineStore('formuls', {
 
       selectedFormulaID: null as TMaybeNumber,
 
-      selectedFormulaCommits: [] as {id: number, hash: string, value: string, created_at: string, code_name: string}[],
+      selectedFormulaCommits: [] as {id: number, hash: string, value: string, newValue: string,  created_at: string, code_name: string}[],
     }
   },
   actions: {
