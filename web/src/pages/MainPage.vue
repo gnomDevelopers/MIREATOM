@@ -13,12 +13,16 @@
   
           <h1 class="text-2xl text-color-theme cursor-default">История просмотра формул</h1>
   
-          <article id="formulaHistoryScrollWrapper" class="flex flex-col items-center gap-y-3 scrollable rounded-lg max-h-[500px] w-full p-2 bg-gray-100">
-  
+          <article v-show="formulaHistoryList.length !== 0" id="formulaHistoryScrollWrapper" class="flex flex-col items-center gap-y-3 scrollable rounded-lg max-h-[500px] w-full p-2 bg-gray-100">
             <div v-for="formula of formulaHistoryList" class="w-full">
               <HistoryFormulaItem :formula="formula"/>
             </div>
-  
+          </article>
+
+          <article v-if="formulaHistoryList.length === 0" class="flex flex-col items-center cursor-default">
+            <div class="px-4 py-2 bg-gray-300 rounded-lg">
+              <p class="text-lg">У Вас пока что нет сохраненных формул</p>
+            </div>
           </article>
         </section>
       </Transition>
@@ -607,6 +611,10 @@ export default {
       this.showHistoryMW = false;
     },
     showSaveFormula(){
+      if(this.userInfoStore.userID === null){
+        this.statusWindowStore.showStatusWindow(StatusCodes.error, 'Войдите в аккаунт, чтобы сохранять свои формулы!');
+        return;
+      }
       if(this.formula === ''){
         this.statusWindowStore.showStatusWindow(StatusCodes.error, 'Вы не ввели формулу!', 1500);
         return;
