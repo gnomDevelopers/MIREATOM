@@ -468,7 +468,7 @@ func (h *Handler) FormulaAnalysis(c *fiber.Ctx) error {
 	}
 
 	payload := map[string]interface{}{
-		"content":        req.Formula,
+		"input_formula":  req.Formula,
 		"array_formulas": formulas,
 	}
 
