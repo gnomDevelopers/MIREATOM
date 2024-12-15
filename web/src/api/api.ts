@@ -134,8 +134,27 @@ export function API_Article_Get_ByID(userID: number): Promise<Article[]>{
   });
 };
 
+//добавление статьи пользователем
+export function API_Article_Post(data:{title: string, science: string, section: string, file: File}): Promise<Article[]>{
+  return new Promise((resolve, reject) => {
+    axios.post(`${API}/auth/article`, data, {
+      headers: {
+        Authorization: 'Bearer ' + GET_COOKIE('access_token'),
+      }
+    })
+    .then(response => {
+      if(DEVMODE) console.log('Article post success: ', response);
+      resolve(response.data);
+    })
+    .catch(error => {
+      if(DEVMODE) console.log('Article post error: ', error);
+      reject(error);
+    });
+  });
+};
 
 
+//////// ФОРМУЛЫ ////////
 //сохранение формулы
 export function API_Save_Formula(data:{title: string, value: string}){
   return new Promise((resolve, reject) => {
