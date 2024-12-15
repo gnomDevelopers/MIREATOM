@@ -117,13 +117,6 @@
               :class="{'button-style-selected': calculatorStore.currentTypeButtons === 3}">
               Дифференцирование
             </div>
-
-            <div 
-              @click="setButtonsType(4)" 
-              class="flex flex-col w-full px-2 items-center justify-center h-10 rounded button-style" 
-              :class="{'button-style-selected': calculatorStore.currentTypeButtons === 4}">
-              Доп. знаки
-            </div>
           </aside>
           <!--кнопки-->
           <section class="flex flex-row gap-x-1">
