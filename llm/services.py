@@ -2,18 +2,22 @@ import hashlib
 from collections import defaultdict
 from difflib import SequenceMatcher
 
-from ollama import ChatResponse, chat
+from ollama import ChatResponse, Client
 from sympy import simplify, sympify
+
+client = Client(
+  host='http://ollama:11434',
+)
 
 
 def process_image(image_path: str) -> str:
-    response: ChatResponse = chat(
+    response: ChatResponse = client.chat(
         model='llama3.2-vision',
         messages=[
             {
                 'role': 'user',
                 'content': 'Give me ONLY LaTeX formula from photo. Be very strict and careful!!!',
-                'images': [image_path]
+                'images': [f"/.tmp/{image_path}"]
             },
         ],
     )
