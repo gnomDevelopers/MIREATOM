@@ -209,7 +209,7 @@
           </div>
         </article>
 
-        <article class="flex flex-col gap-2 rounded-lg p-4 bg-gray-50 border border-solid border-gray-200">
+        <article v-if="false" class="flex flex-col gap-2 rounded-lg p-4 bg-gray-50 border border-solid border-gray-200">
           <h2 class="text-xl font-bold text-center">В базе сохранённых формул найдена похожая формула</h2>
 
           <span 

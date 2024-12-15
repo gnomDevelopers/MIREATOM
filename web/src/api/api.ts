@@ -105,15 +105,15 @@ export function API_Articles_Get(): Promise<Article[]>{
 };
 
 //получение файла статьи
-export function API_ArticleFile_Get(articleId: number){
+export function API_Article_Get_File(articleId: number){
   return new Promise((resolve, reject) => {
-    axios.get(`${API}/auth/article/file/${articleId}`)
+    axios.get(`${API}/article/file/${articleId}`)
     .then(response => {
       if(DEVMODE) console.log('Articles file get success: ', response);
       resolve(response);
     })
     .catch(error => {
-      if(DEVMODE) console.log('Articles file error: ', error);
+      if(DEVMODE) console.log('Articles file get error: ', error);
       reject(error);
     })
   });
@@ -237,6 +237,21 @@ export function API_Get_Formula_From_Photo(formData: FormData){
     })
     .catch(error => {
       if(DEVMODE) console.log('Get formula from photo error: ', error);
+      reject(error);
+    })
+  });
+};
+
+//получение уникальности формулы
+export function API_Get_Formula_Analysis(formData: FormData){
+  return new Promise((resolve, reject) => {
+    axios.post(`${API}/formula/analysis/`, formData)
+    .then(response => {
+      if(DEVMODE) console.log('Get formula analysis success: ', response);
+      resolve(response);
+    })
+    .catch(error => {
+      if(DEVMODE) console.log('Get formula analysis error: ', error);
       reject(error);
     })
   });
