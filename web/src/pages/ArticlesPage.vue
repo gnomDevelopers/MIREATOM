@@ -24,7 +24,6 @@
 
     <!-- модальное окно для загрузки статьи -->
 
-    <!-- Исправить ошибки!! -->
     <Transition>
       <UploadArticle v-if="showUploadArticleMW" @close-window="hideUploadArticle" @update-articles="() => { getArticles(); getMyArticles(); }"/>
     </Transition>
@@ -149,7 +148,7 @@
           <div class="flex flex-col w-full px-4 h-full scrollable" style="height: calc(100svh - 62px - 32px - 32px - 32px);">
             <div class="flex flex-col gap-y-4 w-full">
               <div v-for="article in filteredArticles" :key="article.id">
-                <ArticleItem :title="article.title" :author="article.full_name" :science="article.science" :science-type="article.section"/>
+                <ArticleItem :id="article.id" :title="article.title" :author="article.full_name" :science="article.science" :science-type="article.section"/>
               </div>
             </div>
           </div>
@@ -158,22 +157,24 @@
         <section class="flex flex-col w-1/2 h-full py-4 gap-y-6">
           <h1 class=" text-center w-full text-2xl">Мои статьи</h1>
 
-          <article v-if="userInfoStore.userID !== null" class="flex flex-col w-full px-4 h-full scrollable">
+          <article v-if="userInfoStore.userID !== null" class="flex flex-col flex-grow w-full px-4 h-full scrollable">
             <div v-if="myArticles.length !== 0" class="flex flex-col gap-y-4 w-full">
               <div v-for="myArticles in myArticles" :key="myArticles.id">
-                <ArticleItem :title="myArticles.title" :author="myArticles.full_name" :science="myArticles.science" :science-type="myArticles.section"/>
+                <ArticleItem :id="myArticles.id" :title="myArticles.title" :author="myArticles.full_name" :science="myArticles.science" :science-type="myArticles.section"/>
               </div>
             </div>
             
             <div v-else class="flex flex-col items-center cursor-default">
-              <div class="px-4 py-2 rounded-lg bg-gray-300">
+              <div class="px-4 py-2 rounded-lg bg-gray-300 mx-4">
                 <p class="text-lg">У Вас пока что нет собственных статей</p>
               </div>
             </div>
           </article>
 
-          <article v-else class="w-full items-center rounded-lg p-2 cursor-default border border-solid border-gray-300 bg-gray-100">
-            <p class="w-full text-center text-xl ">Войдите, чтобы просматривать и добавлять свои статьи!</p>
+          <article v-else class="flex flex-col w-full flex-grow items-center cursor-default">
+            <div class="border border-solid border-gray-300 bg-gray-100 p-2 rounded-lg">
+              <p class="text-center text-xl">Войдите, чтобы просматривать и добавлять свои статьи!</p>
+            </div>
           </article>
 
           <article @click="showUploadArticle()" class="self-end flex flex-row gap-x-2 items-center btn cursor-pointer mr-10 rounded-xl p-2">
@@ -248,15 +249,16 @@ export default {
         this.filteredArticles = response;
         this.articles = response;
       } catch (error) {
-        this.statusWindowStore.showStatusWindow(StatusCodes.error, 'Что-то пошло не так при получении статей:');
+        this.statusWindowStore.showStatusWindow(StatusCodes.error, 'Что-то пошло не так при получении статей');
       }
     },
     async getMyArticles() {
+      if(this.userInfoStore.userID === null) return;
       try {
         const response = await API_Article_Get_ByID(this.userInfoStore.userID!); // Вызов API
         this.myArticles = response;
       } catch (error) {
-        this.statusWindowStore.showStatusWindow(StatusCodes.error, 'Что-то пошло не так при получении Ваших статей:');
+        this.statusWindowStore.showStatusWindow(StatusCodes.error, 'Что-то пошло не так при получении Ваших статей');
       }
     },
     showUploadArticle() {
