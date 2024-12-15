@@ -606,6 +606,36 @@ paths:
       summary: Get formulas from article
       tags:
       - formula
+  /formula/file/id:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: article id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User  successfully logged in
+          schema:
+            items:
+              $ref: '#/definitions/entities.GetFormulaFromArticleResponse'
+            type: array
+        "400":
+          description: Invalid email or password
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+      summary: Get formulas from article by id
+      tags:
+      - formula
   /formula/history/user/{id}/page/{number}:
     get:
       consumes:

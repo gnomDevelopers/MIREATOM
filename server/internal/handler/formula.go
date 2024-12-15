@@ -66,7 +66,7 @@ func (h *Handler) GetFormulaFromArticle(c *fiber.Ctx) error {
 // GetFormulasFromArticleById
 // @Tags         formula
 // @Summary      Get formulas from article by id
-// @Accept       mpfd
+// @Accept       json
 // @Produce      json
 // @Param id path string true "article id"
 // @Success      200 {object} []entities.GetFormulaFromArticleResponse "User  successfully logged in"
@@ -83,28 +83,26 @@ func (h *Handler) GetFormulasFromArticleById(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 	fmt.Println(id)
-	//path, err := postgres.DBArticleGetPath(h.db, id)
-	//if err != nil {
-	//	logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
-	//		Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
-	//	logEvent.Msg(err.Error())
-	//	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
-	//}
-	//
-	//formulas, err = util.ParseFormulasFromFile(c, file)
-	//if err != nil {
-	//	logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
-	//		Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
-	//	logEvent.Msg(err.Error())
-	//	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
-	//}
-	//
-	//logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Info", Method: c.Method(),
-	//	Url: c.OriginalURL(), Status: fiber.StatusOK})
-	//logEvent.Msg("success")
-	//return c.Status(200).JSON(fiber.Map{"formulas": formulas})
+	path, err := postgres.DBArticleGetPath(h.db, id)
+	if err != nil {
+		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
+		logEvent.Msg(err.Error())
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
 
-	return c.Status(200).JSON("")
+	formulas, err := util.ParseFormulasFromFileDB(c, path)
+	if err != nil {
+		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
+		logEvent.Msg(err.Error())
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Info", Method: c.Method(),
+		Url: c.OriginalURL(), Status: fiber.StatusOK})
+	logEvent.Msg("success")
+	return c.Status(200).JSON(fiber.Map{"formulas": formulas})
 }
 
 // CreateFormula

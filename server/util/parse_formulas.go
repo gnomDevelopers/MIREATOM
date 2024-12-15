@@ -79,3 +79,63 @@ func ParseFormulasFromFile(c *fiber.Ctx, file *multipart.FileHeader) ([]entities
 
 	return formulas, nil
 }
+
+func ParseFormulasFromFileDB(c *fiber.Ctx, fileName string) ([]entities.GetFormulaFromArticleResponse, error) {
+	var formulas []entities.GetFormulaFromArticleResponse
+	ext := filepath.Ext(fileName)
+
+	// Проверяем, что файл имеет допустимое расширение (.tex или .docx)
+	if ext == ".tex" || ext == ".docx" {
+	} else {
+		return nil, errors.New("invalid file extension")
+	}
+
+	// Если файл в формате .docx, конвертируем его в .tex с использованием pandoc
+	if ext == ".docx" {
+		docxFile := fmt.Sprintf("./tmp/%s", fileName)          // Путь к исходному файлу .docx
+		texFile := fmt.Sprintf("./tmp/%s", fileName)           // Путь к будущему файлу .tex
+		texFile = strings.Replace(texFile, ".docx", ".tex", 1) // Меняем расширение на .tex
+
+		// Команда для конвертации .docx в .tex с использованием pandoc
+		cmd := exec.Command("pandoc", "-i", docxFile, "-o", texFile)
+
+		var stderr bytes.Buffer
+		cmd.Stderr = &stderr
+
+		err := cmd.Run()
+		if err != nil {
+			return nil, err
+		}
+
+		// Удаляем исходный .docx файл после конвертации
+		err = os.Remove("./tmp/" + fileName)
+
+		// Обновляем имя файла на .tex
+		fileName = strings.Replace(fileName, ".docx", ".tex", 1)
+	}
+
+	filePath := fmt.Sprintf("tmp/%v", fileName)
+	content, err := os.ReadFile(filePath)
+	if err != nil {
+		return nil, err
+	}
+
+	// Регулярное выражение для поиска математических формул
+	mathRegex := regexp.MustCompile(`(\$.*?\$|\\\[.*?\\\]|\\mathcal\{.*?\})`)
+
+	// Удаляем переводы строк и объединяем текст в одну строку
+	output := strings.ReplaceAll(string(content), "\n", "")
+	output = strings.Join(strings.Fields(output), " ")
+
+	matches := mathRegex.FindAllStringSubmatch(output, -1)
+
+	// Добавляем найденные формулы в массив результатов
+	for _, match := range matches {
+		formulas = append(formulas, entities.GetFormulaFromArticleResponse{Formula: match[1]})
+	}
+
+	// Удаляем временный файл
+	err = os.Remove("./tmp/" + fileName)
+
+	return formulas, nil
+}
