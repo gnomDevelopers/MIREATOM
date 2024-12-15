@@ -5,6 +5,7 @@ import (
 	"server/internal/entities"
 )
 
+// DBGetFormulaCommits получение истории изменений определенной формулы по ее айди
 func DBGetFormulaCommits(db *sqlx.DB, formulaID int64) (*[]entities.FormulaHistory, error) {
 	formulaHistory := []entities.FormulaHistory{}
 	query := `

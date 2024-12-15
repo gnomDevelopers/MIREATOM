@@ -370,10 +370,29 @@ func (h *Handler) FormulaRecognize(c *fiber.Ctx) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
-			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
-		logEvent.Msg("external API returned an error")
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "external API returned an error"})
+		var apiErrorResponse struct {
+			Detail []struct {
+				Loc  []interface{} `json:"loc"`
+				Msg  string        `json:"msg"`
+				Type string        `json:"type"`
+			} `json:"detail"`
+		}
+		if decodeErr := json.NewDecoder(resp.Body).Decode(&apiErrorResponse); decodeErr != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"error": "External API returned an error",
+			})
+		}
+
+		errorMessages := ""
+		for _, detail := range apiErrorResponse.Detail {
+			if errorMessages != "" {
+				errorMessages += "; "
+			}
+			errorMessages += detail.Msg
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": errorMessages,
+		})
 	}
 
 	var apiResponse struct {

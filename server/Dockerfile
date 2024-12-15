@@ -1,7 +1,7 @@
 FROM golang:1.22.5-alpine AS builder
 
 # Установка необходимых инструментов
-RUN apk add --no-cache git make curl bash gcc musl-dev
+RUN apk add  --no-cache git make curl bash gcc musl-dev
 
 WORKDIR /app
 
