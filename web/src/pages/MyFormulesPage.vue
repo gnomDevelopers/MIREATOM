@@ -71,7 +71,7 @@
   import { StatusCodes, type TMaybeNumber, type TMaybeString } from '@/helpers/constants';
   
   import MyFormulaItem from '@/shared/myFormulaItem.vue';
-  import { API_Get_Formula_Commits, API_Get_Formuls_History } from '@/api/api';
+  import { API_Get_Formuls_History } from '@/api/api';
   import UpdateMyFormula from '@/entities/updateMyFormula.vue';
 import CommitFormulaHistory from '@/entities/commitFormulaHistory.vue';
 
