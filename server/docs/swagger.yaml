@@ -61,6 +61,22 @@ definitions:
       value:
         type: string
     type: object
+  entities.FormulaAnalysisRequest:
+    properties:
+      formula:
+        type: string
+    type: object
+  entities.FormulaAnalysisResponse:
+    properties:
+      author:
+        type: string
+      match_formula:
+        type: string
+      name:
+        type: string
+      percent:
+        type: string
+    type: object
   entities.FormulaHistory:
     properties:
       code_name:
@@ -525,6 +541,39 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Retrieve commits for a specific formula
+      tags:
+      - formula
+  /formula/analysis:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: formula data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/entities.FormulaAnalysisRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.FormulaAnalysisResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+      summary: Create formula
       tags:
       - formula
   /formula/file:

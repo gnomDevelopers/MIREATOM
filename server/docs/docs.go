@@ -613,6 +613,57 @@ const docTemplate = `{
                 }
             }
         },
+        "/formula/analysis": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "formula"
+                ],
+                "summary": "Create formula",
+                "parameters": [
+                    {
+                        "description": "formula data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entities.FormulaAnalysisRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/entities.FormulaAnalysisResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/entities.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/entities.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/entities.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/formula/file": {
             "post": {
                 "consumes": [
@@ -1141,6 +1192,31 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "entities.FormulaAnalysisRequest": {
+            "type": "object",
+            "properties": {
+                "formula": {
+                    "type": "string"
+                }
+            }
+        },
+        "entities.FormulaAnalysisResponse": {
+            "type": "object",
+            "properties": {
+                "author": {
+                    "type": "string"
+                },
+                "match_formula": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "percent": {
                     "type": "string"
                 }
             }

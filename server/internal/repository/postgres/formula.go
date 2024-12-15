@@ -37,6 +37,34 @@ func DBFormulaGetByID(db *sqlx.DB, id int64) (*entities.Formula, error) {
 }
 
 // DBFormulaGetByUserID получение всех формул пользователя по его айди
+func DBFormulaGetAll(db *sqlx.DB) ([]entities.Formula, error) {
+	formulas := []entities.Formula{}
+	query := `SELECT id, title, value, user_id FROM formula;`
+
+	err := db.Select(&formulas, query)
+	if err != nil {
+		return nil, err
+	}
+	return formulas, nil
+}
+
+func DBFormulaGetByValue(db *sqlx.DB, value string) (*entities.FormulaInfo, error) {
+	formula := entities.FormulaInfo{}
+	query := `SELECT id, title, value, users.id AS user_id,
+        CONCAT(users.surname, ' ', users.name, ' ', users.third_name) AS full_name
+		FROM formula 
+		WHERE value = $1
+		JOIN users ON formula.user_id = users.id;
+`
+
+	err := db.Get(&formula, query, value)
+	if err != nil {
+		return nil, err
+	}
+
+	return &formula, nil
+}
+
 func DBFormulaGetByUserID(db *sqlx.DB, userID int64) (*[]entities.Formula, error) {
 	formulas := []entities.Formula{}
 	query := `SELECT id, title, value, user_id FROM formula WHERE user_id = $1`

@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/gofiber/fiber/v2"
 	"net/http"
-	"net/url"
 	"os"
 	"path/filepath"
 	"server/internal/config"
@@ -14,8 +14,6 @@ import (
 	"server/internal/repository/postgres"
 	"server/util"
 	"strconv"
-
-	"github.com/gofiber/fiber/v2"
 )
 
 // GetFormulaFromArticle
@@ -63,6 +61,50 @@ func (h *Handler) GetFormulaFromArticle(c *fiber.Ctx) error {
 		Url: c.OriginalURL(), Status: fiber.StatusOK})
 	logEvent.Msg("success")
 	return c.Status(200).JSON(fiber.Map{"formulas": formulas})
+}
+
+// GetFormulasFromArticleById
+// @Tags         formula
+// @Summary      Get formulas from article by id
+// @Accept       mpfd
+// @Produce      json
+// @Param id path string true "article id"
+// @Success      200 {object} []entities.GetFormulaFromArticleResponse "User  successfully logged in"
+// @Failure      400 {object} entities.ErrorResponse "Invalid email or password"
+// @Failure      500 {object} entities.ErrorResponse "Internal server error"
+// @Router       /formula/file/id [post]
+func (h *Handler) GetFormulasFromArticleById(c *fiber.Ctx) error {
+	idStr := c.Params("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
+		logEvent.Msg(err.Error())
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+	fmt.Println(id)
+	//path, err := postgres.DBArticleGetPath(h.db, id)
+	//if err != nil {
+	//	logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+	//		Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
+	//	logEvent.Msg(err.Error())
+	//	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	//}
+	//
+	//formulas, err = util.ParseFormulasFromFile(c, file)
+	//if err != nil {
+	//	logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+	//		Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
+	//	logEvent.Msg(err.Error())
+	//	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	//}
+	//
+	//logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Info", Method: c.Method(),
+	//	Url: c.OriginalURL(), Status: fiber.StatusOK})
+	//logEvent.Msg("success")
+	//return c.Status(200).JSON(fiber.Map{"formulas": formulas})
+
+	return c.Status(200).JSON("")
 }
 
 // CreateFormula
@@ -358,41 +400,25 @@ func (h *Handler) FormulaRecognize(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "failed to save file"})
 	}
 
-	// Формируем запрос с query параметром image_path
-	respURL := fmt.Sprintf("%s/image/process?image_path=%s", config.LlamaAPI, url.QueryEscape(savePath))
-	resp, err := http.Get(respURL)
+	externalAPIURL := fmt.Sprintf("%s/image/process?image_path=%s", config.LlamaAPI, savePath)
+
+	// Send the request to the external API
+	resp, err := http.Get(externalAPIURL)
 	if err != nil {
 		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
 			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
-		logEvent.Msg("failed to send request to external API")
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "failed to send request to external API"})
+		logEvent.Err(err).Msg("failed to send request to external API")
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Failed to send request to external API",
+		})
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		var apiErrorResponse struct {
-			Detail []struct {
-				Loc  []interface{} `json:"loc"`
-				Msg  string        `json:"msg"`
-				Type string        `json:"type"`
-			} `json:"detail"`
-		}
-		if decodeErr := json.NewDecoder(resp.Body).Decode(&apiErrorResponse); decodeErr != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"error": "External API returned an error",
-			})
-		}
-
-		errorMessages := ""
-		for _, detail := range apiErrorResponse.Detail {
-			if errorMessages != "" {
-				errorMessages += "; "
-			}
-			errorMessages += detail.Msg
-		}
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": errorMessages,
-		})
+		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
+		logEvent.Msg("external API returned an error")
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "external API returned an error"})
 	}
 
 	var apiResponse struct {
@@ -411,29 +437,47 @@ func (h *Handler) FormulaRecognize(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"formula": apiResponse.Formula})
 }
 
+// FormulaAnalysis
+// @Tags formula
+// @Summary      Create formula
+// @Accept       json
+// @Produce      json
+// @Param data body entities.FormulaAnalysisRequest true "formula data"
+// @Success 200 {object} entities.FormulaAnalysisResponse
+// @Failure 400 {object} entities.ErrorResponse
+// @Failure 401 {object} entities.ErrorResponse
+// @Failure 500 {object} entities.ErrorResponse
+// @Router       /formula/analysis [post]
 func (h *Handler) FormulaAnalysis(c *fiber.Ctx) error {
-	// Чтение тела запроса
-	requestBody := struct {
-		InputFormula  string   `json:"input_formula"`
-		ArrayFormulas []string `json:"array_formulas"`
-	}{}
-	if err := c.BodyParser(&requestBody); err != nil {
+	var req entities.FormulaAnalysisRequest
+	err := c.BodyParser(&req)
+	if err != nil {
 		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
 			Url: c.OriginalURL(), Status: fiber.StatusBadRequest})
-		logEvent.Msg("failed to parse request body")
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "failed to parse request body"})
+		logEvent.Err(err).Msg("invalid request body")
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid request body"})
 	}
 
-	// Проверка обязательных параметров
-	if requestBody.InputFormula == "" || len(requestBody.ArrayFormulas) == 0 {
+	h.logger.Debug().Msg("call postgres.DBFormulaGetAll")
+	formulasDB, err := postgres.DBFormulaGetAll(h.db)
+	if err != nil {
 		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
-			Url: c.OriginalURL(), Status: fiber.StatusBadRequest})
-		logEvent.Msg("input_formula and array_formulas are required")
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "input_formula and array_formulas are required"})
+			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
+		logEvent.Msg(err.Error())
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	// Формирование запроса к FastAPI /formulas/process
-	payloadBytes, err := json.Marshal(requestBody)
+	var formulas []string
+	for i := range formulasDB {
+		formulas = append(formulas, formulasDB[i].Value)
+	}
+
+	payload := map[string]interface{}{
+		"content":        req.Formula,
+		"array_formulas": formulas,
+	}
+
+	payloadBytes, err := json.Marshal(payload)
 	if err != nil {
 		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
 			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
@@ -446,23 +490,22 @@ func (h *Handler) FormulaAnalysis(c *fiber.Ctx) error {
 	if err != nil {
 		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
 			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
-		logEvent.Msg("failed to send request to external API")
+		logEvent.Err(err).Msg("failed to send request to external API")
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "failed to send request to external API"})
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
-			Url: c.OriginalURL(), Status: resp.StatusCode})
-		logEvent.Msg("external API returned an error")
-		return c.Status(resp.StatusCode).JSON(fiber.Map{"error": "external API returned an error"})
+			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
+		logEvent.Err(err).Msg("external API returned an error")
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "external API returned an error"})
 	}
 
-	// Обработка ответа от FastAPI
 	var apiResponse struct {
-		Origin  string  `json:"origin"`
-		Percent float64 `json:"percent"`
-		Match   string  `json:"match"`
+		Origin   string `json:"origin"`
+		Percent  string `json:"percent"`
+		MatchStr string `json:"match_str"`
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&apiResponse); err != nil {
 		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
@@ -471,9 +514,27 @@ func (h *Handler) FormulaAnalysis(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "failed to parse external API response"})
 	}
 
-	// Успешный ответ
+	h.logger.Debug().Msg("call postgres.DBFormulaGetAll")
+	formulaFull, err := postgres.DBFormulaGetByValue(h.db, apiResponse.MatchStr)
+	if err != nil {
+		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
+		logEvent.Msg(err.Error())
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	var response entities.FormulaAnalysisResponse
+	response.Name = formulaFull.Title
+	response.MatchFormula = formulaFull.Value
+	response.Percent = apiResponse.Percent
+	response.Author = formulaFull.FullName
+
 	logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Info", Method: c.Method(),
 		Url: c.OriginalURL(), Status: fiber.StatusOK})
 	logEvent.Msg("success")
 	return c.Status(fiber.StatusOK).JSON(apiResponse)
 }
+
+//func FormulaAnalysis(c *fiber.Ctx) error {
+//
+//}
