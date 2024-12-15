@@ -36,7 +36,7 @@
               placeholder="Высшая математика"
               v-model="filters.articleTitle"
               class="border border-solid rounded-l-lg outline-none px-2 border-gray-300 focus:border-red-800"/>
-              <div class="px-2 py-1 rounded-r-lg cursor-pointer btn">
+              <div @click="filter" class="px-2 py-1 rounded-r-lg cursor-pointer btn">
               <svg class="w-6 h-6" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M23.8333 23.8334L21.6667 21.6667M22.75 12.4584C22.75 18.1423 18.1423 22.7501 12.4583 22.7501C6.7744 22.7501 2.16667 18.1423 2.16667 12.4584C2.16667 6.77448 6.7744 2.16675 12.4583 2.16675C18.1423 2.16675 22.75 6.77448 22.75 12.4584Z" stroke="#FAFCFF" stroke-width="1.625" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
@@ -54,7 +54,7 @@
               placeholder="Иванов Иван"
               v-model="filters.author"
               class="border border-solid rounded-l-lg outline-none px-2 border-gray-300 focus:border-red-800"/>
-            <div class="px-2 py-1 rounded-r-lg cursor-pointer btn">
+            <div @click="filter" class="px-2 py-1 rounded-r-lg cursor-pointer btn">
               <svg class="w-6 h-6" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M23.8333 23.8334L21.6667 21.6667M22.75 12.4584C22.75 18.1423 18.1423 22.7501 12.4583 22.7501C6.7744 22.7501 2.16667 18.1423 2.16667 12.4584C2.16667 6.77448 6.7744 2.16675 12.4583 2.16675C18.1423 2.16675 22.75 6.77448 22.75 12.4584Z" stroke="#FAFCFF" stroke-width="1.625" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
@@ -151,8 +151,8 @@
         <section class="flex flex-col w-1/2 h-full py-4 gap-y-6">
           <h1 class=" text-center w-full text-2xl">Мои статьи</h1>
 
-          <article v-if="userInfoStore.userID !== null" class="flex flex-col flex-grow gap-y-4 w-full px-4 scrollable">
-            <div v-if="myArticles.length !== 0">
+          <article v-if="userInfoStore.userID !== null" class="flex flex-col w-full px-4 h-full scrollable">
+            <div v-if="myArticles.length !== 0" class="flex flex-col gap-y-4 w-full">
               <div v-for="myArticles in myArticles" :key="myArticles.id">
                 <ArticleItem :title="myArticles.title" :author="myArticles.full_name" :science="myArticles.science" :science-type="myArticles.section"/>
               </div>
