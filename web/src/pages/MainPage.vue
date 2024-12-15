@@ -244,7 +244,7 @@ import { useCalculatorStore } from '@/stores/calculatorStore';
 import { useBlurStore } from '@/stores/blurStore';
 import { useStatusWindowStore } from '@/stores/statusWindowStore';
 import { useUserInfoStore } from '@/stores/userInfoStore';
-import { API_Get_Formuls_History, API_Health, API_Save_Formula } from '@/api/api';
+import { API_Get_Formuls_History, API_Save_Formula } from '@/api/api';
 import { garbageCollector, getFirstMrow, insertEmptyElementsInHTML, insertHTMLBeforeCursor, parseLatexFromHTML, renderKatex } from '@/helpers/latexHTMLParser';
 import { StatusCodes } from '@/helpers/constants';
 import { nextTick } from 'vue';
