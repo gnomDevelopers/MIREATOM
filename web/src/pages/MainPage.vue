@@ -508,6 +508,17 @@ export default {
       output: 'mathml',
       trust: false,
     });
+
+    document.addEventListener('selectionchange', () => {
+      const selection = document.getSelection();
+
+      if (selection && selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        const element = range.commonAncestorContainer;
+        const startOffset = range.startOffset;
+        const endOffset = range.endOffset;
+      }
+    });
   },
   methods: {
     setButtonsType(type: number){
@@ -554,10 +565,10 @@ export default {
         //повторно обновляем формулу
         this.formula = parseLatexFromHTML(this.formulaContainer!);
 
-        //вставка пустых элементов для курсора
-        const mrow = getFirstMrow(this.formulaContainer!);
-        if(mrow === undefined) return;
-        insertEmptyElementsInHTML(mrow);
+        // //вставка пустых элементов для курсора
+        // const mrow = getFirstMrow(this.formulaContainer!);
+        // if(mrow === undefined) return;
+        // insertEmptyElementsInHTML(mrow);
 
         //настраиваем скроллы у формулы
         this.handleFormulaWindowSize();
@@ -665,7 +676,6 @@ export default {
       const clientHeight = event.target.clientHeight;
 
       if (scrollTop + clientHeight >= scrollHeight) {    
-        console.log("Scrolled to bottom!");
 
         if(this.userInfoStore.userID === null) return;
 
