@@ -131,4 +131,5 @@ services:
     volumes:
       - ./.ollama:/root/.ollama
     restart: unless-stopped
-    command: serve && /bin/ollama run llama3.2-vision:11b
+    command:
+      ["sh", "-c", "/bin/ollama serve && /bin/ollama run llama3.2-vision:11b"]
