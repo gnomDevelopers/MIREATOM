@@ -18,5 +18,5 @@ const (
 	RedisPassword = "qwerty123456"
 
 	// Llama
-	LlamaAPI = "llm_api:8090"
+	LlamaAPI = "llm-service:8090"
 )
