@@ -6,6 +6,8 @@ import {
   type Article,
 } from "@/helpers/constants";
 
+//////// ПОЛЬЗОВАТЕЛЬ ////////
+
 //проверка аутентификации пользователя
 export function API_Authenticate(){
   return new Promise((resolve, reject) => {
@@ -55,21 +57,6 @@ export function API_Logout(){
   });
 };
 
-//тест запрос
-export function API_Health(){
-  return new Promise((resolve, reject) => {
-    axios.get(`${API}/health`)
-    .then(response => {
-      if(DEVMODE) console.log('Health get success: ', response);
-      resolve(response);
-    })
-    .catch(error => {
-      if(DEVMODE) console.log('Health get error: ', error);
-      reject(error);
-    });
-  });
-};
-
 //регистрация
 export function API_Register(data: IAPI_Register){
   return new Promise((resolve, reject) => {
@@ -85,7 +72,7 @@ export function API_Register(data: IAPI_Register){
   });
 };
 
-//вход в аккаунт
+//получение информации о пользователе
 export function API_Get_User_Data(userID: number){
   return new Promise((resolve, reject) => {
     axios.get(`${API}/user/${userID}`)
@@ -95,40 +82,6 @@ export function API_Get_User_Data(userID: number){
     })
     .catch(error => {
       if(DEVMODE) console.log('User data get error: ', error);
-      reject(error);
-    });
-  });
-};
-
-//сохранение формулы
-export function API_Save_Formula(data:{title: string, value: string}){
-  return new Promise((resolve, reject) => {
-    axios.post(`${API}/auth/formula`, data, {
-      headers: {
-        Authorization: 'Bearer ' + GET_COOKIE('access_token'),
-      }
-    })
-    .then(response => {
-      if(DEVMODE) console.log('Save formula success: ', response);
-      resolve(response);
-    })
-    .catch(error => {
-      if(DEVMODE) console.log('Save formula error: ', error);
-      reject(error);
-    });
-  });
-};
-
-//получение истории формул
-export function API_Get_Formuls_History(userID: number, page: number){
-  return new Promise((resolve, reject) => {
-    axios.get(`${API}/formula/history/user/${userID}/page/${page}`)
-    .then(response => {
-      if(DEVMODE) console.log('Get formula history success: ', response);
-      resolve(response);
-    })
-    .catch(error => {
-      if(DEVMODE) console.log('Get formula history error: ', error);
       reject(error);
     });
   });
@@ -182,6 +135,41 @@ export function API_Article_Get_ByID(userID: number): Promise<Article[]>{
 };
 
 
+
+//сохранение формулы
+export function API_Save_Formula(data:{title: string, value: string}){
+  return new Promise((resolve, reject) => {
+    axios.post(`${API}/auth/formula`, data, {
+      headers: {
+        Authorization: 'Bearer ' + GET_COOKIE('access_token'),
+      }
+    })
+    .then(response => {
+      if(DEVMODE) console.log('Save formula success: ', response);
+      resolve(response);
+    })
+    .catch(error => {
+      if(DEVMODE) console.log('Save formula error: ', error);
+      reject(error);
+    });
+  });
+};
+
+//получение истории формул
+export function API_Get_Formuls_History(userID: number, page: number){
+  return new Promise((resolve, reject) => {
+    axios.get(`${API}/formula/history/user/${userID}/page/${page}`)
+    .then(response => {
+      if(DEVMODE) console.log('Get formula history success: ', response);
+      resolve(response);
+    })
+    .catch(error => {
+      if(DEVMODE) console.log('Get formula history error: ', error);
+      reject(error);
+    });
+  });
+};
+
 //обновление формулы
 export function API_Update_Formula(data: {id: number, title: string, value: string}){
   return new Promise((resolve, reject) => {
@@ -217,5 +205,22 @@ export function API_Get_Formula_Commits(formulaID: number){
       if(DEVMODE) console.log('Get formula commits error: ', error);
       reject(error);
     })
+  });
+};
+
+//////// ВРЕМЕННО ////////
+
+//тест запрос
+export function API_Health(){
+  return new Promise((resolve, reject) => {
+    axios.get(`${API}/health`)
+    .then(response => {
+      if(DEVMODE) console.log('Health get success: ', response);
+      resolve(response);
+    })
+    .catch(error => {
+      if(DEVMODE) console.log('Health get error: ', error);
+      reject(error);
+    });
   });
 };

@@ -125,7 +125,8 @@ export default {
             break;
           }
         }
-        
+        //заркываем окно обновления формулы
+        this.$emit('closeWindow');
       })
       .catch(error => {
         //если что-то не так - сообщаем об ошибке

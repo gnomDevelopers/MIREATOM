@@ -9,18 +9,27 @@
       <div class="flex justify-center m-6">
         <p class="text-2xl">Сохранённые формулы</p>
       </div>
-      <div class="flex flex-col h-full mb-4 mx-6 scrollable" id="myFormulaScrollWrapper">
+      
+      <div v-if="getFormulsList.length !== 0" class="flex flex-col h-full mb-4 mx-6 scrollable" id="myFormulaScrollWrapper">
         <div class="flex flex-col justify-center gap-4">
-          <div v-for="formulaItem in getFormulsList" >
-            <MyFormulaItem
-              :formula="formulaItem.value"
-              :title="formulaItem.title"
-              :id="formulaItem.id"
-              :class="{'border-2 border-gray-400': selectedFormulaID === formulaItem.id}"
-              @click="selectFormula(formulaItem.value, formulaItem.title, formulaItem.id)"
-              @edit-formula="showEditFormula(formulaItem.value, formulaItem.title, formulaItem.id)"
-            />
+          <div>
+            <div v-for="formulaItem in getFormulsList" >
+              <MyFormulaItem
+                :formula="formulaItem.value"
+                :title="formulaItem.title"
+                :id="formulaItem.id"
+                :class="{'border-2 border-gray-400': formulsStore.selectedFormulaID === formulaItem.id}"
+                @click="selectFormula(formulaItem.id)"
+                @edit-formula="showEditFormula(formulaItem.value, formulaItem.title, formulaItem.id)"
+              />
+            </div>
           </div>
+        </div>
+      </div>
+
+      <div v-else class="w-full flex flex-col items-center cursor-default">
+        <div class="px-4 py-2 rounded-lg bg-gray-300">
+          <p class=text-lg>У Вас пока что нет сохраненных формул</p>
         </div>
       </div>
     </div>
@@ -30,17 +39,23 @@
         <p class="text-2xl">История изменений формулы</p>
       </div>
 
-      <div v-if="selectedFormulaID !== -1" class="flex flex-col h-screen mb-4 mx-6 scrollable">
+      <div v-if="formulsStore.selectedFormulaID !== null" class="flex flex-col h-screen mb-4 mx-6 scrollable">
         <div class="flex flex-col">
-          <div class="flex justify-center mt-4 mx-12 rounded-lg bg-gray-300">
+          <!-- <div class="flex justify-center mt-4 mx-12 rounded-lg bg-gray-300">
             <p>Формула была изменена 15.02.2024</p>
           </div>
           <MyFormulaItem 
-            v-if="selectedFormulaID !== -1"
             :id="selectedFormulaID"
             :formula="selectedFormulaValue" 
             :title="selectedFormulaTitle"
           />
+           -->
+           <CommitFormulaHistory />
+        </div>
+      </div>
+      <div v-else class="flex flex-col items-center">
+        <div class="px-4 py-2 rounded-lg bg-gray-300">
+          <p class="text-lg">Выберите формулу, чтобы посмотреть историю её изменений</p>
         </div>
       </div>
     </div>
@@ -58,19 +73,17 @@
   import MyFormulaItem from '@/shared/myFormulaItem.vue';
   import { API_Get_Formula_Commits, API_Get_Formuls_History } from '@/api/api';
   import UpdateMyFormula from '@/entities/updateMyFormula.vue';
+import CommitFormulaHistory from '@/entities/commitFormulaHistory.vue';
 
   export default {
     components: {
       MyFormulaItem,
       UpdateMyFormula,
+      CommitFormulaHistory,
     },
     data() {
       return {
         formulaItems: [] as {id: number, title: string, value: string, user_id: number}[],
-
-        selectedFormulaID: -1,
-        selectedFormulaTitle: '',
-        selectedFormulaValue: '',
   
         showUpdateFormulaMW: false,
         updateFormulaID: -1,
@@ -111,34 +124,8 @@
       })
     },
     methods: {
-      selectFormula(formula: string, title: string, formulaID: number) {
-        this.selectedFormulaID = formulaID;
-        this.selectedFormulaTitle = title;
-        this.selectedFormulaValue = formula;
-
-        const stID = this.statusWindowStore.showStatusWindow(StatusCodes.loading, 'Получаем историю изменений формулы...', -1);
-
-        API_Get_Formula_Commits(formulaID)
-        .then(async (response: any) => {
-          this.statusWindowStore.deteleStatusWindow(stID);
-
-          this.selectedFormulaCommits = [];
-          for(const commit of response.data){
-            try{
-              console.log('try to parse: ', commit.difference);
-              const diff = await JSON.parse(commit.difference);
-              console.log(diff);
-
-            }
-            catch(error){
-              console.log(error);
-            }
-          }
-        })
-        .catch(error => {
-          this.statusWindowStore.deteleStatusWindow(stID);
-          this.statusWindowStore.showStatusWindow(StatusCodes.error, 'Что-то пошло не так при получении истории изменения формулы!');
-        })
+      selectFormula(formulaID: number) {
+        this.formulsStore.selectedFormulaID = formulaID;
       },
       showEditFormula(formula: string, title: string, formulaID: number) {
         this.updateFormulaValue = formula;  
