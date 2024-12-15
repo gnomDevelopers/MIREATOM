@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/gofiber/fiber/v2"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"server/internal/config"
@@ -14,6 +14,8 @@ import (
 	"server/internal/repository/postgres"
 	"server/util"
 	"strconv"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 // GetFormulaFromArticle
@@ -356,20 +358,9 @@ func (h *Handler) FormulaRecognize(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "failed to save file"})
 	}
 
-	payload := map[string]interface{}{
-		"content": savePath,
-	}
-
-	payloadBytes, err := json.Marshal(payload)
-	if err != nil {
-		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
-			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
-		logEvent.Msg("failed to prepare request payload")
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "failed to prepare request payload"})
-	}
-
-	respURL := fmt.Sprintf("%s/image/process", config.LlamaAPI)
-	resp, err := http.Post(respURL, "application/json", bytes.NewBuffer(payloadBytes))
+	// Формируем запрос с query параметром image_path
+	respURL := fmt.Sprintf("%s/image/process?image_path=%s", config.LlamaAPI, url.QueryEscape(savePath))
+	resp, err := http.Get(respURL)
 	if err != nil {
 		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
 			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
@@ -401,6 +392,69 @@ func (h *Handler) FormulaRecognize(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"formula": apiResponse.Formula})
 }
 
-//func FormulaAnalysis(c *fiber.Ctx) error {
-//
-//}
+func (h *Handler) FormulaAnalysis(c *fiber.Ctx) error {
+	// Чтение тела запроса
+	requestBody := struct {
+		InputFormula  string   `json:"input_formula"`
+		ArrayFormulas []string `json:"array_formulas"`
+	}{}
+	if err := c.BodyParser(&requestBody); err != nil {
+		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+			Url: c.OriginalURL(), Status: fiber.StatusBadRequest})
+		logEvent.Msg("failed to parse request body")
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "failed to parse request body"})
+	}
+
+	// Проверка обязательных параметров
+	if requestBody.InputFormula == "" || len(requestBody.ArrayFormulas) == 0 {
+		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+			Url: c.OriginalURL(), Status: fiber.StatusBadRequest})
+		logEvent.Msg("input_formula and array_formulas are required")
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "input_formula and array_formulas are required"})
+	}
+
+	// Формирование запроса к FastAPI /formulas/process
+	payloadBytes, err := json.Marshal(requestBody)
+	if err != nil {
+		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
+		logEvent.Msg("failed to prepare request payload")
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "failed to prepare request payload"})
+	}
+
+	respURL := fmt.Sprintf("%s/formulas/process", config.LlamaAPI)
+	resp, err := http.Post(respURL, "application/json", bytes.NewBuffer(payloadBytes))
+	if err != nil {
+		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
+		logEvent.Msg("failed to send request to external API")
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "failed to send request to external API"})
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+			Url: c.OriginalURL(), Status: resp.StatusCode})
+		logEvent.Msg("external API returned an error")
+		return c.Status(resp.StatusCode).JSON(fiber.Map{"error": "external API returned an error"})
+	}
+
+	// Обработка ответа от FastAPI
+	var apiResponse struct {
+		Origin  string  `json:"origin"`
+		Percent float64 `json:"percent"`
+		Match   string  `json:"match"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&apiResponse); err != nil {
+		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
+		logEvent.Msg("failed to parse external API response")
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "failed to parse external API response"})
+	}
+
+	// Успешный ответ
+	logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Info", Method: c.Method(),
+		Url: c.OriginalURL(), Status: fiber.StatusOK})
+	logEvent.Msg("success")
+	return c.Status(fiber.StatusOK).JSON(apiResponse)
+}
