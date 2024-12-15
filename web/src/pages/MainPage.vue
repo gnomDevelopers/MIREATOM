@@ -510,6 +510,23 @@ export default {
       output: 'mathml',
       trust: false,
     });
+
+    document.addEventListener('selectionchange', () => {
+      const selection = document.getSelection();
+
+      if (selection && selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        const element = range.commonAncestorContainer;
+        const startOffset = range.startOffset;
+        const endOffset = range.endOffset;
+
+        // Log the information
+        console.log("Element:", element.parentElement!.innerHTML);
+        // console.log("Selection:", selection);
+        console.log("Start Offset:", startOffset);
+        console.log("End Offset:", endOffset);
+      }
+    });
   },
   methods: {
     setButtonsType(type: number){
@@ -556,10 +573,10 @@ export default {
         //повторно обновляем формулу
         this.formula = parseLatexFromHTML(this.formulaContainer!);
 
-        //вставка пустых элементов для курсора
-        const mrow = getFirstMrow(this.formulaContainer!);
-        if(mrow === undefined) return;
-        insertEmptyElementsInHTML(mrow);
+        // //вставка пустых элементов для курсора
+        // const mrow = getFirstMrow(this.formulaContainer!);
+        // if(mrow === undefined) return;
+        // insertEmptyElementsInHTML(mrow);
 
         //настраиваем скроллы у формулы
         this.handleFormulaWindowSize();
