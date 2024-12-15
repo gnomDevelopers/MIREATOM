@@ -710,6 +710,52 @@ const docTemplate = `{
                 }
             }
         },
+        "/formula/file/id": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "formula"
+                ],
+                "summary": "Get formulas from article by id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "article id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User  successfully logged in",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/entities.GetFormulaFromArticleResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid email or password",
+                        "schema": {
+                            "$ref": "#/definitions/entities.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/entities.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/formula/history/user/{id}/page/{number}": {
             "get": {
                 "description": "Returns a paginated list of formulas for a specific user",
