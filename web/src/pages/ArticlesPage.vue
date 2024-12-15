@@ -1,31 +1,26 @@
 <template>
   <div class="flex flex-col items-center h-full w-full">
 
-    <!--модальное окно формул в статье-->
-    <Transition>
-      <section v-if="articleStore.showArticleFormulsMW" class="absolute flex flex-col gap-y-4 items-center z-30 p-4 rounded-xl min-w-[500px] bg-white">
-        <div class="absolute right-0 top-0 cursor-pointer" @click="hideArticleFormuls">
-          <svg class="w-10 h-10" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M34.6668 17.3334L17.3335 34.6667M34.6668 34.6667L17.3335 17.3334" stroke="#8F0101" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-        </div>
-
-        <h1 class="text-2xl text-color-theme cursor-default">Формулы, приведённые в статье</h1>
-
-        <article class="flex flex-col items-center gap-y-3 scrollable rounded-lg max-h-[500px] w-full p-2 bg-gray-100">
-
-          <div v-for="formula of articleStore.selectedArticleFormuls">
-            <HistoryFormulaItem :formula="formula"/>
+      <!--модальное окно формул в статье-->
+      <Transition>
+        <section v-if="articleStore.showArticleFormulsMW" class="absolute flex flex-col gap-y-4 items-center z-30 p-4 rounded-xl min-w-[500px] bg-white">
+          <div class="absolute right-0 top-0 cursor-pointer" @click="hideArticleFormuls">
+            <svg class="w-10 h-10" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M34.6668 17.3334L17.3335 34.6667M34.6668 34.6667L17.3335 17.3334" stroke="#8F0101" stroke-width="2" stroke-linecap="round"/>
+            </svg>
           </div>
 
-        </article>
-      </section>
-    </Transition>
+          <h1 class="text-2xl text-color-theme cursor-default">Формулы, приведённые в статье</h1>
 
-    <!-- модальное окно для редактирования формулы -->
-    <Transition>
-<!--      <UploadArticle v-if="showUpdateFormulaMW" :id="updateFormulaID" :value="updateFormulaValue" :title="updateFormulaName" @close-window="hideEditFormula"/>-->
-    </Transition>
+          <article class="flex flex-col items-center gap-y-3 scrollable rounded-lg max-h-[500px] w-full p-2 bg-gray-100">
+
+            <div v-for="formula of articleStore.selectedArticleFormuls">
+              <HistoryFormulaItem :formula="formula"/>
+            </div>
+
+          </article>
+        </section>
+      </Transition>
 
     <div class="flex flex-row w-full h-full items-start">
 
@@ -195,13 +190,15 @@ import { useBlurStore } from '@/stores/blurStore';
 import { useArticleStore } from '@/stores/articleStore';
 import { useUserInfoStore } from '@/stores/userInfoStore';
 import { defineComponent } from 'vue';
+import ArticleItem from '@/shared/articleItem.vue';
+import HistoryFormulaItem from '@/shared/historyFormulaItem.vue';
 import { API_Articles_Get, API_ArticleFile_Get, API_Article_Get_ByID } from '@/api/api';
 import type { Article } from '@/helpers/constants';
-import UploadArticle from "@/entities/uploadArticle.vue";
 
 export default defineComponent({
   components: {
-    UploadArticle,
+    ArticleItem,
+    HistoryFormulaItem,
   },
   data(){
     return {
