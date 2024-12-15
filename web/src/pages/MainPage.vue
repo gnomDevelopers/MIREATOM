@@ -232,8 +232,6 @@
             <p class="text-lg">15.12.2024</p>
           </div>
         </article>
-
-        <button @click="APIRequest" class="rounded-xl px-4 py-2 btn text-white text-xl">Кинуть Z</button>
       </section>
     </div>
   </div>
@@ -564,9 +562,6 @@ export default {
         //настраиваем скроллы у формулы
         this.handleFormulaWindowSize();
       })
-    },
-    APIRequest(){
-      API_Health();
     },
     handleFormulaWindowSize(){
       if(this.formulaContainer!.offsetWidth > 500){
