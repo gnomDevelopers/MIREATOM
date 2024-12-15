@@ -125,6 +125,9 @@ export default {
             break;
           }
         }
+        //обновляем коммиты формулы
+        this.formulsStore.selectedFormulaID = this.id;
+        this.formulsStore.loadFormulaCommits();
         //заркываем окно обновления формулы
         this.$emit('closeWindow');
       })

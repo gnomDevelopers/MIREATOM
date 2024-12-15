@@ -8,6 +8,7 @@ import (
 	"server/internal/config"
 )
 
+// NewDatabase инициализация подключения к бд
 func NewDatabase() (*sqlx.DB, error) {
 	connectionString := fmt.Sprintf(
 		"postgres://%v:%v@%v:%v/%v?sslmode=disable",
@@ -34,6 +35,7 @@ func NewDatabase() (*sqlx.DB, error) {
 	return db, nil
 }
 
+// CreateTable cоздание всех таблиц
 func CreateTable(db *sqlx.DB) {
 	db.MustExec(createUserTable)
 	db.MustExec(createArticleTable)

@@ -84,7 +84,7 @@ export function parseLatexFromHTML(parentElement: HTMLElement) {
   const mrow = getFirstMrow(parentElement)!;
   //парсим html в Latex формулу
   let formula = latexFromHTML(mrow);
-  console.log(formula);
+  // console.log(formula);
   //возвращаем Latex формулу
   return formula;
 }
@@ -100,7 +100,7 @@ export function insertHTMLBeforeCursor(parentElement: HTMLElement, insertFormula
   }
 
   //если katex отрендерился но начальный mrow пустой, то рендерим сразу в него
-  if(getFirstMrow(parentElement)?.children.length === 0){
+  if(getFirstMrow(parentElement)!.children.length === 0){
     //удаляем всех потомков корневого элемента
     parentElement.innerHTML = '';
     //рендерим в него формулу
@@ -110,12 +110,12 @@ export function insertHTMLBeforeCursor(parentElement: HTMLElement, insertFormula
   }
 
   //получаем позицию курсора
-  const selection = window.getSelection();
+  const selection = document.getSelection();
   //нода в которой стоит курсор и его позиция в тексте
   const recSearch: {node: Node | null, pos: number | null} = {node: null, pos: null};
 
   // если курсор есть - ищем ноду в которой он находится и позицию курсора
-  if (selection !== null && selection.rangeCount !== 0) {
+  if (selection && selection.rangeCount > 0) {
     //что-то на умном
     const range = selection.getRangeAt(0);
     //получаем текстовую ноду и позицию курсора
@@ -142,10 +142,10 @@ export function insertHTMLBeforeCursor(parentElement: HTMLElement, insertFormula
   const selectedNodeGrandParent = selectedNodeParent.parentElement;
   if(!selectedNodeGrandParent) return;
 
-  console.log('cursorPos: ', recSearch.pos);
-  console.log('selectedNode: ', recSearch.node);
-  console.log('selectedNodeParent: ', selectedNodeParent);
-  console.log('selectedNodeGrandParent: ', selectedNodeGrandParent);
+  // console.log('cursorPos: ', recSearch.pos);
+  // console.log('selectedNode: ', recSearch.node);
+  // console.log('selectedNodeParent: ', selectedNodeParent);
+  // console.log('selectedNodeGrandParent: ', selectedNodeGrandParent);
 
   //создаем временный элемент и в него рендерим latex формулу
   const element = document.createElement('div');
@@ -159,7 +159,7 @@ export function insertHTMLBeforeCursor(parentElement: HTMLElement, insertFormula
   //если родительский элемент находится в строке
   if(selectedNodeGrandParent.tagName === 'mrow'){
     //вставляем формулу в деда  
-    insertChildrenBeforeElement(renderedFormula.children, selectedNodeParent, selectedNodeGrandParent, recSearch.pos!);
+    insertChildrenBeforeElement(renderedFormula.children, selectedNodeParent, selectedNodeGrandParent, recSearch.pos!, selectedNodeParent.tagName);
   }
   else{
     //создаем элемент строку mrow
@@ -169,7 +169,7 @@ export function insertHTMLBeforeCursor(parentElement: HTMLElement, insertFormula
     //добавляем копию родительского элемента в mrow
     mrowElement.appendChild(newParentNode);
     //вставляем формулу в деда
-    insertChildrenBeforeElement(renderedFormula.children, newParentNode, mrowElement, recSearch.pos!);
+    insertChildrenBeforeElement(renderedFormula.children, newParentNode, mrowElement, recSearch.pos!, selectedNodeParent.tagName);
     //вставляем mrow в деда перед родительским элементом
     selectedNodeGrandParent.insertBefore(mrowElement, selectedNodeParent);
     //удаляем родительский элемент чтобы не дублировать
@@ -200,14 +200,14 @@ export function renderKatex(element: HTMLElement, formula: string){
     trust: false,
   });
 
-  //вставляем пустые объекты для курсора
+  // //вставляем пустые объекты для курсора
 
-  //находим первый mrow
-  const mrow = getFirstMrow(element);
-  //проверка на существование
-  if(mrow === undefined) return;
-  //обход DOM дерева и вставка пустых объектов
-  insertEmptyElementsInHTML(mrow);
+  // //находим первый mrow
+  // const mrow = getFirstMrow(element);
+  // //проверка на существование
+  // if(mrow === undefined) return;
+  // //обход DOM дерева и вставка пустых объектов
+  // insertEmptyElementsInHTML(mrow);
 }
 
 export function insertEmptyElementsInHTML(parentNode: Element){
@@ -215,8 +215,6 @@ export function insertEmptyElementsInHTML(parentNode: Element){
     if(parentNode.lastElementChild?.getAttribute('data-empty') !== 'true'){
 
       parentNode.appendChild(getEmptyElement());
-
-      console.log('parent mrow append empty, ', `<${parentNode.tagName}> ${parentNode.innerHTML} </${parentNode.tagName}>`);
     }
   }
 
@@ -227,8 +225,7 @@ export function insertEmptyElementsInHTML(parentNode: Element){
       if(child.getAttribute('data-empty') === 'true') continue;
 
       if(child.tagName === 'mrow'){
-        // child.appendChild(getEmptyElement());
-        console.log('child mrow appended empty, ', `<${child.tagName}> ${child.innerHTML} </${child.tagName}>`);
+        child.appendChild(getEmptyElement());
       }
       else{
         const children = child.cloneNode(true);
@@ -237,10 +234,8 @@ export function insertEmptyElementsInHTML(parentNode: Element){
         mrow.appendChild(children);
         mrow.appendChild(getEmptyElement());
 
-        // parentNode.insertBefore(mrow, child);
-        // parentNode.removeChild(child);
-
-        console.log('parent lost child and appended mrow, ', `<${parentNode.tagName}> ${parentNode.innerHTML} </${parentNode.tagName}>`);
+        parentNode.insertBefore(mrow, child);
+        parentNode.removeChild(child);
       }
     }
     else{
@@ -250,10 +245,10 @@ export function insertEmptyElementsInHTML(parentNode: Element){
 }
 
 function getEmptyElement(){
-  const emptyElement = document.createElement('span');
+  const emptyElement = document.createElement('mn');
   emptyElement.dataset.empty = 'true';
-  emptyElement.setAttribute('tabindex', '0');
-  emptyElement.setAttribute('contenteditable','true');
+  // emptyElement.setAttribute('tabindex', '0');
+  // emptyElement.setAttribute('contenteditable','true');
   emptyElement.textContent = '☐';
   // emptyElement.innerText = ' ';
 
@@ -261,7 +256,7 @@ function getEmptyElement(){
 }
 
 //вставка детей перед некоторым элементом
-function insertChildrenBeforeElement(children: HTMLCollection, element: Node, parent: Element, cursorPos: number){
+function insertChildrenBeforeElement(children: HTMLCollection, element: Node, parent: Element, cursorPos: number, tagName: string){
   //переменная для запоминания первого элемента из children
   let firstChild: Element | null = null;
   //расспаковываем все элементы из mrow и добавляем перед элементом
@@ -279,15 +274,17 @@ function insertChildrenBeforeElement(children: HTMLCollection, element: Node, pa
     parent.insertBefore(element, firstChild);
     //т.о. элемент будет стоять перед элементами формулы
   }
-
+  //если нужно было добавить формулу посреди элемента 
   else if (cursorPos !== 0){
-
+    //копируем весь текст до крусора в первый вставленный элемент из children
+    firstChild!.textContent= element.textContent!.slice(0, cursorPos) + firstChild!.textContent;
+    //удаляем весь текст до курсора в изначальном элементе
+    element.textContent = element.textContent!.slice(cursorPos, element.textContent!.length);
   }
 }
 
 //удаление пустых тегов и избавление от артефактов
 export function garbageCollector(parentNode: HTMLElement){
-  console.log('вызов гарбадж коллектора');
   //начальный mrow
   const mrow = getFirstMrow(parentNode);
   if(!mrow){
@@ -314,12 +311,12 @@ export function garbageCollector(parentNode: HTMLElement){
     //проходимся по детям элемента
     for(const child of html.children){
       const thisCount = count++;
-      console.log(`элемент №${thisCount} до: ${child.innerHTML}`);
+      // console.log(`элемент №${thisCount} до: ${child.innerHTML}`);
 
       //просматриваем его детей
       const childDelete = recursiveGarbageWatcher(child);
 
-      console.log(`элемент №${thisCount} после: ${child.innerHTML}, вердикт: ${childDelete}`);
+      // console.log(`элемент №${thisCount} после: ${child.innerHTML}, вердикт: ${childDelete}`);
 
       //если его детей удалять нельзя, то флаг будет true и текущий элемент не удалится
       needToDelete &&= childDelete;
@@ -331,10 +328,10 @@ export function garbageCollector(parentNode: HTMLElement){
     //возвращаем вердитк текущего элемента
     return needToDelete;
   }
-  console.log('вызов спортиков');
-  console.log('mrow = ', mrow.innerHTML);
+  // console.log('вызов спортиков');
+  // console.log('mrow = ', mrow.innerHTML);
   //вызываем спортиков
   const clearMrow = recursiveGarbageWatcher(mrow);
-  console.log('clear whole mrow: ', clearMrow);
+  // console.log('clear whole mrow: ', clearMrow);
   if(clearMrow) mrow.innerHTML = '';
 }

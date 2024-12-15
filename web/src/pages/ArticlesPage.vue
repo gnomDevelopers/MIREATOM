@@ -1,26 +1,33 @@
 <template>
   <div class="flex flex-col items-center h-full w-full">
 
-      <!--модальное окно формул в статье-->
-      <Transition>
-        <section v-if="articleStore.showArticleFormulsMW" class="absolute flex flex-col gap-y-4 items-center z-30 p-4 rounded-xl min-w-[500px] bg-white">
-          <div class="absolute right-0 top-0 cursor-pointer" @click="hideArticleFormuls">
-            <svg class="w-10 h-10" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M34.6668 17.3334L17.3335 34.6667M34.6668 34.6667L17.3335 17.3334" stroke="#8F0101" stroke-width="2" stroke-linecap="round"/>
-            </svg>
+    <!--модальное окно формул в статье-->
+    <Transition>
+      <section v-if="articleStore.showArticleFormulsMW" class="absolute flex flex-col gap-y-4 items-center z-30 p-4 rounded-xl min-w-[500px] bg-white">
+        <div class="absolute right-0 top-0 cursor-pointer" @click="hideArticleFormuls">
+          <svg class="w-10 h-10" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M34.6668 17.3334L17.3335 34.6667M34.6668 34.6667L17.3335 17.3334" stroke="#8F0101" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+
+        <h1 class="text-2xl text-color-theme cursor-default">Формулы, приведённые в статье</h1>
+
+        <article class="flex flex-col items-center gap-y-3 scrollable rounded-lg max-h-[500px] w-full p-2 bg-gray-100">
+
+          <div v-for="formula of articleStore.selectedArticleFormuls">
+            <HistoryFormulaItem :formula="formula"/>
           </div>
 
-          <h1 class="text-2xl text-color-theme cursor-default">Формулы, приведённые в статье</h1>
+        </article>
+      </section>
+    </Transition>
 
-          <article class="flex flex-col items-center gap-y-3 scrollable rounded-lg max-h-[500px] w-full p-2 bg-gray-100">
+    <!-- модальное окно для загрузки статьи -->
 
-            <div v-for="formula of articleStore.selectedArticleFormuls">
-              <HistoryFormulaItem :formula="formula"/>
-            </div>
-
-          </article>
-        </section>
-      </Transition>
+    <!-- Исправить ошибки!! -->
+    <Transition>
+      <UploadArticle v-if="showUploadArticleMW" @close-window="hideUploadArticle" @update-articles="() => { getArticles(); getMyArticles(); }"/>
+    </Transition>
 
     <div class="flex flex-row w-full h-full items-start">
 
@@ -169,7 +176,7 @@
             <p class="w-full text-center text-xl ">Войдите, чтобы просматривать и добавлять свои статьи!</p>
           </article>
 
-          <article @click="() => {$refs.uploadArticleFile.click()}" class="self-end flex flex-row gap-x-2 items-center btn cursor-pointer mr-10 rounded-xl p-2">
+          <article @click="showUploadArticle()" class="self-end flex flex-row gap-x-2 items-center btn cursor-pointer mr-10 rounded-xl p-2">
             <div>
               <svg class="w-9 h-9" viewBox="0 0 57 57" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M30.5 15.5C30.5 14.3954 29.6046 13.5 28.5 13.5C27.3954 13.5 26.5 14.3954 26.5 15.5H30.5ZM26.5 41.5C26.5 42.6046 27.3954 43.5 28.5 43.5C29.6046 43.5 30.5 42.6046 30.5 41.5H26.5ZM41.5 30.5C42.6046 30.5 43.5 29.6046 43.5 28.5C43.5 27.3954 42.6046 26.5 41.5 26.5V30.5ZM15.5 26.5C14.3954 26.5 13.5 27.3954 13.5 28.5C13.5 29.6046 14.3954 30.5 15.5 30.5V26.5ZM52.5 28.5C52.5 41.7548 41.7548 52.5 28.5 52.5V56.5C43.964 56.5 56.5 43.964 56.5 28.5H52.5ZM28.5 52.5C15.2452 52.5 4.5 41.7548 4.5 28.5H0.5C0.5 43.964 13.036 56.5 28.5 56.5V52.5ZM4.5 28.5C4.5 15.2452 15.2452 4.5 28.5 4.5V0.5C13.036 0.5 0.5 13.036 0.5 28.5H4.5ZM28.5 4.5C41.7548 4.5 52.5 15.2452 52.5 28.5H56.5C56.5 13.036 43.964 0.5 28.5 0.5V4.5ZM26.5 15.5L26.5 28.5H30.5L30.5 15.5H26.5ZM26.5 28.5V41.5H30.5V28.5H26.5ZM41.5 26.5H28.5V30.5H41.5V26.5ZM28.5 26.5H15.5V30.5H28.5V26.5Z" fill="white"/>
@@ -189,14 +196,19 @@ import { mapStores } from 'pinia';
 import { useBlurStore } from '@/stores/blurStore';
 import { useArticleStore } from '@/stores/articleStore';
 import { useUserInfoStore } from '@/stores/userInfoStore';
-import { defineComponent } from 'vue';
-import ArticleItem from '@/shared/articleItem.vue';
-import HistoryFormulaItem from '@/shared/historyFormulaItem.vue';
+import { useStatusWindowStore } from '@/stores/statusWindowStore';
 import { API_Articles_Get, API_ArticleFile_Get, API_Article_Get_ByID } from '@/api/api';
-import type { Article } from '@/helpers/constants';
+import { StatusCodes, type Article } from '@/helpers/constants';
 
-export default defineComponent({
+import HistoryFormulaItem from '@/shared/historyFormulaItem.vue';
+import UpdateMyFormula from "@/entities/updateMyFormula.vue";
+import UploadArticle from "@/entities/uploadArticle.vue";
+import ArticleItem from '@/shared/articleItem.vue';
+
+export default {
   components: {
+    UploadArticle,
+    UpdateMyFormula,
     ArticleItem,
     HistoryFormulaItem,
   },
@@ -214,11 +226,12 @@ export default defineComponent({
       newScience: '', 
       sciences: [] as string[],
       newSciencePart: '',
-      scienceParts: [] as string[]
+      scienceParts: [] as string[],
+      showUploadArticleMW: false,
     }
   },
   computed: {
-    ...mapStores(useUserInfoStore, useBlurStore, useArticleStore),
+    ...mapStores(useUserInfoStore, useBlurStore, useArticleStore, useStatusWindowStore),
   },
   mounted() {
     this.getArticles();
@@ -233,9 +246,9 @@ export default defineComponent({
       try {
         const response = await API_Articles_Get(); // Вызов API
         this.filteredArticles = response;
-        this.articles = response; // Сохранение данных студентов в состоянии компонента
+        this.articles = response;
       } catch (error) {
-        console.error('Ошибка при получении студентов:', error);
+        this.statusWindowStore.showStatusWindow(StatusCodes.error, 'Что-то пошло не так при получении статей:');
       }
     },
     async getMyArticles() {
@@ -243,34 +256,26 @@ export default defineComponent({
         const response = await API_Article_Get_ByID(this.userInfoStore.userID!); // Вызов API
         this.myArticles = response;
       } catch (error) {
-        console.error('Ошибка при получении студентов:', error);
+        this.statusWindowStore.showStatusWindow(StatusCodes.error, 'Что-то пошло не так при получении Ваших статей:');
       }
     },
+    showUploadArticle() {
+      this.showUploadArticleMW = true;
+      this.blurStore.showBlur = true;
+    },
+    hideUploadArticle() {
+      this.showUploadArticleMW = false;
+      this.blurStore.showBlur = false;
+    },
     filter() {
-      
-      console.log('!!!Current sciences array:', this.sciences);
-      console.log('Starting filter with sciences:', this.sciences);
-      console.log('Starting filter with scienceParts:', this.scienceParts);
-
       this.filteredArticles = this.articles.filter(article => {
-        console.log(`Article science: ${article.science}`);
         const matchesTitle = !this.filters.articleTitle || article.title.toLowerCase().includes(this.filters.articleTitle.toLowerCase());
         const matchesAuthor = !this.filters.author || article.full_name.toLowerCase().includes(this.filters.author.toLowerCase());
         const matchesScience = (this.sciences.length === 0 || this.sciences.some(science => article.science.toLowerCase().includes(science.toLowerCase())));
         const matchesSection = (this.scienceParts.length === 0 || this.scienceParts.some(part => article.section.toLowerCase().includes(part.toLowerCase())));
 
-
-        console.log('Matches for article', article.title, '->', {
-          matchesTitle,
-          matchesAuthor,
-          matchesScience,
-          matchesSection
-        });
-
         return matchesTitle && matchesAuthor && matchesScience && matchesSection;
       });
-
-      console.log('Filtered Articles:', this.filteredArticles);
     },
     addScience() {
       if (this.newScience.trim() !== '') {
@@ -295,5 +300,5 @@ export default defineComponent({
       this.scienceParts.splice(index, 1);
     }
   }
-})
+}
 </script>

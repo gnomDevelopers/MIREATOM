@@ -69,7 +69,7 @@ import { useStatusWindowStore } from '@/stores/statusWindowStore';
 import { useUserInfoStore } from '@/stores/userInfoStore';
 import { ValidUserLogin, ValidUserPassword, ValidUserName} from '../helpers/validator';
 import { type IValidAnswer, StatusCodes, type IAPI_Login, type IAPI_Register } from '../helpers/constants';
-import {API_Login, API_Register} from '@/api/api';
+import { API_Login, API_Register } from '@/api/api';
 
 import loginInput from '../shared/loginInput.vue';
 import signupInput from "@/shared/signupInput.vue";
@@ -203,8 +203,6 @@ export default {
       if(value === '') this.regPassword.error = '';
     },
     checkRegRepeatPassword(value: string){
-      // this.regRepeatPassword = ValidUserPassword(value);
-      // if(value === '') this.regRepeatPassword.error = '';
       if(value !== this.regPassword.value) {
         this.regRepeatPassword = { value: '', error: 'Повторный пароль не совпадает!' };
         return;

@@ -41,16 +41,7 @@
 
       <div v-if="formulsStore.selectedFormulaID !== null" class="flex flex-col h-screen mb-4 mx-6 scrollable">
         <div class="flex flex-col">
-          <!-- <div class="flex justify-center mt-4 mx-12 rounded-lg bg-gray-300">
-            <p>Формула была изменена 15.02.2024</p>
-          </div>
-          <MyFormulaItem 
-            :id="selectedFormulaID"
-            :formula="selectedFormulaValue" 
-            :title="selectedFormulaTitle"
-          />
-           -->
-           <CommitFormulaHistory />
+          <CommitFormulaHistory />
         </div>
       </div>
       <div v-else class="flex flex-col items-center">
@@ -63,105 +54,103 @@
 </template>
   
 <script lang="ts">
-  import { mapStores } from 'pinia';
-  import { useBlurStore } from '@/stores/blurStore';
-  import { useStatusWindowStore } from '@/stores/statusWindowStore';
-  import { useUserInfoStore } from '@/stores/userInfoStore';
-  import { useFormulsStore } from '@/stores/formulsStore';
-  import { StatusCodes, type TMaybeNumber, type TMaybeString } from '@/helpers/constants';
-  
-  import MyFormulaItem from '@/shared/myFormulaItem.vue';
-  import { API_Get_Formula_Commits, API_Get_Formuls_History } from '@/api/api';
-  import UpdateMyFormula from '@/entities/updateMyFormula.vue';
+import { mapStores } from 'pinia';
+import { useBlurStore } from '@/stores/blurStore';
+import { useStatusWindowStore } from '@/stores/statusWindowStore';
+import { useUserInfoStore } from '@/stores/userInfoStore';
+import { useFormulsStore } from '@/stores/formulsStore';
+import { StatusCodes, type TMaybeNumber, type TMaybeString } from '@/helpers/constants';
+import { API_Get_Formuls_History } from '@/api/api';
+
+import MyFormulaItem from '@/shared/myFormulaItem.vue';
+import UpdateMyFormula from '@/entities/updateMyFormula.vue';
 import CommitFormulaHistory from '@/entities/commitFormulaHistory.vue';
 
-  export default {
-    components: {
-      MyFormulaItem,
-      UpdateMyFormula,
-      CommitFormulaHistory,
+export default {
+  components: {
+    MyFormulaItem,
+    UpdateMyFormula,
+    CommitFormulaHistory,
+  },
+  data() {
+    return {
+      formulaItems: [] as {id: number, title: string, value: string, user_id: number}[],
+
+      showUpdateFormulaMW: false,
+      updateFormulaID: -1,
+      updateFormulaName: '',
+      updateFormulaValue: '',
+
+      formulasPage: 1,
+
+      selectedFormulaCommits: [],
+    };
+  },
+  computed: {
+    ...mapStores(useBlurStore, useStatusWindowStore, useUserInfoStore, useFormulsStore),
+
+    getFormulsList(){
+      return this.formulsStore.formulsList;
+    }
+  },
+  mounted(){
+    if(this.userInfoStore.userID === null) return;
+    //получение первой страницы истории
+    API_Get_Formuls_History(this.userInfoStore.userID, this.formulasPage)
+    .then((response:any) => {
+      this.formulsStore.formulsList = response.data;
+
+      //если получено меньше 20 элементов - значит больше формул нет
+      if(response.data.length < 20) return;
+
+      //иначе находим элемент-обертку списка
+      const myFormulasHTML = document.getElementById('myFormulaScrollWrapper');
+      //если не нашли - выходим
+      if(myFormulasHTML === null) return;
+      //добавляем слушатель события скролл
+      myFormulasHTML.addEventListener('scroll', this.handleMyFromulaScroll);
+    })
+    .catch(error => {
+      this.statusWindowStore.showStatusWindow(StatusCodes.error, 'Что-то пошло не так при получении формул!');
+    })
+  },
+  methods: {
+    selectFormula(formulaID: number) {
+      this.formulsStore.selectedFormulaID = formulaID;
     },
-    data() {
-      return {
-        formulaItems: [] as {id: number, title: string, value: string, user_id: number}[],
-  
-        showUpdateFormulaMW: false,
-        updateFormulaID: -1,
-        updateFormulaName: '',
-        updateFormulaValue: '',
+    showEditFormula(formula: string, title: string, formulaID: number) {
+      this.updateFormulaValue = formula;  
+      this.updateFormulaName = title; 
+      this.updateFormulaID = formulaID;
 
-        formulasPage: 1,
-
-        selectedFormulaCommits: [],
-      };
+      this.showUpdateFormulaMW = true; 
+      this.blurStore.showBlur = true;
     },
-    computed: {
-      ...mapStores(useBlurStore, useStatusWindowStore, useUserInfoStore, useFormulsStore),
+    hideEditFormula() {
+      this.showUpdateFormulaMW = false; 
+      this.blurStore.showBlur = false;
+    },
+    handleMyFromulaScroll(event: any){
+      const scrollHeight = event.target.scrollHeight;
+      const scrollTop = event.target.scrollTop;
+      const clientHeight = event.target.clientHeight;
 
-      getFormulsList(){
-        return this.formulsStore.formulsList;
+      if (scrollTop + clientHeight >= scrollHeight) {    
+
+        if(this.userInfoStore.userID === null) return;
+
+        this.formulasPage++;
+        API_Get_Formuls_History(this.userInfoStore.userID, this.formulasPage)
+        .then((response:any) => {
+          //сохраняем полученные формулы в массив
+          for(const item of response.data){
+            this.formulsStore.formulsList.push(item);
+          }
+          //если получено меньше 20 элементов - значит больше формул нет
+          if(response.data.length < 20) event.target.removeEventListener('scroll', this.handleMyFromulaScroll);
+        });
       }
     },
-    mounted(){
-      if(this.userInfoStore.userID === null) return;
-      //получение первой страницы истории
-      API_Get_Formuls_History(this.userInfoStore.userID, this.formulasPage)
-      .then((response:any) => {
-        this.formulsStore.formulsList = response.data;
-
-        //если получено меньше 20 элементов - значит больше формул нет
-        if(response.data.length < 20) return;
-
-        //иначе находим элемент-обертку списка
-        const myFormulasHTML = document.getElementById('myFormulaScrollWrapper');
-        //если не нашли - выходим
-        if(myFormulasHTML === null) return;
-        //добавляем слушатель события скролл
-        myFormulasHTML.addEventListener('scroll', this.handleMyFromulaScroll);
-      })
-      .catch(error => {
-        this.statusWindowStore.showStatusWindow(StatusCodes.error, 'Что-то пошло не так при получении формул!');
-      })
-    },
-    methods: {
-      selectFormula(formulaID: number) {
-        this.formulsStore.selectedFormulaID = formulaID;
-      },
-      showEditFormula(formula: string, title: string, formulaID: number) {
-        this.updateFormulaValue = formula;  
-        this.updateFormulaName = title; 
-        this.updateFormulaID = formulaID;
-
-        this.showUpdateFormulaMW = true; 
-        this.blurStore.showBlur = true;
-      },
-      hideEditFormula() {
-        this.showUpdateFormulaMW = false; 
-        this.blurStore.showBlur = false;
-      },
-      handleMyFromulaScroll(event: any){
-        const scrollHeight = event.target.scrollHeight;
-        const scrollTop = event.target.scrollTop;
-        const clientHeight = event.target.clientHeight;
-
-        console.log("Scrolled!");
-        if (scrollTop + clientHeight >= scrollHeight) {    
-          console.log("Scrolled to bottom!");
-
-          if(this.userInfoStore.userID === null) return;
-
-          this.formulasPage++;
-          API_Get_Formuls_History(this.userInfoStore.userID, this.formulasPage)
-          .then((response:any) => {
-            //сохраняем полученные формулы в массив
-            for(const item of response.data){
-              this.formulsStore.formulsList.push(item);
-            }
-            //если получено меньше 20 элементов - значит больше формул нет
-            if(response.data.length < 20) event.target.removeEventListener('scroll', this.handleMyFromulaScroll);
-          });
-        }
-      },
-    }
-  };
-  </script>
+  }
+};
+</script>

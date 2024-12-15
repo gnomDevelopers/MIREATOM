@@ -1,7 +1,7 @@
 FROM golang:1.22.5-alpine AS builder
 
 # Установка необходимых инструментов
-RUN apk add --no-cache git make curl bash gcc musl-dev
+RUN apk add  --no-cache git make curl bash gcc musl-dev
 
 WORKDIR /app
 
@@ -17,7 +17,7 @@ RUN go build -ldflags="-s -w" -o /main ./cmd/main.go
 FROM alpine:3.18
 
 # Установка зависимостей для работы приложения
-RUN apk add --no-cache ca-certificates curl bash make
+RUN apk add --no-cache ca-certificates curl bash make pandoc
 
 
 # Копирование приложения, окружения и makefile

@@ -1,5 +1,6 @@
 package entities
 
+// FormulaHistory структура истории изменения формулы
 type FormulaHistory struct {
 	ID         int    `json:"id" db:"id"`
 	FormulaID  int    `json:"formula_id" db:"formula_id"`
