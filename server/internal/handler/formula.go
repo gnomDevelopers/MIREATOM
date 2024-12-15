@@ -83,40 +83,28 @@ func (h *Handler) GetFormulasFromArticleById(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 	fmt.Println(id)
-	dirName := "tmp"
-	if _, err := os.Stat(dirName); os.IsNotExist(err) {
-		err := os.Mkdir(dirName, 0755)
-		if err != nil {
-			return c.Status(500).JSON(fiber.Map{"error": err.Error()})
-		}
-	}
+	//path, err := postgres.DBArticleGetPath(h.db, id)
+	//if err != nil {
+	//	logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+	//		Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
+	//	logEvent.Msg(err.Error())
+	//	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	//}
+	//
+	//formulas, err = util.ParseFormulasFromFile(c, file)
+	//if err != nil {
+	//	logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
+	//		Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
+	//	logEvent.Msg(err.Error())
+	//	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	//}
+	//
+	//logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Info", Method: c.Method(),
+	//	Url: c.OriginalURL(), Status: fiber.StatusOK})
+	//logEvent.Msg("success")
+	//return c.Status(200).JSON(fiber.Map{"formulas": formulas})
 
-	var formulas []entities.GetFormulaFromArticleResponse
-	form, err := c.MultipartForm()
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
-	}
-	files := form.File["file"]
-	if len(files) == 0 {
-		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
-			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
-		logEvent.Msg("empty file")
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "empty file"})
-	}
-	for _, file := range files {
-		formulas, err = util.ParseFormulasFromFile(c, file)
-		if err != nil {
-			logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
-				Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
-			logEvent.Msg(err.Error())
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
-		}
-	}
-
-	logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Info", Method: c.Method(),
-		Url: c.OriginalURL(), Status: fiber.StatusOK})
-	logEvent.Msg("success")
-	return c.Status(200).JSON(fiber.Map{"formulas": formulas})
+	return c.Status(200).JSON("")
 }
 
 // CreateFormula
@@ -412,7 +400,7 @@ func (h *Handler) FormulaRecognize(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "failed to save file"})
 	}
 
-	externalAPIURL := fmt.Sprintf("http://%s/image/process?image_path=%s", config.LlamaAPI, savePath)
+	externalAPIURL := fmt.Sprintf("%s/image/process?image_path=%s", config.LlamaAPI, savePath)
 
 	// Send the request to the external API
 	resp, err := http.Get(externalAPIURL)
