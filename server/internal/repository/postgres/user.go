@@ -7,6 +7,7 @@ import (
 	"server/internal/entities"
 )
 
+// DBUserGetById получение пользователя по айди
 func DBUserGetById(db *sqlx.DB, id int64) (*entities.User, error) {
 	user := entities.User{}
 	query := `SELECT id, name, surname, third_name, email, password FROM users WHERE id = $1`
@@ -18,6 +19,7 @@ func DBUserGetById(db *sqlx.DB, id int64) (*entities.User, error) {
 	return &user, nil
 }
 
+// DBUserDataGetById получение данных пользователя по его айди
 func DBUserDataGetById(db *sqlx.DB, id int64) (*entities.UserData, error) {
 	user := entities.UserData{}
 	query := `SELECT id, name, surname, third_name, email FROM users WHERE id = $1`
@@ -29,6 +31,7 @@ func DBUserDataGetById(db *sqlx.DB, id int64) (*entities.UserData, error) {
 	return &user, nil
 }
 
+// DBUserGetByEmail получение пользователя по email
 func DBUserGetByEmail(db *sqlx.DB, email string) (*entities.User, error) {
 	user := entities.User{}
 	query := `SELECT id, name, surname, third_name, email, password FROM users WHERE email = $1`
@@ -41,6 +44,7 @@ func DBUserGetByEmail(db *sqlx.DB, email string) (*entities.User, error) {
 
 }
 
+// DBUserExists проверка существования пользователя в бд (по почте)
 func DBUserExists(db *sqlx.DB, email string) (bool, error) {
 	exists := 0
 	query := `SELECT 1 FROM users WHERE email = $1 LIMIT 1`
@@ -55,6 +59,7 @@ func DBUserExists(db *sqlx.DB, email string) (bool, error) {
 	return false, nil
 }
 
+// DBUserExistsID проверка существования пользователя в бд (по айди)
 func DBUserExistsID(db *sqlx.DB, id int64) (bool, error) {
 	exists := 0
 	query := `SELECT 1 FROM users WHERE id = $1 LIMIT 1`
@@ -69,6 +74,7 @@ func DBUserExistsID(db *sqlx.DB, id int64) (bool, error) {
 	return false, nil
 }
 
+// DBUserCreate создание пользователя
 func DBUserCreate(db *sqlx.DB, user *entities.User) (*entities.User, error) {
 	query := `INSERT INTO users (email, password, name, surname, third_name)
 	VALUES (:email, :password, :name, :surname, :third_name) RETURNING id`

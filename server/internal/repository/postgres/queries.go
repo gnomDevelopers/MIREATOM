@@ -1,5 +1,6 @@
 package postgres
 
+// запросы создания таблиц
 const (
 	createUserTable = `
 		CREATE TABLE IF NOT EXISTS users (

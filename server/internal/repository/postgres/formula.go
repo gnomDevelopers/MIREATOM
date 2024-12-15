@@ -9,6 +9,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+// DBFormulaExists проверка существования формулы в бд
 func DBFormulaExists(db *sqlx.DB, email string) (bool, error) {
 	exists := 0
 	query := `SELECT 1 FROM formula WHERE value = $1 LIMIT 1`
@@ -23,6 +24,7 @@ func DBFormulaExists(db *sqlx.DB, email string) (bool, error) {
 	return false, nil
 }
 
+// DBFormulaGetByID получение формулы по айди
 func DBFormulaGetByID(db *sqlx.DB, id int64) (*entities.Formula, error) {
 	formula := entities.Formula{}
 	query := `SELECT id, title, value, user_id FROM formula WHERE id = $1`
@@ -34,6 +36,7 @@ func DBFormulaGetByID(db *sqlx.DB, id int64) (*entities.Formula, error) {
 	return &formula, nil
 }
 
+// DBFormulaGetByUserID получение всех формул пользователя по его айди
 func DBFormulaGetByUserID(db *sqlx.DB, userID int64) (*[]entities.Formula, error) {
 	formulas := []entities.Formula{}
 	query := `SELECT id, title, value, user_id FROM formula WHERE user_id = $1`
@@ -45,6 +48,7 @@ func DBFormulaGetByUserID(db *sqlx.DB, userID int64) (*[]entities.Formula, error
 	return &formulas, nil
 }
 
+// DBFormulaCreate создание формулы
 func DBFormulaCreate(db *sqlx.DB, formula *entities.Formula) (*entities.Formula, error) {
 	tx, err := db.Beginx()
 	if err != nil {
@@ -91,6 +95,7 @@ func DBFormulaCreate(db *sqlx.DB, formula *entities.Formula) (*entities.Formula,
 	return formula, nil
 }
 
+// DBFormulaUpdate Обновление формулы
 func DBFormulaUpdate(db *sqlx.DB, formula *entities.UpdateFormulaRequest) error {
 	tx, err := db.Beginx()
 	if err != nil {
@@ -135,6 +140,7 @@ func DBFormulaUpdate(db *sqlx.DB, formula *entities.UpdateFormulaRequest) error 
 	return nil
 }
 
+// DBFormulaDelete удаление формулы
 func DBFormulaDelete(db *sqlx.DB, formulaID int64) error {
 	query := `DELETE FROM formula WHERE id = $1`
 
@@ -145,6 +151,7 @@ func DBFormulaDelete(db *sqlx.DB, formulaID int64) error {
 	return nil
 }
 
+// DBFormulaHistoryGet получение истории ввода формул
 func DBFormulaHistoryGet(db *sqlx.DB, userID int64, pageNumber int64) (*[]entities.Formula, error) {
 	formulas := []entities.Formula{}
 	query := `

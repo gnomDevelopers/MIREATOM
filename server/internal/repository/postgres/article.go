@@ -7,6 +7,7 @@ import (
 	"server/internal/entities"
 )
 
+// DBArticleExists проверка на существование статьи в бд
 func DBArticleExists(db *sqlx.DB, title string, userId int) (bool, error) {
 	exists := 0
 	query := `SELECT 1 FROM articles WHERE title = $1 AND user_id = $2 LIMIT 1`
@@ -21,6 +22,7 @@ func DBArticleExists(db *sqlx.DB, title string, userId int) (bool, error) {
 	return false, nil
 }
 
+// DBArticleCreate создание статьи
 func DBArticleCreate(db *sqlx.DB, article *entities.Article) (*entities.Article, error) {
 	query := `INSERT INTO articles (user_id, title, science, section, path)
 	VALUES (:user_id, :title, :science, :section, :path) RETURNING id`
@@ -37,6 +39,7 @@ func DBArticleCreate(db *sqlx.DB, article *entities.Article) (*entities.Article,
 	return article, nil
 }
 
+// DBArticleGetAll получение всех статей
 func DBArticleGetAll(db *sqlx.DB) (*[]entities.ArticleInfo, error) {
 	articles := []entities.ArticleInfo{}
 	query := `
@@ -53,6 +56,7 @@ func DBArticleGetAll(db *sqlx.DB) (*[]entities.ArticleInfo, error) {
 	return &articles, nil
 }
 
+// DBArticleGetByUserId получение всех статей одного пользователя
 func DBArticleGetByUserId(db *sqlx.DB, id int) (*[]entities.ArticleInfo, error) {
 	articles := []entities.ArticleInfo{}
 	query := `
@@ -69,6 +73,7 @@ func DBArticleGetByUserId(db *sqlx.DB, id int) (*[]entities.ArticleInfo, error) 
 	return &articles, nil
 }
 
+// DBArticleGetPath получение пути сохраненной статьи
 func DBArticleGetPath(db *sqlx.DB, id int) (string, error) {
 	var path string
 	query := `SELECT path FROM articles WHERE id = $1`
@@ -80,6 +85,7 @@ func DBArticleGetPath(db *sqlx.DB, id int) (string, error) {
 	return path, nil
 }
 
+// DBArticleUpdate обновление статьи
 func DBArticleUpdate(db *sqlx.DB, article *entities.UpdateArticleRequest) error {
 	query := `UPDATE articles SET title = $1, science = $2, section = $3 WHERE id = $4`
 
@@ -90,6 +96,7 @@ func DBArticleUpdate(db *sqlx.DB, article *entities.UpdateArticleRequest) error 
 	return nil
 }
 
+// DBArticleUpdatePath обновление пути сохраненной статьи
 func DBArticleUpdatePath(db *sqlx.DB, path string, id int) error {
 	query := `UPDATE articles SET path = $1 WHERE id = $2`
 
@@ -100,6 +107,7 @@ func DBArticleUpdatePath(db *sqlx.DB, path string, id int) error {
 	return nil
 }
 
+// DBArticleDelete  удаление статьи
 func DBArticleDelete(db *sqlx.DB, articleId int64) error {
 	query := `DELETE FROM articles WHERE id = $1`
 
