@@ -89,7 +89,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      llm-service:
+      ml_api:
         condition: service_started
     networks:
       - dev
@@ -106,12 +106,12 @@ services:
       - "3000:3000"
     depends_on:
       - backend
-      - llm-service
+      - ml_api
     networks:
       - dev
 
-  llm-service:
-    container_name: ml-api
+  ml_api:
+    container_name: ml_api
     build:
       context: ./llm
       dockerfile: Dockerfile
@@ -131,5 +131,3 @@ services:
     volumes:
       - ./.ollama:/root/.ollama
     restart: unless-stopped
-    command:
-      ["sh", "-c", "/bin/ollama serve && /bin/ollama run llama3.2-vision:11b"]
