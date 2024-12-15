@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"path/filepath"
 	"server/internal/config"
 	"server/internal/entities"
 	"server/internal/log"
@@ -389,8 +388,7 @@ func (h *Handler) FormulaRecognize(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "only JPEG images are allowed"})
 	}
 
-	saveDir := "/.tmp"
-	savePath := filepath.Join(saveDir, file.Filename)
+	savePath := file.Filename
 
 	if err := c.SaveFile(file, savePath); err != nil {
 		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
@@ -530,7 +528,3 @@ func (h *Handler) FormulaAnalysis(c *fiber.Ctx) error {
 	logEvent.Msg("success")
 	return c.Status(fiber.StatusOK).JSON(apiResponse)
 }
-
-//func FormulaAnalysis(c *fiber.Ctx) error {
-//
-//}
