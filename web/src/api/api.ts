@@ -135,26 +135,26 @@ export function API_Article_Get_ByID(userID: number): Promise<Article[]>{
 };
 
 //добавление статьи пользователем
-export function API_Article_Post(data:{title: string, science: string, section: string, file: File}): Promise<Article[]>{
+export function API_Article_Post(formData: FormData): Promise<Article[]>{
   return new Promise((resolve, reject) => {
-    axios.post(`${API}/auth/article`, data, {
+    axios.post(`${API}/auth/article`, formData, {
       headers: {
         Authorization: 'Bearer ' + GET_COOKIE('access_token'),
       }
     })
     .then(response => {
-      if(DEVMODE) console.log('Article post success: ', response);
+      if(DEVMODE) console.log('Article create success: ', response);
       resolve(response.data);
     })
     .catch(error => {
-      if(DEVMODE) console.log('Article post error: ', error);
+      if(DEVMODE) console.log('Article create error: ', error);
       reject(error);
     });
   });
 };
 
-
 //////// ФОРМУЛЫ ////////
+
 //сохранение формулы
 export function API_Save_Formula(data:{title: string, value: string}){
   return new Promise((resolve, reject) => {
@@ -226,4 +226,3 @@ export function API_Get_Formula_Commits(formulaID: number){
     })
   });
 };
-

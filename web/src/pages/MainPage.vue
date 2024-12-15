@@ -517,12 +517,6 @@ export default {
         const element = range.commonAncestorContainer;
         const startOffset = range.startOffset;
         const endOffset = range.endOffset;
-
-        // Log the information
-        console.log("Element:", element.parentElement!.innerHTML);
-        // console.log("Selection:", selection);
-        console.log("Start Offset:", startOffset);
-        console.log("End Offset:", endOffset);
       }
     });
   },
@@ -682,7 +676,6 @@ export default {
       const clientHeight = event.target.clientHeight;
 
       if (scrollTop + clientHeight >= scrollHeight) {    
-        console.log("Scrolled to bottom!");
 
         if(this.userInfoStore.userID === null) return;
 

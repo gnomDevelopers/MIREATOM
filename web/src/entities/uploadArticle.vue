@@ -14,31 +14,31 @@
         <div class="flex flex-col gap-y-2 w-full py-2 px-4 rounded-lg bg-gray-200">
           <label class="text-lg cursor-pointer" for="articleTitle">Введите название статьи</label>
           <input
-              type="text"
-              id="articleTitle"
-              placeholder="Название статьи"
-              v-model="uploadArticleTitle"
-              class="text-lg px-2 py-1 outline-none rounded border border-solid border-gray-300 focus:border-sky-500"/>
+            type="text"
+            id="articleTitle"
+            placeholder="Название статьи"
+            v-model="uploadArticleTitle"
+            class="text-lg px-2 py-1 outline-none rounded border border-solid border-gray-300 focus:border-sky-500"/>
         </div>
 
         <div class="flex flex-col gap-y-2 w-full py-2 px-4 rounded-lg bg-gray-200">
           <label class="text-lg cursor-pointer" for="articleScience">Введите название науки для статьи</label>
           <input
-              type="text"
-              id="articleScience"
-              placeholder="Наука"
-              v-model="uploadArticleScience"
-              class="text-lg px-2 py-1 outline-none rounded border border-solid border-gray-300 focus:border-sky-500"/>
+            type="text"
+            id="articleScience"
+            placeholder="Наука"
+            v-model="uploadArticleScience"
+            class="text-lg px-2 py-1 outline-none rounded border border-solid border-gray-300 focus:border-sky-500"/>
         </div>
 
         <div class="flex flex-col gap-y-2 w-full py-2 px-4 rounded-lg bg-gray-200">
           <label class="text-lg cursor-pointer" for="articleSection">Введите название раздела науки для статьи</label>
           <input
-              type="text"
-              id="articleSection"
-              placeholder="Раздел науки"
-              v-model="uploadArticleSection"
-              class="text-lg px-2 py-1 outline-none rounded border border-solid border-gray-300 focus:border-sky-500"/>
+            type="text"
+            id="articleSection"
+            placeholder="Раздел науки"
+            v-model="uploadArticleSection"
+            class="text-lg px-2 py-1 outline-none rounded border border-solid border-gray-300 focus:border-sky-500"/>
         </div>
 
         <article @click="() => {$refs.uploadArticleFile.click()}" class="self-end flex flex-row gap-x-2 items-center btn cursor-pointer mr-10 rounded-xl p-2">
@@ -49,14 +49,15 @@
           </div>
           <p class="text-xl text-white select-none">Загрузить файл (.docx или .tex)</p>
           <input
-              type="file"
-              class="appearance-none w-0 h-0 hidden"
-              ref="uploadArticleFile"
-              @change="handleFileSelection"
+            type="file"
+            class="appearance-none w-0 h-0 hidden"
+            ref="uploadArticleFile"
+            accept=".tex, .docx"
+            @change="handleFileSelection"
           />
         </article>
 
-        <div @click="uploadArticle" class="flex flex-row gap-x-2 items-center btn cursor-pointer rounded-lg px-2 py-1 my-2">
+        <div @click="uploadArticle" class="flex flex-row gap-x-2 items-center btn cursor-pointer rounded-lg px-2 py-1 mt-2">
           <svg class="w-9 h-9" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M34 42V26H14V42M14 6V16H30M38 42H10C8.93913 42 7.92172 41.5786 7.17157 40.8284C6.42143 40.0783 6 39.0609 6 38V10C6 8.93913 6.42143 7.92172 7.17157 7.17157C7.92172 6.42143 8.93913 6 10 6H32L42 16V38C42 39.0609 41.5786 40.0783 40.8284 40.8284C40.0783 41.5786 39.0609 42 38 42Z" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
@@ -72,26 +73,10 @@ import { mapStores } from 'pinia';
 import { useStatusWindowStore } from '@/stores/statusWindowStore';
 import { useFormulsStore } from '@/stores/formulsStore';
 import { StatusCodes } from '@/helpers/constants';
-import {API_Article_Post, API_Update_Formula} from '@/api/api';
+import { API_Article_Post } from '@/api/api';
 
 export default {
-  emits: ['closeWindow'],
-  props: {
-
-    science: {
-      type: String,
-      required: true,
-    },
-    section: {
-      type: String,
-      required: true,
-    },
-    title: {
-      type: String,
-      required: true,
-    },
-
-  },
+  emits: ['closeWindow', 'updateArticles'],
   data() {
     return {
       uploadArticleTitle: '',
@@ -107,10 +92,16 @@ export default {
 
   methods: {
     handleFileSelection(event: Event) {
+      //очевидно
       const input = event.target as HTMLInputElement;
       if (input.files && input.files[0]) {
+        if(!input.files[0].name.endsWith('.tex') && !input.files[0].name.endsWith('.docx')){
+          this.statusWindowStore.showStatusWindow(StatusCodes.error, 'Неверное расширение файла!');
+          return;
+        }
         this.uploadArticleFile = input.files[0]; // Сохраняем выбранный файл
       }
+
     },
     uploadArticle() {
       //проверка на пустое название статьи
@@ -134,32 +125,32 @@ export default {
         return;
       }
 
+      //создаем объект formData для отправки файла стратьи
+      const formData = new FormData();
+      formData.append('title', this.uploadArticleTitle);
+      formData.append('science', this.uploadArticleScience);
+      formData.append('section', this.uploadArticleSection);
+      formData.append('file', this.uploadArticleFile, this.uploadArticleFile.name);
 
-      //создаем объект для отправки
-      const data = {
-        title: this.uploadArticleTitle,
-        science: this.uploadArticleScience,
-        section: this.uploadArticleSection,
-        file: this.uploadArticleFile,
-      };
       //выводим окно отправки
       const stID = this.statusWindowStore.showStatusWindow(StatusCodes.loading, 'Добавляем статью...', -1);
+
       //запрос на изменение
-      API_Article_Post(data)
-          .then((response: any) => {
-            //если все ок - выводим сообщение что все ок
-            this.statusWindowStore.deteleStatusWindow(stID);
-            this.statusWindowStore.showStatusWindow(StatusCodes.success, 'Статья добавлена!');
-            //добавляем статью
-            //!!!!!!!сделать
-            //закрываем окно создания статьи
-            this.$emit('closeWindow');
-          })
-          .catch(error => {
-            //если что-то не так - сообщаем об ошибке
-            this.statusWindowStore.deteleStatusWindow(stID);
-            this.statusWindowStore.showStatusWindow(StatusCodes.error, 'Что-то пошло не так при добавлении статьи!');
-          })
+      API_Article_Post(formData)
+      .then((response: any) => {
+        //если все ок - выводим сообщение что все ок
+        this.statusWindowStore.deteleStatusWindow(stID);
+        this.statusWindowStore.showStatusWindow(StatusCodes.success, 'Статья добавлена!');
+        //добавляем статью
+        this.$emit('updateArticles');
+        //закрываем окно создания статьи
+        this.$emit('closeWindow');
+      })
+      .catch(error => {
+        //если что-то не так - сообщаем об ошибке
+        this.statusWindowStore.deteleStatusWindow(stID);
+        this.statusWindowStore.showStatusWindow(StatusCodes.error, 'Что-то пошло не так при добавлении статьи!');
+      });
     }
   }
 };

@@ -32,7 +32,6 @@ import { mapStores } from 'pinia';
 import { useStatusWindowStore } from '@/stores/statusWindowStore';
 import { useFormulsStore } from '@/stores/formulsStore';
 import { StatusCodes } from '@/helpers/constants';
-import { API_Get_Formula_Commits } from '@/api/api';
 
 export default {
   computed: {

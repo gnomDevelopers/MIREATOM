@@ -34,7 +34,6 @@ export const useUserInfoStore = defineStore('userInfo', {
       // устанавливаем авторизацию, чтобы роутер перекинул на страницы 
       this.authorized = true;
       this.userID = response.data.id;
-      console.log('userID: ', this.userID);
       //получаем инфу о пользователе
       this.getUserData();
     },

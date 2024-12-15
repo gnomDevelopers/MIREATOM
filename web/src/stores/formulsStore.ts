@@ -30,10 +30,8 @@ export const useFormulsStore = defineStore('formuls', {
         this.selectedFormulaCommits = [];
         for(const commit of response.data){
           try{
-            console.log('try to parse: ', commit.difference);
             //пытаемсчя распарсить строку в JSON
             const diff = await JSON.parse(commit.difference);
-            console.log(diff);
 
             const newFormulaCommit = {
               id: commit.id,
@@ -59,8 +57,6 @@ export const useFormulsStore = defineStore('formuls', {
             newFormulaCommit.value = commitValue;
             //сохраняем новую latex формулу
             newFormulaCommit.newValue = newValue;
-
-            console.log('commitValue: ', commitValue);
             //добавляем коммит в списко коммитов
             this.selectedFormulaCommits.push(newFormulaCommit);
           }

@@ -25,10 +25,9 @@
     <!-- модальное окно для загрузки статьи -->
 
     <!-- Исправить ошибки!! -->
-<!--    <Transition>-->
-
-<!--      <UploadArticle v-if="showUploadArticleMW" :title="uploadArticleTitle" :science="uploadArticleScience" :section="uploadArticleSection" :file="uploadArticleFile" @close-window="hideUploadArticle"/>-->
-<!--    </Transition>-->
+    <Transition>
+      <UploadArticle v-if="showUploadArticleMW" @close-window="hideUploadArticle" @update-articles="() => { getArticles(); getMyArticles(); }"/>
+    </Transition>
 
     <div class="flex flex-row w-full h-full items-start">
 
@@ -197,15 +196,16 @@ import { mapStores } from 'pinia';
 import { useBlurStore } from '@/stores/blurStore';
 import { useArticleStore } from '@/stores/articleStore';
 import { useUserInfoStore } from '@/stores/userInfoStore';
-import { defineComponent } from 'vue';
-import ArticleItem from '@/shared/articleItem.vue';
-import HistoryFormulaItem from '@/shared/historyFormulaItem.vue';
+import { useStatusWindowStore } from '@/stores/statusWindowStore';
 import { API_Articles_Get, API_ArticleFile_Get, API_Article_Get_ByID } from '@/api/api';
-import type { Article } from '@/helpers/constants';
+import { StatusCodes, type Article } from '@/helpers/constants';
+
+import HistoryFormulaItem from '@/shared/historyFormulaItem.vue';
 import UpdateMyFormula from "@/entities/updateMyFormula.vue";
 import UploadArticle from "@/entities/uploadArticle.vue";
+import ArticleItem from '@/shared/articleItem.vue';
 
-export default defineComponent({
+export default {
   components: {
     UploadArticle,
     UpdateMyFormula,
@@ -231,7 +231,7 @@ export default defineComponent({
     }
   },
   computed: {
-    ...mapStores(useUserInfoStore, useBlurStore, useArticleStore),
+    ...mapStores(useUserInfoStore, useBlurStore, useArticleStore, useStatusWindowStore),
   },
   mounted() {
     this.getArticles();
@@ -246,9 +246,9 @@ export default defineComponent({
       try {
         const response = await API_Articles_Get(); // Вызов API
         this.filteredArticles = response;
-        this.articles = response; // Сохранение данных студентов в состоянии компонента
+        this.articles = response;
       } catch (error) {
-        console.error('Ошибка при получении студентов:', error);
+        this.statusWindowStore.showStatusWindow(StatusCodes.error, 'Что-то пошло не так при получении статей:');
       }
     },
     async getMyArticles() {
@@ -256,43 +256,26 @@ export default defineComponent({
         const response = await API_Article_Get_ByID(this.userInfoStore.userID!); // Вызов API
         this.myArticles = response;
       } catch (error) {
-        console.error('Ошибка при получении студентов:', error);
+        this.statusWindowStore.showStatusWindow(StatusCodes.error, 'Что-то пошло не так при получении Ваших статей:');
       }
     },
     showUploadArticle() {
-
-       this.showUploadArticleMW = true;
-       this.blurStore.showBlur = true;
+      this.showUploadArticleMW = true;
+      this.blurStore.showBlur = true;
     },
     hideUploadArticle() {
       this.showUploadArticleMW = false;
       this.blurStore.showBlur = false;
     },
     filter() {
-      
-      console.log('!!!Current sciences array:', this.sciences);
-      console.log('Starting filter with sciences:', this.sciences);
-      console.log('Starting filter with scienceParts:', this.scienceParts);
-
       this.filteredArticles = this.articles.filter(article => {
-        console.log(`Article science: ${article.science}`);
         const matchesTitle = !this.filters.articleTitle || article.title.toLowerCase().includes(this.filters.articleTitle.toLowerCase());
         const matchesAuthor = !this.filters.author || article.full_name.toLowerCase().includes(this.filters.author.toLowerCase());
         const matchesScience = (this.sciences.length === 0 || this.sciences.some(science => article.science.toLowerCase().includes(science.toLowerCase())));
         const matchesSection = (this.scienceParts.length === 0 || this.scienceParts.some(part => article.section.toLowerCase().includes(part.toLowerCase())));
 
-
-        console.log('Matches for article', article.title, '->', {
-          matchesTitle,
-          matchesAuthor,
-          matchesScience,
-          matchesSection
-        });
-
         return matchesTitle && matchesAuthor && matchesScience && matchesSection;
       });
-
-      console.log('Filtered Articles:', this.filteredArticles);
     },
     addScience() {
       if (this.newScience.trim() !== '') {
@@ -317,5 +300,5 @@ export default defineComponent({
       this.scienceParts.splice(index, 1);
     }
   }
-})
+}
 </script>
