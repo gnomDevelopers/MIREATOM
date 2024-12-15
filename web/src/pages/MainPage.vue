@@ -232,8 +232,6 @@
             <p class="text-lg">15.12.2024</p>
           </div>
         </article>
-
-        <button @click="APIRequest" class="rounded-xl px-4 py-2 btn text-white text-xl">Кинуть Z</button>
       </section>
     </div>
   </div>
@@ -246,7 +244,7 @@ import { useCalculatorStore } from '@/stores/calculatorStore';
 import { useBlurStore } from '@/stores/blurStore';
 import { useStatusWindowStore } from '@/stores/statusWindowStore';
 import { useUserInfoStore } from '@/stores/userInfoStore';
-import { API_Get_Formuls_History, API_Health, API_Save_Formula } from '@/api/api';
+import { API_Get_Formuls_History, API_Save_Formula } from '@/api/api';
 import { garbageCollector, getFirstMrow, insertEmptyElementsInHTML, insertHTMLBeforeCursor, parseLatexFromHTML, renderKatex } from '@/helpers/latexHTMLParser';
 import { StatusCodes } from '@/helpers/constants';
 import { nextTick } from 'vue';
@@ -581,9 +579,6 @@ export default {
         //настраиваем скроллы у формулы
         this.handleFormulaWindowSize();
       })
-    },
-    APIRequest(){
-      API_Health();
     },
     handleFormulaWindowSize(){
       if(this.formulaContainer!.offsetWidth > 500){
