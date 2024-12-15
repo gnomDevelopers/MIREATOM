@@ -197,7 +197,7 @@ import { useBlurStore } from '@/stores/blurStore';
 import { useArticleStore } from '@/stores/articleStore';
 import { useUserInfoStore } from '@/stores/userInfoStore';
 import { useStatusWindowStore } from '@/stores/statusWindowStore';
-import { API_Articles_Get, API_ArticleFile_Get, API_Article_Get_ByID } from '@/api/api';
+import { API_Articles_Get, API_Article_Get_ByID } from '@/api/api';
 import { StatusCodes, type Article } from '@/helpers/constants';
 
 import HistoryFormulaItem from '@/shared/historyFormulaItem.vue';

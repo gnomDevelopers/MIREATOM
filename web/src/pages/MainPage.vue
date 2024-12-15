@@ -77,10 +77,11 @@
               @focusout="updateFormula">
             </span>
 
-            <div class="btn rounded-r-lg p-1 cursor-pointer">
+            <div @click="$refs.selectPhotoInput.click()" class="btn rounded-r-lg p-1 cursor-pointer">
               <svg class="w-9 h-9" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M18.8519 21.4883V29.4795C18.8519 33.4283 22.0531 36.6295 26.0019 36.6295C29.9508 36.6295 33.1519 33.4283 33.1519 29.4795V19.3854C33.1519 17.2948 31.4572 15.6001 29.3667 15.6001C27.2761 15.6001 25.5814 17.2948 25.5814 19.3854V29.0589M14.2998 5.20007H37.7003C40.5722 5.20007 42.9004 7.52825 42.9003 10.4002L42.8997 41.6002C42.8997 44.472 40.5716 46.8001 37.6997 46.8L14.2996 46.8C11.4277 46.7999 9.09962 44.4718 9.09964 41.5999L9.09984 10.4C9.09986 7.52818 11.428 5.20007 14.2998 5.20007Z" stroke="white" stroke-width="4" stroke-linecap="round"/>
               </svg>
+              <input type="file" class=" appearance-none w-0 h-0 hidden" access=".jpeg, .jpg" ref="selectPhotoInput" @input="sendPhoto"/>
             </div>
           </div>
         </article>
@@ -244,8 +245,8 @@ import { useCalculatorStore } from '@/stores/calculatorStore';
 import { useBlurStore } from '@/stores/blurStore';
 import { useStatusWindowStore } from '@/stores/statusWindowStore';
 import { useUserInfoStore } from '@/stores/userInfoStore';
-import { API_Get_Formuls_History, API_Save_Formula } from '@/api/api';
-import { garbageCollector, getFirstMrow, insertEmptyElementsInHTML, insertHTMLBeforeCursor, parseLatexFromHTML, renderKatex } from '@/helpers/latexHTMLParser';
+import { API_Get_Formula_From_Photo, API_Get_Formuls_History, API_Save_Formula } from '@/api/api';
+import { garbageCollector, insertHTMLBeforeCursor, parseLatexFromHTML } from '@/helpers/latexHTMLParser';
 import { StatusCodes } from '@/helpers/constants';
 import { nextTick } from 'vue';
 
@@ -481,6 +482,8 @@ export default {
 
       formulaHistoryList: [] as string[],
       formulaHistoryPage: 1,
+
+      photoFile: null as File | null, // Для файла
     }
   },
   computed: {
@@ -507,17 +510,6 @@ export default {
       displayMode: false,
       output: 'mathml',
       trust: false,
-    });
-
-    document.addEventListener('selectionchange', () => {
-      const selection = document.getSelection();
-
-      if (selection && selection.rangeCount > 0) {
-        const range = selection.getRangeAt(0);
-        const element = range.commonAncestorContainer;
-        const startOffset = range.startOffset;
-        const endOffset = range.endOffset;
-      }
     });
   },
   methods: {
@@ -700,6 +692,37 @@ export default {
         this.statusWindowStore.showStatusWindow(StatusCodes.error, 'Что-то пошло не так при копировании формулы!');
         console.error('Could not copy text: ', err);
       });
+    },
+    sendPhoto(event:any){
+      //подготовка к отправке фото на бек
+      const input = event.target as HTMLInputElement;
+      if (input.files && input.files[0]) {
+        if(!input.files[0].name.endsWith('.jpeg') && !input.files[0].name.endsWith('.jpg')){
+          this.statusWindowStore.showStatusWindow(StatusCodes.error, 'Неверное расширение файла!');
+          return;
+        }
+        this.photoFile = input.files[0]; // Сохраняем выбранный файл
+
+        const formData = new FormData();
+        formData.append('file', this.photoFile, this.photoFile.name);
+
+        const stID = this.statusWindowStore.showStatusWindow(StatusCodes.loading, 'Распознаем формулу на фото...', -1);
+
+        API_Get_Formula_From_Photo(formData)
+        .then((response: any) => {
+          this.statusWindowStore.deteleStatusWindow(stID);
+          this.statusWindowStore.showStatusWindow(StatusCodes.success, 'Формула распознана!');
+
+          //отключаем перерисовку html при изменении формулы
+          this.needUpdateformula = false;
+          //обновляем формулу
+          this.formula = response.data.formula;
+        })
+        .catch(error => {
+          this.statusWindowStore.deteleStatusWindow(stID);
+          this.statusWindowStore.showStatusWindow(StatusCodes.error, 'Неудалось распознать формулу на фото!');
+        })
+      }
     }
   },
   watch: {

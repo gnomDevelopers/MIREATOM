@@ -226,3 +226,18 @@ export function API_Get_Formula_Commits(formulaID: number){
     })
   });
 };
+
+//распознавание формулы с фото
+export function API_Get_Formula_From_Photo(formData: FormData){
+  return new Promise((resolve, reject) => {
+    axios.post(`${API}/formula/recognize/`, formData)
+    .then(response => {
+      if(DEVMODE) console.log('Get formula from photo success: ', response);
+      resolve(response);
+    })
+    .catch(error => {
+      if(DEVMODE) console.log('Get formula from photo error: ', error);
+      reject(error);
+    })
+  });
+};
