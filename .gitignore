@@ -1,3 +1,6 @@
 .data
 database
 .idea
+.idea
+llm/__pycache__
+.DS_Store
