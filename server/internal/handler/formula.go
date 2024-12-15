@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"server/internal/config"
@@ -390,7 +391,7 @@ func (h *Handler) FormulaRecognize(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "only JPEG images are allowed"})
 	}
 
-	saveDir := "./tmp"
+	saveDir := "/.tmp"
 	savePath := filepath.Join(saveDir, file.Filename)
 
 	if err := c.SaveFile(file, savePath); err != nil {
@@ -400,17 +401,14 @@ func (h *Handler) FormulaRecognize(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "failed to save file"})
 	}
 
-	externalAPIURL := fmt.Sprintf("%s/image/process?image_path=%s", config.LlamaAPI, savePath)
-
-	// Send the request to the external API
-	resp, err := http.Get(externalAPIURL)
+	// Формируем запрос с query параметром image_path
+	respURL := fmt.Sprintf("%s/image/process?image_path=%s", config.LlamaAPI, url.QueryEscape(savePath))
+	resp, err := http.Get(respURL)
 	if err != nil {
 		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
 			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
 		logEvent.Err(err).Msg("failed to send request to external API")
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Failed to send request to external API",
-		})
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "failed to send request to external API"})
 	}
 	defer resp.Body.Close()
 
