@@ -14,6 +14,7 @@ import (
 	"strings"
 )
 
+// ParseFormulasFromFile Парсинг формул из загруженной статьи
 func ParseFormulasFromFile(c *fiber.Ctx, file *multipart.FileHeader) ([]entities.GetFormulaFromArticleResponse, error) {
 	var formulas []entities.GetFormulaFromArticleResponse
 	ext := filepath.Ext(file.Filename)

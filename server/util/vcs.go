@@ -10,6 +10,7 @@ import (
 	"time"
 )
 
+// Change Структура изменения формулы (для системы контроля версий)
 type Change struct {
 	Type    string `json:"type"`    // Тип изменения: "insert", "delete", "equal"
 	Content string `json:"content"` // Содержимое изменения
@@ -17,16 +18,19 @@ type Change struct {
 	End     int    `json:"end"`     // Конечная позиция (только для insert/delete)
 }
 
+// GenerateHash Генерация хэш суммы строки
 func GenerateHash(content string) string {
 	hash := sha256.Sum256([]byte(content))
 	return hex.EncodeToString(hash[:])
 }
 
+// GenerateName Генерация случайной строки
 func GenerateName() string {
 	rand.Seed(time.Now().UnixNano())
 	return fmt.Sprintf("%x", rand.Int63())
 }
 
+// CompareStrings вычисление разницы между двумя строками
 func CompareStrings(oldContent, newContent string) (string, error) {
 	dmp := diffmatchpatch.New()
 	diffs := dmp.DiffMain(oldContent, newContent, false)

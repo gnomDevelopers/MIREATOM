@@ -3,6 +3,7 @@ package handler
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"net/http"
 	"os"
@@ -355,8 +356,7 @@ func (h *Handler) FormulaRecognize(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "failed to save file"})
 	}
 
-	payload := map[string]string{
-		"type":    "1",
+	payload := map[string]interface{}{
 		"content": savePath,
 	}
 
@@ -368,7 +368,8 @@ func (h *Handler) FormulaRecognize(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "failed to prepare request payload"})
 	}
 
-	resp, err := http.Post(config.LlamaAPI, "application/json", bytes.NewBuffer(payloadBytes))
+	respURL := fmt.Sprintf("%s/image/process", config.LlamaAPI)
+	resp, err := http.Post(respURL, "application/json", bytes.NewBuffer(payloadBytes))
 	if err != nil {
 		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
 			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
@@ -399,3 +400,7 @@ func (h *Handler) FormulaRecognize(c *fiber.Ctx) error {
 	logEvent.Msg("success")
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"formula": apiResponse.Formula})
 }
+
+//func FormulaAnalysis(c *fiber.Ctx) error {
+//
+//}

@@ -10,7 +10,7 @@ type ErrorResponse struct {
 	Error string `json:"error"`
 }
 
-// Id Структура для ответов с ud
+// Id Структура для ответов с id
 type Id struct {
 	Id int `json:"id"`
 }

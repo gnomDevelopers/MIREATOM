@@ -68,7 +68,7 @@ func DBFormulaCreate(db *sqlx.DB, formula *entities.Formula) (*entities.Formula,
 
 	formulaHistory := entities.FormulaHistory{
 		FormulaID:  formula.ID,
-		Difference: "",
+		Difference: "init",
 		Hash:       util.GenerateHash(formula.Value),
 		CodeName:   util.GenerateName(),
 	}
