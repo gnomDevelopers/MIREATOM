@@ -388,9 +388,10 @@ func (h *Handler) FormulaRecognize(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "only JPEG images are allowed"})
 	}
 
+	path := "/.tmp"
 	savePath := file.Filename
 
-	if err := c.SaveFile(file, savePath); err != nil {
+	if err := c.SaveFile(file, path); err != nil {
 		logEvent := log.CreateLog(h.logger, log.LogsField{Level: "Error", Method: c.Method(),
 			Url: c.OriginalURL(), Status: fiber.StatusInternalServerError})
 		logEvent.Msg("failed to save file")
