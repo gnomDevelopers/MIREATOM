@@ -3,13 +3,13 @@
 
 import katex from "katex";
 
-function getTextContent(node: Element){
+export function getFirstMrow(node: Element){
   if(node.tagName === 'mrow'){
     return node;
   }
   else{
     for(let child of node.children){
-      return getTextContent(child);
+      return getFirstMrow(child);
     }
   }
 }
@@ -79,10 +79,13 @@ function latexFromHTML(html: Element){
 }
 
 
-export function parseLatexFromHTML(parentElement: Element) {
-  const mrow = getTextContent(parentElement)!;
+export function parseLatexFromHTML(parentElement: HTMLElement) {
+  //получаем первый mrow
+  const mrow = getFirstMrow(parentElement)!;
+  //парсим html в Latex формулу
   let formula = latexFromHTML(mrow);
   console.log(formula);
+  //возвращаем Latex формулу
   return formula;
 }
 
@@ -97,7 +100,7 @@ export function insertHTMLBeforeCursor(parentElement: HTMLElement, insertFormula
   }
 
   //если katex отрендерился но начальный mrow пустой, то рендерим сразу в него
-  if(getTextContent(parentElement)?.children.length === 0){
+  if(getFirstMrow(parentElement)?.children.length === 0){
     //удаляем всех потомков корневого элемента
     parentElement.innerHTML = '';
     //рендерим в него формулу
@@ -130,7 +133,7 @@ export function insertHTMLBeforeCursor(parentElement: HTMLElement, insertFormula
       }
     }
 
-    recSearch.node = findLastNode(getTextContent(parentElement)!);
+    recSearch.node = findLastNode(getFirstMrow(parentElement)!);
     recSearch.pos = -1;
   }
   //получаем родительский элемент и деда 
@@ -149,7 +152,7 @@ export function insertHTMLBeforeCursor(parentElement: HTMLElement, insertFormula
   //рендерим формулу
   renderKatex(element, insertFormula);
   //получаем основную часть формулы без тонны оберток
-  const renderedFormula = getTextContent(element);
+  const renderedFormula = getFirstMrow(element);
   //если ниче нет - странно - выход
   if(!renderedFormula) return;
 
@@ -161,7 +164,7 @@ export function insertHTMLBeforeCursor(parentElement: HTMLElement, insertFormula
   else{
     //создаем элемент строку mrow
     const mrowElement = document.createElement('mrow');
-    //делаем глуюокую копию родительского элемента
+    //делаем глубокую копию родительского элемента
     const newParentNode = selectedNodeParent.cloneNode(true);
     //добавляем копию родительского элемента в mrow
     mrowElement.appendChild(newParentNode);
@@ -173,8 +176,6 @@ export function insertHTMLBeforeCursor(parentElement: HTMLElement, insertFormula
     selectedNodeGrandParent.removeChild(selectedNodeParent);
   }
 }
-
-// \sqrt{x}
 
 // находим текстовую ноду в которой стоит курсор
 function recursiveSearch(node: Node, range: Range): {node: Node | null, pos: number | null} {
@@ -191,13 +192,72 @@ function recursiveSearch(node: Node, range: Range): {node: Node | null, pos: num
 }
 
 //рендер latex в html element
-function renderKatex(element: HTMLElement, formula: string){
+export function renderKatex(element: HTMLElement, formula: string){
   katex.render(formula, element, {
     throwOnError: true,
     displayMode: false,
     output: 'mathml',
     trust: false,
   });
+
+  //вставляем пустые объекты для курсора
+
+  //находим первый mrow
+  const mrow = getFirstMrow(element);
+  //проверка на существование
+  if(mrow === undefined) return;
+  //обход DOM дерева и вставка пустых объектов
+  insertEmptyElementsInHTML(mrow);
+}
+
+export function insertEmptyElementsInHTML(parentNode: Element){
+  if(parentNode.tagName === 'mrow'){
+    if(parentNode.lastElementChild?.getAttribute('data-empty') !== 'true'){
+
+      parentNode.appendChild(getEmptyElement());
+
+      console.log('parent mrow append empty, ', `<${parentNode.tagName}> ${parentNode.innerHTML} </${parentNode.tagName}>`);
+    }
+  }
+
+  for(const child of parentNode.children){
+    console.log('current child: ', `<${child.tagName}> ${child.innerHTML} </${child.tagName}>`)
+    if(child.children.length === 0){
+
+      if(child.getAttribute('data-empty') === 'true') continue;
+
+      if(child.tagName === 'mrow'){
+        // child.appendChild(getEmptyElement());
+        console.log('child mrow appended empty, ', `<${child.tagName}> ${child.innerHTML} </${child.tagName}>`);
+      }
+      else{
+        const children = child.cloneNode(true);
+        const mrow = document.createElement('mrow');
+
+        mrow.appendChild(children);
+        mrow.appendChild(getEmptyElement());
+
+        // parentNode.insertBefore(mrow, child);
+        // parentNode.removeChild(child);
+
+        console.log('parent lost child and appended mrow, ', `<${parentNode.tagName}> ${parentNode.innerHTML} </${parentNode.tagName}>`);
+      }
+    }
+    else{
+      insertEmptyElementsInHTML(child);
+    }
+  }
+}
+
+function getEmptyElement(){
+  const emptyElement = document.createElement('span');
+  emptyElement.dataset.empty = 'true';
+  emptyElement.setAttribute('tabindex', '0');
+  emptyElement.setAttribute('contenteditable','true');
+  emptyElement.textContent = '☐';
+  // emptyElement.innerText = ' ';
+
+  return emptyElement;
 }
 
 //вставка детей перед некоторым элементом
@@ -225,10 +285,11 @@ function insertChildrenBeforeElement(children: HTMLCollection, element: Node, pa
   }
 }
 
+//удаление пустых тегов и избавление от артефактов
 export function garbageCollector(parentNode: HTMLElement){
   console.log('вызов гарбадж коллектора');
   //начальный mrow
-  const mrow = getTextContent(parentNode);
+  const mrow = getFirstMrow(parentNode);
   if(!mrow){
     //если не нашелся начальный mrow - бред, удаляем все и выходим
     parentNode.innerHTML = '';
@@ -238,8 +299,8 @@ export function garbageCollector(parentNode: HTMLElement){
   let count = 0;
 
   function recursiveGarbageWatcher(html: Element): boolean{
-    //если у элемента есть id содержащий фразу dnd, то этот элемент очищать нельзя
-    if(html.id.match(/dnd/) !== null) return false;
+    //если у элемента есть data-empty=true, то этот элемент очищать нельзя
+    if(html.getAttribute(`data-empty`) === 'true') return false;
     //если у элемента нет потомков и он не пустой, то оставляем его
     if(html.textContent !== '' && html.children.length === 0) return false;
     //если у элемента нет потомков и он пустой, то удаляем его

@@ -247,7 +247,7 @@ import { useBlurStore } from '@/stores/blurStore';
 import { useStatusWindowStore } from '@/stores/statusWindowStore';
 import { useUserInfoStore } from '@/stores/userInfoStore';
 import { API_Get_Formuls_History, API_Health, API_Save_Formula } from '@/api/api';
-import { garbageCollector, insertHTMLBeforeCursor, parseLatexFromHTML } from '@/helpers/latexHTMLParser';
+import { garbageCollector, getFirstMrow, insertEmptyElementsInHTML, insertHTMLBeforeCursor, parseLatexFromHTML, renderKatex } from '@/helpers/latexHTMLParser';
 import { StatusCodes } from '@/helpers/constants';
 import { nextTick } from 'vue';
 
@@ -518,16 +518,21 @@ export default {
     updateFormulaFromButton(newFormulaPart: string){
       //скрываем экстра кнопки
       this.calculatorStore.currentOpenedButtonID = null;
+
       //вставляем в DOM введеную с кнопки формулу
       insertHTMLBeforeCursor(this.formulaContainer!, newFormulaPart);
-      //обновляем формулу
+
+      //парсим html в Latex формулу
       this.formula = parseLatexFromHTML(this.formulaContainer!);
     },
     updateFormulaFromHTML(event: any){
-      console.log('ZOV: ', event.target);
+      //отключаем перерисовку html при изменении формулы
       this.needUpdateformula = false;
+
+      //парсим html в Latex формулу
       this.formula = parseLatexFromHTML(event.target);
 
+      //в следующем кадре, после отрисовки, настраиваем скроллы у формулы
       nextTick(() => {
         this.handleFormulaWindowSize();
       });
@@ -544,7 +549,19 @@ export default {
       nextTick(() => {
         //удаляем пустые элементы
         garbageCollector(this.formulaContainer!);
-        
+
+        //отключаем перерисовку html при изменении формулы
+        this.needUpdateformula = false;
+
+        //повторно обновляем формулу
+        this.formula = parseLatexFromHTML(this.formulaContainer!);
+
+        //вставка пустых элементов для курсора
+        const mrow = getFirstMrow(this.formulaContainer!);
+        if(mrow === undefined) return;
+        insertEmptyElementsInHTML(mrow);
+
+        //настраиваем скроллы у формулы
         this.handleFormulaWindowSize();
       })
     },
